@@ -16,10 +16,11 @@ module uvic_eco
    use fabm_types
    use fabm_expressions
 
-
+   !use uvic_icealgae
+  ! use gotm_fabm
 
    !jpnote might need more use statements? 
-   use uvic_icealgae
+   !use uvic_icealgae !???
 
    implicit none
 
@@ -36,12 +37,15 @@ module uvic_eco
       type (type_dependency_id) :: id_temp,id_par
 ! Declare horizontal environmental variables
       type (type_horizontal_dependency_id) :: id_ia,id_fmelt,id_fpond,id_fpondno3,id_fpondnh4,id_fpondsil,id_fmort,id_fmort2,id_fskelno3,id_fskelnh4,id_fskelsil
-! Declare namelist parameters
+! Declare namelist parameters jpnote: yaml paramteters 
       real(rk) :: ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
+      !params from icealgae jpnote 
+      real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
 ! Declare anything else used in all procedures
       real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd)
-      real(rk) :: zia,ac_ia
-      character(64),dimension(12) :: models
+      !real(rk) :: zia,ac_ia
+      logical :: use_icealgae
+      !character(64),dimension(12) :: models jpnote not needed
 
       contains
 
@@ -55,11 +59,13 @@ module uvic_eco
 
    subroutine initialize(self,configunit)
    class (type_uvic_eco), intent(inout), target :: self
+  ! class (type_uvic_icealgae), intent(inout), target :: selfi
    integer, intent(in)                          :: configunit
 ! Declare namelist parameters
    real(rk) :: ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
    real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
-   character(64),dimension(12) :: models
+   logical :: use_icealgae
+   !character(64),dimension(12) :: models !jpnote not needed 
 
 !jpnote: not namelist --> bringing in from fabm.yaml .. 
 !---------------------------
@@ -68,10 +74,10 @@ module uvic_eco
   ! call self%get_parameter(wdz,'wdz','m/d','Detritus sinking velocity', default=4.5_rk)
 !eg. s
 !fabm.nml 
+   !call self%get_parameter(self%models,'models','','model select')
+   call self%get_parameter(self%use_icealgae, 'use_icealgae', 'use the icealgae model', default=.false.)
    !uvic_eco
    call self%get_parameter(self%ac,'ac','m-1','light attenuation coefficient', default=0.03_rk)
-   !print *, 'ac', self%ac
-
    call self%get_parameter(self%f_seed, 'f_seed','-', 'fraction of ice algal fux as ph2 seeding', default=0.0_rk)
    call self%get_parameter(self%ph1_0, 'ph1_0','umol/L','ph1 initial value', default=1.0_rk )
    call self%get_parameter(self%ph2_0 , 'ph2_0 ','umol/L', 'ph2 initial value', default=0.5_rk)
@@ -123,38 +129,37 @@ module uvic_eco
    call self%get_parameter(self%rsin, 'rsin','mol-Si/mol-N', 'ph2 Si:N ratio', default=2.0_rk)
    call self%get_parameter(self%ks, 'ks','umol/L', 'si half saturation constant', default=2.0_rk)
    call self%get_parameter(self%pmin, 'pmin','umol-N/L', 'background plankton concentration', default=0.01_rk)
-
-
-   !read in vals from ice algae yaml
-   !call self%get_parameter(self%r_pond, 'r_pond', 'melt pond drainage rate','', default=0.0175_rk)
-   !call self%get_parameter(self%fmethod, 'fmethod ', 'method for ice-ocean flux','', default=0.0_rk)
-   !call self%get_parameter(self%fflush , 'fflush ','', 'method for flushing', default=0.0_rk)
-   !call self%get_parameter(self%drag , 'drag ','-', 'drag coefficient at the ice-water interface ', default=0.005_rk)
-   !call self%get_parameter(self%f_graze, 'f_graze','-', 'fraction of ice algal growth lost due to grazing ', default=0.1_rk)
-   !call self%get_parameter(self%zia, 'zia','m', 'ice algal layer thickness ', default=0.03_rk)
-   !call self%get_parameter(self%ac_ia, 'ac_ia','', 'specific light attenuation coefficient for ice algae', default=0.03_rk)
-   !call self%get_parameter(self%rnit , 'rnit ','per day', 'nitrification rate ', default=0.1_rk)
-   !call self%get_parameter(self%ia_0 , 'ia_0 ','mmol-N/m3', 'ia initial value ', default=0.16_rk)
-   !call self%get_parameter(self%ia_b , 'ia_b ','mmol-N/m3',  'ia background value ',default=0.01_rk)
-   !call self%get_parameter(self%skno3_0, 'skno3_0','mmol/m3', 'no3 initial value ', default=2.0_rk)
-   !call self%get_parameter(self%sknh4_0, 'sknh4_0','mmol/m3', 'nh4 initial value ', default=0.01_rk)
-   !call self%get_parameter(self%sksil_0, 'sksil_0','mmol/m3', 'sil initial value ', default=5.0_rk)
-   !call self%get_parameter(self%ks_no3, 'ks_no3','mmol/m3', 'no3 half-saturation value ',default=1.0_rk)
-   !call self%get_parameter(self%ks_sil, 'ks_sil','mmol/m3', 'sil half-saturation value ', default=4.0_rk)
-   !call self%get_parameter(self%maxg, 'maxg','d-1', 'maximum specific growth rate ', default=0.8511_rk)
-  ! call self%get_parameter(self%mort , 'mort ','d-1', 'linear mortality rate', default=0.05_rk)
-  ! call self%get_parameter(self%mort2, 'mort2','d-1',  'quadratic mortality rate ',default=0.05_rk)
-  ! call self%get_parameter(self%crit_melt, 'crit_melt','m d-1', 'critical melt rate [m d-1]', default=0.015_rk)
-  ! call self%get_parameter(self%lcompp, 'lcompp','umol m-2 s-1', '# compensation intensity ', default=0.4_rk)
-  ! call self%get_parameter(self%rpp , 'rpp ','[W m-2]-1', 'ratio of photosynthetic parameters (alpha and pbm) [W m-2]-1', default=0.1_rk)
-   !!call self%get_parameter(self%rpi , 'rpi ', 'ratio of photoinhibition parameters (beta and pbm)', default=0)
-   !call self%get_parameter(self%t_sens , 't_sens ','deg.C-1', 'temperature sensitivity ', default=0.0633_rk)
-   !call self%get_parameter(self%nu , 'nu ','', 'kinematic viscosity?', default=1.86e-6_rk)
-   !call self%get_parameter(self%md_no3, 'md_no3','', 'molecular diffusion coefficient for nitrate', default=0.47e-9_rk)
-   !call self%get_parameter(self%md_sil , 'md_sil ','', 'molecular diffusion coefficient for dissolved silica', default=0.47e-9_rk)
-   !call self%get_parameter(self%chl2n , 'chl2n ','', 'chl to nitrogen ratio', default=2.8_rk)
-   !call self%get_parameter(self%sil2n , 'sil2n ','', 'silicon to nitrogen ratio', default=1.7_rk)
-
+   
+   if (use_icealgae) then !read in icealgae model vars 
+   call self%get_parameter(self%r_pond, 'r_pond','', 'melt pond drainage rate', default=0.0175_rk)
+   call self%get_parameter(self%fmethod, 'fmethod','', 'method for ice-ocean flux', default=0.0_rk)
+   call self%get_parameter(self%fflush , 'fflush','', 'method for flushing', default=0.0_rk)
+   call self%get_parameter(self%drag , 'drag','-', 'drag coefficient at the ice-water interface', default=0.005_rk)
+   call self%get_parameter(self%f_graze, 'f_graze','-', 'fraction of ice algal growth lost due to grazing', default=0.1_rk)
+   call self%get_parameter(self%zia, 'zia','m', 'ice algal layer thickness', default=0.03_rk) ! zia = 0.03_rk
+   call self%get_parameter(self%ac_ia, 'ac_ia','', 'specific light attenuation coefficient for ice algae', default=0.007_rk) !ac_ia = 0.007_rk
+   call self%get_parameter(self%rnit , 'rnit','per day', 'nitrification rate', default=0.1_rk)
+   call self%get_parameter(self%ia_0 , 'ia_0','mmol-N/m3', 'ia initial value', default=0.16_rk)
+   call self%get_parameter(self%ia_b , 'ia_b','mmol-N/m3',  'ia background value',default=0.01_rk)
+   call self%get_parameter(self%skno3_0, 'skno3_0','mmol/m3', 'no3 initial value', default=2.0_rk)
+   call self%get_parameter(self%sknh4_0, 'sknh4_0','mmol/m3', 'nh4 initial value', default=0.01_rk)
+   call self%get_parameter(self%sksil_0, 'sksil_0','mmol/m3', 'sil initial value', default=5.0_rk)
+   call self%get_parameter(self%ks_no3, 'ks_no3','mmol/m3', 'no3 half-saturation value',default=1.0_rk)
+   call self%get_parameter(self%ks_sil, 'ks_sil','mmol/m3', 'sil half-saturation value', default=4.0_rk)
+   call self%get_parameter(self%maxg, 'maxg','d-1', 'maximum specific growth rate', default=0.8511_rk)
+   call self%get_parameter(self%mort , 'mort','d-1', 'linear mortality rate', default=0.05_rk)
+   call self%get_parameter(self%mort2, 'mort2','d-1',  'quadratic mortality rate ',default=0.05_rk)
+   call self%get_parameter(self%crit_melt, 'crit_melt','m d-1', 'critical melt rate [m d-1]', default=0.015_rk)
+   call self%get_parameter(self%lcompp, 'lcompp','umol m-2 s-1', '# compensation intensity', default=0.4_rk)
+   call self%get_parameter(self%rpp, 'rpp','[W m-2]-1', 'ratio of photosynthetic parameters (alpha and pbm) [W m-2]-1', default=0.1_rk)
+   call self%get_parameter(self%rpi, 'rpi','', 'ratio of photoinhibition parameters (beta and pbm)', default=0.0_rk)
+   call self%get_parameter(self%t_sens , 't_sens','deg.C-1', 'temperature sensitivity', default=0.0633_rk)
+   call self%get_parameter(self%nu , 'nu','', 'kinematic viscosity?', default=1.86e-6_rk)
+   call self%get_parameter(self%md_no3, 'md_no3','', 'molecular diffusion coefficient for nitrate', default=0.47e-9_rk)
+   call self%get_parameter(self%md_sil , 'md_sil','', 'molecular diffusion coefficient for dissolved silica', default=0.47e-9_rk)
+   call self%get_parameter(self%chl2n , 'chl2n','', 'chl to nitrogen ratio', default=2.8_rk)
+   call self%get_parameter(self%sil2n , 'sil2n','', 'silicon to nitrogen ratio', default=1.7_rk)
+   endif
 
 !--------------------------------
 #if 0
@@ -218,12 +223,14 @@ module uvic_eco
    read(configunit,fabm_nml)
    self%models = models
    if(any(self%models.eq.'uvic_icealgae'))then
-    zia = 0.03_rk
+    zia = 0.03_rk          !jpnote changed default to these 
     ac_ia = 0.007_rk
     read(configunit,uvic_icealgae)
     self%zia = zia
-    self%ac_ia = ac_ia
+    self%ac_ia = ac_ia   !jpnote ??? need to make sure these are read in and registered 
    endif
+  
+  
    close(configunit)
    open(configunit,file='fabm.nml')
 
@@ -267,7 +274,10 @@ module uvic_eco
    self%rsin= rsin
    self%ks  = ks
    self%pmin= pmin
-
+if (use_icealgae) then
+   self%zia = zia
+   self%ac_ia = ac_ia 
+end if 
 ! Register prognostic variables
       call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',initial_value=ph1_0,minimum=0.0_rk)
       call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=ph2_0,minimum=0.0_rk)
@@ -320,10 +330,10 @@ module uvic_eco
       call self%register_diagnostic_variable(self%id_f1f,'f1f','-','Iron limitation term for ph1 growth')
       call self%register_diagnostic_variable(self%id_f2f,'f2f','-','Iron limitation term for ph2 growth')
       call self%register_diagnostic_variable(self%id_par_diag,'PAR','W/m2','Photosynthetically Available Radiation')
-      call self%register_horizontal_diagnostic_variable(self%id_stemp,'stemp','degC','Temperature in the top layer')
-      call self%register_horizontal_diagnostic_variable(self%id_fialde2,'fialde2','mmol m-2 d-1','ial --> de2 (ice algal flux)')
-      call self%register_horizontal_diagnostic_variable(self%id_fialbsi,'fialbsi','mmol m-2 d-1','ial --> bsi (ice algal flux)')
-      call self%register_horizontal_diagnostic_variable(self%id_fialph2,'fialph2','mmol m-2 d-1','ial --> ph2 (ice algal flux)')
+      call self%register_horizontal_diagnostic_variable(self%id_stemp,'stemp','degC','Temperature in the top layer',source=source_do_horizontal)
+      call self%register_horizontal_diagnostic_variable(self%id_fialde2,'fialde2','mmol m-2 d-1','ial --> de2 (ice algal flux)',source=source_do_horizontal)
+      call self%register_horizontal_diagnostic_variable(self%id_fialbsi,'fialbsi','mmol m-2 d-1','ial --> bsi (ice algal flux)',source=source_do_horizontal)
+      call self%register_horizontal_diagnostic_variable(self%id_fialph2,'fialph2','mmol m-2 d-1','ial --> ph2 (ice algal flux)',source=source_do_horizontal)
 ! Register environmental variables
       call self%register_dependency(self%id_temp,  standard_variables%temperature)
       call self%register_dependency(self%id_par,  standard_variables%downwelling_photosynthetic_radiative_flux)
@@ -331,7 +341,8 @@ module uvic_eco
 ! Register horizontal environmental variables
       !jpnote get rid of if 0 when put icealgae model in 
 
-      if(any(models.eq.'uvic_icealgae'))then
+      !if(any(models.eq.'uvic_icealgae'))then jpnote changed to 
+      if (use_icealgae) then 
        call self%register_dependency(self%id_ia,'uvic_icealgae_ia','','')
        call self%register_dependency(self%id_fmelt,'uvic_icealgae_fmelt','','')
        call self%register_dependency(self%id_fpond,'uvic_icealgae_fpond','','')
@@ -372,6 +383,8 @@ module uvic_eco
 ! Declare anything else used in this subroutine
    real(rk) :: pht,nut,texp,mu1q,mu2q,mp1q,mp2q,gz1q,mz1q,mz2q,gz2q,rd1q,rd2q,rd3q,food1,food2,graz1,graz2,lf1,lf2,nf,sf,lim1,lim2,ppt,rpi
 
+   logical :: use_icealgae !jpnote 
+
    _LOOP_BEGIN_
 
 ! Retrieve prognostic variables
@@ -388,7 +401,8 @@ module uvic_eco
 ! Retrieve environmental variables
    _GET_(self%id_temp,temp)
    _GET_(self%id_par,par)
-   if(any(self%models.eq.'uvic_icealgae'))then
+  ! if(any(self%models.eq.'uvic_icealgae'))then jpnote changed to 
+   if(use_icealgae) then 
     _GET_HORIZONTAL_(self%id_ia,ia)
     par = par * exp(-self%ac_ia*ia*self%zia)
    endif
@@ -533,10 +547,13 @@ module uvic_eco
    _DECLARE_ARGUMENTS_DO_SURFACE_
    real(rk) :: fialde2,fialbsi,fialph2,stemp,fmelt,fpond,fpondno3,fpondnh4,fpondsil,fmort,fmort2,fskelno3,fskelnh4,fskelsil
 
+   logical :: use_icealgae  !jpnote 
+
    _HORIZONTAL_LOOP_BEGIN_
    _GET_(self%id_temp,stemp)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_stemp,stemp)
-   if(any(self%models.eq.'uvic_icealgae'))then
+  ! if(any(self%models.eq.'uvic_icealgae'))then   jpnote : changed to 
+   if(use_icealgae) then 
     _GET_HORIZONTAL_(self%id_fmelt,fmelt)
     _GET_HORIZONTAL_(self%id_fmort,fmort)
     _GET_HORIZONTAL_(self%id_fmort2,fmort2)
