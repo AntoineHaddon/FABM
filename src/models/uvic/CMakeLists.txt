@@ -2,6 +2,7 @@ add_library(fabm_models_uvic OBJECT
             uvic_model_library.F90
             eco.F90
             icealgae.F90
+            original_dic.F90
            )
 
 add_dependencies(fabm_models_uvic fabm_base)

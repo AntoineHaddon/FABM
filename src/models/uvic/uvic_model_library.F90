@@ -12,6 +12,9 @@ module uvic_model_library
     use fabm_types, only: type_base_model_factory, type_base_model
     
     use uvic_eco
+    use uvic_icealgae
+    use uvic_dic
+    !jpnote: use statemnt for other models here 
 
     implicit none
 
@@ -38,9 +41,10 @@ contains
 
         select case (name)
             case ('uvic_eco'); allocate(type_uvic_eco::model)  
+            case ('uvic_icealgae'); allocate(type_uvic_icealgae::model)
            ! case ('uvic_dms');                  allocate(type_uvic_dms::model)
-            !case ('uvic_icealgae');                  allocate(type_uvic_icealgae::model)
-            !case ('uvic_dic');                  allocate(type_uvic_dic::model)
+            
+            case ('uvic_dic');allocate(type_uvic_dic::model)
             !case ('uvic_icedms');                  allocate(type_uvic_icedms::model)
             !case ('uvic_npzd_papa');                  allocate(type_uvic_npzd_papa::model)
             case default

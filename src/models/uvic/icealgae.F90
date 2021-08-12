@@ -189,14 +189,14 @@ contains
 
      ! call self%register_dependency jpnote global_dependency? 
 
-     ! call self%register_dependency(self%id_ph2,'uvic_eco_ph2')
-     ! call self%register_dependency(self%id_no3SW,'uvic_eco_no3')
-     ! call self%register_dependency(self%id_nh4SW,'uvic_eco_nh4')
-     ! call self%register_dependency(self%id_silSW,'uvic_eco_sil')
-     ! call self%request_coupling(self%id_ph2,'uvic_eco_ph2')
-     ! call self%request_coupling(self%id_no3SW,'uvic_eco_no3')
-     ! call self%request_coupling(self%id_nh4SW,'uvic_eco_nh4')
-     ! call self%request_coupling(self%id_silSW,'uvic_eco_sil')
+      call self%register_dependency(self%id_ph2,'uvic_eco_ph2','','')
+      call self%register_dependency(self%id_no3SW,'uvic_eco_no3','','')
+      call self%register_dependency(self%id_nh4SW,'uvic_eco_nh4','','')
+      call self%register_dependency(self%id_silSW,'uvic_eco_sil','','')
+      call self%request_coupling(self%id_ph2,'uvic_eco_ph2')
+      call self%request_coupling(self%id_no3SW,'uvic_eco_no3')
+      call self%request_coupling(self%id_nh4SW,'uvic_eco_nh4')
+      call self%request_coupling(self%id_silSW,'uvic_eco_sil')
 
    end subroutine initialize
 
