@@ -16,11 +16,7 @@ module uvic_eco
    use fabm_types
    use fabm_expressions
 
-   !use uvic_icealgae
-  ! use gotm_fabm
-
-   !jpnote might need more use statements? 
-   !use uvic_icealgae !???
+  
 
    implicit none
 
@@ -44,7 +40,7 @@ module uvic_eco
 ! Declare anything else used in all procedures
       real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd)
       !real(rk) :: zia,ac_ia
-      logical :: use_icealgae
+      logical :: use_icealgae = .true.
       !character(64),dimension(12) :: models jpnote not needed
 
       contains
@@ -59,12 +55,11 @@ module uvic_eco
 
    subroutine initialize(self,configunit)
    class (type_uvic_eco), intent(inout), target :: self
-  ! class (type_uvic_icealgae), intent(inout), target :: selfi
    integer, intent(in)                          :: configunit
 ! Declare namelist parameters
    real(rk) :: ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
    real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
-   logical :: use_icealgae
+   logical :: use_icealgae 
    !character(64),dimension(12) :: models !jpnote not needed 
 
 !jpnote: not namelist --> bringing in from fabm.yaml .. 
@@ -75,7 +70,7 @@ module uvic_eco
 !eg. s
 !fabm.nml 
    !call self%get_parameter(self%models,'models','','model select')
-   !call self%get_parameter(self%use_icealgae,'', 'use_icealgae', 'use the icealgae model', default=.false.)
+   !call self%get_parameter(self%use_icealgae,'use_icealgae', 'use the icealgae model', default=.false.)
    !uvic_eco
    call self%get_parameter(self%ac,'ac','m-1','light attenuation coefficient', default=0.03_rk)
    call self%get_parameter(self%f_seed, 'f_seed','-', 'fraction of ice algal fux as ph2 seeding', default=0.0_rk)
@@ -129,8 +124,10 @@ module uvic_eco
    call self%get_parameter(self%rsin, 'rsin','mol-Si/mol-N', 'ph2 Si:N ratio', default=2.0_rk)
    call self%get_parameter(self%ks, 'ks','umol/L', 'si half saturation constant', default=2.0_rk)
    call self%get_parameter(self%pmin, 'pmin','umol-N/L', 'background plankton concentration', default=0.01_rk)
+
+   !call self%get_parameter(self%r_pond, 'r_pond','', 'melt pond drainage rate', default=0.0175_rk)
    
-   if (use_icealgae) then
+   !if (use_icealgae) then
    call self%get_parameter(self%r_pond, 'r_pond','', 'melt pond drainage rate', default=0.0175_rk)
    call self%get_parameter(self%fmethod, 'fmethod','', 'method for ice-ocean flux', default=0.0_rk)
    call self%get_parameter(self%fflush , 'fflush','', 'method for flushing', default=0.0_rk)
@@ -152,14 +149,14 @@ module uvic_eco
    call self%get_parameter(self%crit_melt, 'crit_melt','m d-1', 'critical melt rate [m d-1]', default=0.015_rk)
    call self%get_parameter(self%lcompp, 'lcompp','umol m-2 s-1', '# compensation intensity', default=0.4_rk)
    call self%get_parameter(self%rpp , 'rpp','[W m-2]-1', 'ratio of photosynthetic parameters (alpha and pbm) [W m-2]-1', default=0.1_rk)
-   call self%get_parameter(self%rpi , 'rpi','', 'ratio of photoinhibition parameters (beta and pbm)', default=0)
+   call self%get_parameter(self%rpi,'rpi','','ratio of photoinhibition parameters (beta and pbm)', default=0.0_rk)
    call self%get_parameter(self%t_sens , 't_sens','deg.C-1', 'temperature sensitivity', default=0.0633_rk)
    call self%get_parameter(self%nu , 'nu','', 'kinematic viscosity?', default=1.86e-6_rk)
    call self%get_parameter(self%md_no3, 'md_no3','', 'molecular diffusion coefficient for nitrate', default=0.47e-9_rk)
    call self%get_parameter(self%md_sil , 'md_sil','', 'molecular diffusion coefficient for dissolved silica', default=0.47e-9_rk)
    call self%get_parameter(self%chl2n , 'chl2n','', 'chl to nitrogen ratio', default=2.8_rk)
    call self%get_parameter(self%sil2n , 'sil2n','', 'silicon to nitrogen ratio', default=1.7_rk)
-   endif
+  ! endif
 
 !--------------------------------
 #if 0
@@ -383,6 +380,8 @@ end if
 ! Declare anything else used in this subroutine
    real(rk) :: pht,nut,texp,mu1q,mu2q,mp1q,mp2q,gz1q,mz1q,mz2q,gz2q,rd1q,rd2q,rd3q,food1,food2,graz1,graz2,lf1,lf2,nf,sf,lim1,lim2,ppt,rpi
 
+   logical :: use_icealgae = .true.!jpnote 
+
    _LOOP_BEGIN_
 
 ! Retrieve prognostic variables
@@ -544,6 +543,8 @@ end if
 
    _DECLARE_ARGUMENTS_DO_SURFACE_
    real(rk) :: fialde2,fialbsi,fialph2,stemp,fmelt,fpond,fpondno3,fpondnh4,fpondsil,fmort,fmort2,fskelno3,fskelnh4,fskelsil
+
+   logical :: use_icealgae = .true.!jpnote 
 
    _HORIZONTAL_LOOP_BEGIN_
    _GET_(self%id_temp,stemp)
