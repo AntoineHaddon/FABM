@@ -379,7 +379,7 @@ end if
 ! Declare anything else used in this subroutine
    real(rk) :: pht,nut,texp,mu1q,mu2q,mp1q,mp2q,gz1q,mz1q,mz2q,gz2q,rd1q,rd2q,rd3q,food1,food2,graz1,graz2,lf1,lf2,nf,sf,lim1,lim2,ppt,rpi
 
-   !logical :: use_icealgae = .true.!jpnote 
+   logical :: use_icealgae = .true.!jpnote 
 
    _LOOP_BEGIN_
 
