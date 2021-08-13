@@ -52,8 +52,7 @@ interior:
     units: m
   - name: net_rate_of_absorption_of_shortwave_energy_in_layer
     units: W m-2
-    #jpnote adding 
-  - name: zonal_current
+  - name: zonal_current    #jpnote adding 
     units: m s-1
   - name: meridional_current
     units: m s-1
@@ -102,7 +101,6 @@ horizontal:  #jpnote added
     units: degree_north
   - name: longitude
     units: degree_east
-
   - name: sea_ice_temperature
     units: degree_Kelvin
   - name: sea_ice_thickness
@@ -131,12 +129,10 @@ horizontal:  #jpnote added
     units: degree_Kelvin
   - name: f_melt
     units: 1
-
 global:
   - name: number_of_days_since_start_of_the_year
     units: d
-
-  - name: timestep #jpnote added 
+  - name: timestep #jpnote added  ???maybe not needed 
     units: s
 universal:
   - name: total_carbon
