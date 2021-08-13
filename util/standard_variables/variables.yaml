@@ -52,7 +52,11 @@ interior:
     units: m
   - name: net_rate_of_absorption_of_shortwave_energy_in_layer
     units: W m-2
+<<<<<<< HEAD
   - name: zonal_current     #jpnote adding 
+=======
+  - name: zonal_current    #jpnote adding 
+>>>>>>> 80ae13f529fa21be1ce48073502971b05eb70672
     units: m s-1
   - name: meridional_current
     units: m s-1
@@ -132,7 +136,11 @@ horizontal:  #jpnote added
 global:
   - name: number_of_days_since_start_of_the_year
     units: d
+<<<<<<< HEAD
   - name: timestep #jpnote added 
+=======
+  - name: timestep #jpnote added  ???maybe not needed 
+>>>>>>> 80ae13f529fa21be1ce48073502971b05eb70672
     units: s
 universal:
   - name: total_carbon

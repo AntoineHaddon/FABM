@@ -1,9 +1,3 @@
-
-!#include "fabm_driver.h"
-
-!jpnote :: ??? based on other model_libraries that exist in other models 
-!
-
 ! !MODULE: FABM model library
 !
 ! !INTERFACE:
@@ -11,10 +5,6 @@ module uvic_model_library
 
     use fabm_types, only: type_base_model_factory, type_base_model
     
-    use uvic_eco
-    use uvic_icealgae
-    use uvic_dic
-    !jpnote: use statemnt for other models here 
 
     implicit none
 
@@ -33,6 +23,12 @@ contains
 
     subroutine create(self,name,model)
 
+        use uvic_eco
+        use uvic_icealgae
+        use uvic_dic
+        use uvic_npzd_resolute
+        !jpnote: use statemnt for other models here 
+
         !
         ! !INPUT PARAMETERS:
         class (type_factory),intent(in) :: self
@@ -46,7 +42,7 @@ contains
             
             case ('uvic_dic');allocate(type_uvic_dic::model)
             !case ('uvic_icedms');                  allocate(type_uvic_icedms::model)
-            !case ('uvic_npzd_papa');                  allocate(type_uvic_npzd_papa::model)
+            case ('uvic_npzd_resolute');                  allocate(type_uvic_npzd_resolute::model)
             case default
                 call self%type_base_model_factory%create(name,model)
         end select 

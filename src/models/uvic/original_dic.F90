@@ -164,7 +164,8 @@ contains
       call self%register_horizontal_diagnostic_variable(self%id_falk_ice,'falk_ice','[mmol-eq]/m**2/s','ice-growth/melt alk flux')
 
 ! Register environmental variables
-      call self%register_global_dependency(self%id_dt,standard_variables%timestep)
+
+      call self%register_global_dependency(self%id_dt,standard_variables%timestep) !jpnote
       call self%register_horizontal_dependency(self%id_Tatm,standard_variables%surface_temperature)
       call self%register_horizontal_dependency(self%id_Patm,standard_variables%surface_air_pressure)
       call self%register_horizontal_dependency(self%id_wind,standard_variables%wind_speed)

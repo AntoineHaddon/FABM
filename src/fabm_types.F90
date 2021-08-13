@@ -1806,8 +1806,18 @@ contains
          variable%name = name
       end if
 !jpnote commented to see what happens
+<<<<<<< HEAD
       if (present(write_index) .and. .not. present(source)) call self%fatal_error('add_variable', & 
          'Cannot register writable variable "' // trim(name) // '" because "source" argument is not provided.')
+=======
+<<<<<<< HEAD
+      if (present(write_index) .and. .not. present(source)) call self%fatal_error('add_variable', & 
+         'Cannot register writable variable "' // trim(name) // '" because "source" argument is not provided.')
+=======
+     ! if (present(write_index) .and. .not. present(source)) call self%fatal_error('add_variable', & 
+       !  'Cannot register writable variable "' // trim(name) // '" because "source" argument is not provided.')
+>>>>>>> 443f2ca4b8f8fc79eeb8b635126e30ca809b96dd
+>>>>>>> 80ae13f529fa21be1ce48073502971b05eb70672
 
       variable%owner => self
       if (present(units)) variable%units = units
