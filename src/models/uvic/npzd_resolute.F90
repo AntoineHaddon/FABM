@@ -34,6 +34,7 @@
       type (type_global_dependency_id)     :: id_day
       type (type_diagnostic_variable_id)   :: id_nut_ph1,id_ph1_zo1,id_ph1_nh4,id_nut_ph2,id_ph2_zo2,id_ph2_nh4,id_ph2_det,id_ph2_agg,id_fo1_zo1,id_zo1_zo2,id_zo1_nh4,id_no3_phy,id_nh4_no3,id_nh4_phy,id_det_nh4,id_zo2_nh4,id_fo1_det,id_det_zo1,id_ph2_psi,id_psi_sil,id_sil_ph2,id_lfe1,id_lfe2,id_llig,id_lnut,id_lsil
 !     Model parameters
+      real(rk) :: no3_0,de1_0,de2_0,bsi_0
       real(rk) :: fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
       real(rk) :: ph1_0,ph2_0,zo1_0,zo2_0,nh3_0,nh4_0,det_0,sil_0,psi_0,kc,alpha,num,kn,a,ks,lfe1,lfe2,mpa,mpd,beta,rm,rc,kp,kz,ga1,ga2,pd,mza,mca,wp2,wd,re,resi,q10p,q10z,q10b,rsin,nit0,knit
    contains
@@ -164,6 +165,19 @@
    call self%get_parameter(self%knit,'knit','degC-1','temperature sensivity for nitrification',default= 0.0693_rk)
 #endif
 !jpnote and the icealgae variables ..........
+
+!read in no3_0 from eco ;;
+   call self%get_parameter(self%ph1_0, 'ph1_0','umol/L','ph1 initial value', default=1.0_rk )
+   call self%get_parameter(self%ph2_0 , 'ph2_0 ','umol/L', 'ph2 initial value', default=0.5_rk)
+   call self%get_parameter(self%zo1_0, 'zo1_0','umol/L', 'zo1 initial value', default=0.2_rk)
+   call self%get_parameter(self%zo2_0, 'zo2_0','umol/L', 'zo2 initial value', default=0.1_rk)
+   call self%get_parameter(self%nh4_0, 'nh4_0','umol/L', 'nh4 initial value', default=10.0_rk)
+   call self%get_parameter(self%no3_0, 'no3_0','umol/L', 'no3 initial value', default=10.0_rk)
+   call self%get_parameter(self%de1_0, 'de1_0','umol/L','de1 initial value ', default=1.0_rk)
+   call self%get_parameter(self%de2_0, 'de2_0','umol/L', 'de2 initial value', default=1.0_rk)
+   call self%get_parameter(self%bsi_0, 'bsi_0','umol/L', 'bsi initial value', default=1.0_rk)
+   call self%get_parameter(self%sil_0 , 'sil_0 ','umol/L', 'sil initial value', default=5.0_rk)
+
    if (use_icealgae) then !read in icealgae model vars 
    !call self%get_parameter(self%r_pond, 'r_pond','', 'melt pond drainage rate', default=0.0175_rk)
    call self%get_parameter(self%fmethod, 'fmethod','', 'method for ice-ocean flux', default=0.0_rk)
