@@ -53,18 +53,6 @@ contains
       !read in vals from fabm.yaml 
 
    !branch => cfg%get_child('uvic_icealgae', 'University of Victoria Ice Algae model')
-<<<<<<< HEAD
-   call self%get_parameter(self%r_pond, 'r_pond','-', 'melt pond drainage rate', default=0.0175_rk)
-   call self%get_parameter(self%fmethod, 'fmethod','-', 'method for ice-ocean flux',default=0.0_rk)
-   call self%get_parameter(self%fflush, 'fflush','-', 'method for flushing', default=0.0_rk)
-   call self%get_parameter(self%drag, 'drag','-', 'drag coefficient at the ice-water interface ', default=0.005_rk)
-   call self%get_parameter(self%f_graze, 'f_graze','-', 'fraction of ice algal growth lost due to grazing ', default=0.1_rk)
-   call self%get_parameter(self%zia, 'zia','m', 'ice algal layer thickness ', default=0.03_rk)
-   call self%get_parameter(self%ac_ia, 'ac_ia','-', 'specific light attenuation coefficient for ice algae', default=0.03_rk)
-   call self%get_parameter(self%rnit, 'rnit','per day', 'nitrification rate ', default=0.1_rk)
-   call self%get_parameter(self%ia_0, 'ia_0','mmol-N/m3', 'ia initial value ', default=0.16_rk)
-   call self%get_parameter(self%ia_b, 'ia_b','mmol-N/m3',  'ia background value ',default=0.01_rk)
-=======
    call self%get_parameter(self%r_pond, 'r_pond', '-','melt pond drainage rate',default=0.0175_rk)
    call self%get_parameter(self%fmethod, 'fmethod','-', 'method for ice-ocean flux',default=0.0_rk)
    call self%get_parameter(self%fflush , 'fflush','-', 'method for flushing', default=0.0_rk)
@@ -75,27 +63,12 @@ contains
    call self%get_parameter(self%rnit , 'rnit','per day', 'nitrification rate ', default=0.1_rk)
    call self%get_parameter(self%ia_0 , 'ia_0','mmol-N/m3', 'ia initial value ', default=0.16_rk)
    call self%get_parameter(self%ia_b , 'ia_b','mmol-N/m3',  'ia background value ',default=0.01_rk)
->>>>>>> 80ae13f529fa21be1ce48073502971b05eb70672
    call self%get_parameter(self%skno3_0, 'skno3_0','mmol/m3', 'no3 initial value ', default=2.0_rk)
    call self%get_parameter(self%sknh4_0, 'sknh4_0','mmol/m3', 'nh4 initial value ', default=0.01_rk)
    call self%get_parameter(self%sksil_0, 'sksil_0','mmol/m3', 'sil initial value ', default=5.0_rk)
    call self%get_parameter(self%ks_no3, 'ks_no3','mmol/m3', 'no3 half-saturation value ',default=1.0_rk)
    call self%get_parameter(self%ks_sil, 'ks_sil','mmol/m3', 'sil half-saturation value ', default=4.0_rk)
    call self%get_parameter(self%maxg, 'maxg','d-1', 'maximum specific growth rate ', default=0.8511_rk)
-<<<<<<< HEAD
-   call self%get_parameter(self%mort, 'mort','d-1', 'linear mortality rate', default=0.05_rk)
-   call self%get_parameter(self%mort2, 'mort2','d-1',  'quadratic mortality rate ',default=0.05_rk)
-   call self%get_parameter(self%crit_melt, 'crit_melt','m d-1', 'critical melt rate [m d-1]', default=0.015_rk)
-   call self%get_parameter(self%lcompp, 'lcompp','umol m-2 s-1', '# compensation intensity ', default=0.4_rk)
-   call self%get_parameter(self%rpp, 'rpp','[W m-2]-1', 'ratio of photosynthetic parameters (alpha and pbm) [W m-2]-1', default=0.1_rk)
-   !call self%get_parameter(self%rpi , 'rpi ', 'ratio of photoinhibition parameters (beta and pbm)', default=0)
-   call self%get_parameter(self%t_sens, 't_sens','deg.C-1', 'temperature sensitivity ', default=0.0633_rk)
-   call self%get_parameter(self%nu, 'nu','-', 'kinematic viscosity?', default=1.86e-6_rk)
-   call self%get_parameter(self%md_no3, 'md_no3','-', 'molecular diffusion coefficient for nitrate', default=0.47e-9_rk)
-   call self%get_parameter(self%md_sil, 'md_sil','-', 'molecular diffusion coefficient for dissolved silica', default=0.47e-9_rk)
-   call self%get_parameter(self%chl2n, 'chl2n','-', 'chl to nitrogen ratio', default=2.8_rk)
-   call self%get_parameter(self%sil2n, 'sil2n','-', 'silicon to nitrogen ratio', default=1.7_rk)
-=======
    call self%get_parameter(self%mort , 'mort','d-1', 'linear mortality rate', default=0.05_rk)
    call self%get_parameter(self%mort2, 'mort2','d-1',  'quadratic mortality rate ',default=0.05_rk)
    call self%get_parameter(self%crit_melt, 'crit_melt','m d-1', 'critical melt rate [m d-1]', default=0.015_rk)
@@ -108,7 +81,6 @@ contains
    call self%get_parameter(self%md_sil , 'md_sil','-', 'molecular diffusion coefficient for dissolved silica', default=0.47e-9_rk)
    call self%get_parameter(self%chl2n , 'chl2n','-', 'chl to nitrogen ratio', default=2.8_rk)
    call self%get_parameter(self%sil2n , 'sil2n','-', 'silicon to nitrogen ratio', default=1.7_rk)
->>>>>>> 80ae13f529fa21be1ce48073502971b05eb70672
 
 #if 0
 !jpnote commented out 
@@ -203,12 +175,7 @@ contains
 ! Register environmental variables
      
 
-<<<<<<< HEAD
-   !error 
-      call self%register_horizontal_dependency(self%id_temp,standard_variables%sea_ice_temperature)
-=======
       call self%register_horizontal_dependency(self%id_temp,standard_variables%sea_ice_temperature) 
->>>>>>> 80ae13f529fa21be1ce48073502971b05eb70672
       call self%register_horizontal_dependency(self%id_ice_hi,standard_variables%sea_ice_thickness)
       call self%register_horizontal_dependency(self%id_ice_hs,standard_variables%snow_thickness)
       call self%register_horizontal_dependency(self%id_par,standard_variables%lowest_ice_layer_PAR)
@@ -218,15 +185,6 @@ contains
       call self%register_horizontal_dependency(self%id_Amelt,standard_variables%f_melt)
       call self%register_horizontal_dependency(self%id_botmelt,standard_variables%tendency_of_sea_ice_thickness_due_to_thermodynamics_melt)
       call self%register_horizontal_dependency(self%id_botgrowth,standard_variables%tendency_of_sea_ice_thickness_due_to_thermodynamics_grow)
-<<<<<<< HEAD
-   
-
-      call self%register_dependency(self%id_u,standard_variables%zonal_current)
-      call self%register_dependency(self%id_v,standard_variables%meridional_current) !error 
-      
-      call self%register_global_dependency(self%id_dt,standard_variables%timestep)  !error 
-=======
->>>>>>> 80ae13f529fa21be1ce48073502971b05eb70672
 
      
       call self%register_dependency(self%id_u,  standard_variables%zonal_current)
