@@ -5,13 +5,6 @@ module uvic_model_library
 
     use fabm_types, only: type_base_model_factory, type_base_model
     
-<<<<<<< HEAD
-=======
-    use uvic_eco
-    use uvic_icealgae
-    use uvic_dic
-    !jpnote: use statemnt for other models here 
->>>>>>> 443f2ca4b8f8fc79eeb8b635126e30ca809b96dd
 
     implicit none
 
