@@ -156,7 +156,7 @@ module uvic_eco
    call self%get_parameter(self%md_sil , 'md_sil','', 'molecular diffusion coefficient for dissolved silica', default=0.47e-9_rk)
    call self%get_parameter(self%chl2n , 'chl2n','', 'chl to nitrogen ratio', default=2.8_rk)
    call self%get_parameter(self%sil2n , 'sil2n','', 'silicon to nitrogen ratio', default=1.7_rk)
-  ! endif
+   endif
 
 !--------------------------------
 #if 0
@@ -362,7 +362,6 @@ end if
        call self%request_coupling(self%id_fskelno3,'uvic_icealgae_fskelno3')
        call self%request_coupling(self%id_fskelnh4,'uvic_icealgae_fskelnh4')
        call self%request_coupling(self%id_fskelsil,'uvic_icealgae_fskelsil')
-      
       endif
 
    end subroutine initialize
@@ -380,7 +379,7 @@ end if
 ! Declare anything else used in this subroutine
    real(rk) :: pht,nut,texp,mu1q,mu2q,mp1q,mp2q,gz1q,mz1q,mz2q,gz2q,rd1q,rd2q,rd3q,food1,food2,graz1,graz2,lf1,lf2,nf,sf,lim1,lim2,ppt,rpi
 
-   logical :: use_icealgae = .true.!jpnote 
+   !logical :: use_icealgae = .true.!jpnote 
 
    _LOOP_BEGIN_
 
