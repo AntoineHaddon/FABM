@@ -26,7 +26,8 @@ contains
         use uvic_eco
         use uvic_icealgae
         use uvic_dic
-        use uvic_npzd_resolute
+       ! use uvic_npzd_resolute
+        use uvic_npzd_papa
         !jpnote: use statemnt for other models here 
 
         !
@@ -42,7 +43,8 @@ contains
             
             case ('uvic_dic');allocate(type_uvic_dic::model)
             !case ('uvic_icedms');                  allocate(type_uvic_icedms::model)
-            case ('uvic_npzd_resolute');                  allocate(type_uvic_npzd_resolute::model)
+            !case ('uvic_npzd_resolute');                  allocate(type_uvic_npzd_resolute::model)
+            case ('uvic_npzd_papa');                  allocate(type_uvic_npzd_papa::model)
             case default
                 call self%type_base_model_factory%create(name,model)
         end select 
