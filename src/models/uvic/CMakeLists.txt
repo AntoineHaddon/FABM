@@ -4,7 +4,7 @@ add_library(fabm_models_uvic OBJECT
             icealgae.F90
             #npzd_resolute.F90
             npzd_papa.F90
-            original_dic.F90
+            dic.F90
            )
 
 add_dependencies(fabm_models_uvic fabm_base)

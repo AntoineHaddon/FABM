@@ -156,12 +156,12 @@ contains
       call self%register_diagnostic_variable(self%id_newalk,'newalk','mmol (eq)/m**3','approx. alkalinity in seawater')
       call self%register_diagnostic_variable(self%id_newalk2,'newalk2','mmol (eq)/m**3','tot. alkalinity')
 
-      call self%register_horizontal_diagnostic_variable(self%id_pH,'pH','-log(H)','pH/acidity')
-      call self%register_horizontal_diagnostic_variable(self%id_pco2sw,'pco2sw','micro atm ','partial P of CO2 in seawater')
-      call self%register_horizontal_diagnostic_variable(self%id_co2flux,'co2flux','mmol CO_2/m**2/s','air-sea CO2 flux')
-      call self%register_horizontal_diagnostic_variable(self%id_fIA_co2,'fIA_co2','mmol CO_2/m**2/s','ice-algal CO2 flux')
-      call self%register_horizontal_diagnostic_variable(self%id_fdic_ice,'fdic_ice','mmol CO_2/m**2/s','ice-growth/melt CO2 flux')
-      call self%register_horizontal_diagnostic_variable(self%id_falk_ice,'falk_ice','[mmol-eq]/m**2/s','ice-growth/melt alk flux')
+      call self%register_horizontal_diagnostic_variable(self%id_pH,'pH','-log(H)','pH/acidity',source=source_do_horizontal)
+      call self%register_horizontal_diagnostic_variable(self%id_pco2sw,'pco2sw','micro atm ','partial P of CO2 in seawater',source=source_do_horizontal)
+      call self%register_horizontal_diagnostic_variable(self%id_co2flux,'co2flux','mmol CO_2/m**2/s','air-sea CO2 flux',source=source_do_horizontal)
+      call self%register_horizontal_diagnostic_variable(self%id_fIA_co2,'fIA_co2','mmol CO_2/m**2/s','ice-algal CO2 flux',source=source_do_horizontal)
+      call self%register_horizontal_diagnostic_variable(self%id_fdic_ice,'fdic_ice','mmol CO_2/m**2/s','ice-growth/melt CO2 flux',source=source_do_horizontal)
+      call self%register_horizontal_diagnostic_variable(self%id_falk_ice,'falk_ice','[mmol-eq]/m**2/s','ice-growth/melt alk flux',source=source_do_horizontal)
 
 ! Register environmental variables
 
