@@ -25,13 +25,13 @@ contains
 
         use uvic_eco
         use uvic_icealgae
-        use uvic_dic
+       ! use uvic_dic
        ! use uvic_npzd_resolute
         use uvic_npzd_papa
         !jpnote: use statemnt for other models here 
-        use uvic_icedms
-        use uvic_dms
-        use uvic_dmsp_papa
+       ! use uvic_icedms
+       ! use uvic_dms
+       ! use uvic_dmsp_papa
 
         !
         ! !INPUT PARAMETERS:
