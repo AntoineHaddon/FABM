@@ -7,7 +7,7 @@
 ! taken from GOTM written by N. Steiner and adapted for FABM by H. Hayashida
 !
 ! !INTERFACE:
-   module fabm_uvic_dmsp_papa
+   module uvic_dmsp_papa
 !
 ! !DESCRIPTION:
 ! Modifications from Steiner & Denman 2008:
@@ -260,4 +260,4 @@
    end subroutine do_surface
 !-----------------------------------------------------------------------
 
-   end module fabm_uvic_dmsp_papa
+   end module uvic_dmsp_papa
