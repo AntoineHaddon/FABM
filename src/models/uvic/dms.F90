@@ -135,7 +135,7 @@ contains
       call self%register_diagnostic_variable(self%id_fbacdms,'fbacdms','nM d-1','bacterial lyase (yield)')
       call self%register_diagnostic_variable(self%id_fdmsbac,'fdmsbac','nM d-1','DMS bacterial consumption')
       call self%register_diagnostic_variable(self%id_fdmspho,'fdmspho','nM d-1','photolysis')
-      call self%register_horizontal_diagnostic_variable(self%id_fdmsair,'fdmsair','umol m-2 d-1','Sea-to-air DMS flux')
+      call self%register_horizontal_diagnostic_variable(self%id_fdmsair,'fdmsair','umol m-2 d-1','Sea-to-air DMS flux',source=source_do_horizontal)
 ! Register environmental variables
       call self%register_horizontal_dependency(self%id_botmelt,standard_variables%tendency_of_sea_ice_thickness_due_to_thermodynamics_melt)
       call self%register_dependency(self%id_temp,standard_variables%temperature)
