@@ -31,6 +31,7 @@ contains
         !jpnote: use statemnt for other models here 
         use uvic_icedms
         use uvic_dms
+        use uvic_dmsp_papa
 
         !
         ! !INPUT PARAMETERS:
@@ -46,7 +47,7 @@ contains
             case ('uvic_dic');allocate(type_uvic_dic::model)
             case ('uvic_dms');                  allocate(type_uvic_dms::model)
             case ('uvic_icedms');                  allocate(type_uvic_icedms::model)
-           ! case ('uvic_dmsp_papa');                  allocate(type_uvic_dmsp_papa::model)
+            case ('uvic_dmsp_papa');                  allocate(type_uvic_dmsp_papa::model)
            
             case default
                 call self%type_base_model_factory%create(name,model)
