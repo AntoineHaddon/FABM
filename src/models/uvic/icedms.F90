@@ -10,7 +10,7 @@
 
 #include "fabm_driver.h"
 
-module fabm_uvic_icedms
+module uvic_icedms
 
    use fabm_types
    use fabm_expressions
@@ -281,4 +281,4 @@ call self%get_parameter(self%r_pond, 'r_pond','', 'melt pond drainage rate', def
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fdmspon,fdmspon*self%spd)
    _HORIZONTAL_LOOP_END_
    end subroutine do_surface
-end module fabm_uvic_icedms
+end module uvic_icedms
