@@ -53,7 +53,7 @@ contains
    integer  :: flux
    real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
    character(64),dimension(12) :: models 
-
+#if 0 
 ! Define the namelist
    namelist /fabm_nml/ models
    namelist /uvic_dms/ f_ow,dms_0,dmspd_0,q1,q2,yield,k_ly1,k_ly2,f_sl1,f_sl2,f_ex1,f_ex2,k_enz,k_in1,k_in2,h_dmspd,h_dms,k_dmspd,k_dms,k_pho,flux
@@ -88,10 +88,11 @@ contains
    self%models = models
    if(any(models.eq.'uvic_icedms'))then
     read(configunit,uvic_icealgae)
-    self%zia = zia
+    self%zia = zia   !jp note include this elsewhere 
    endif
    close(configunit)
    open(configunit,file='fabm.nml')
+#endif 
 !  Register namelist parameters
    self%f_ow    = f_ow
    self%q1      = q1
