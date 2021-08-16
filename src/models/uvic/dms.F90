@@ -93,6 +93,30 @@ contains
    close(configunit)
    open(configunit,file='fabm.nml')
 #endif 
+
+
+   call self%get_parameter(self%f_ow,'f_ow','','fraction of open water during ice melting (e.g. leads)', default=0.0_rk)
+   call self%get_parameter(self%dms_0,'dms_0','nmol/L','dms initial value ', default=2.0_rk)
+   call self%get_parameter(self%dmspd_0,'dmspd_0','nmol/L','dmspd initial value', default=5.0_rk)
+   call self%get_parameter(self%q1,'q1','mol-S:mol-N','S:N ratio for ph1', default=0.45_rk)
+   call self%get_parameter(self%q2,'q2','mol-S:mol-N','S:N ratio for ph2', default=0.01_rk)
+   call self%get_parameter(self%yield,'yield','per day','bacterial lyase rate constant', default=0.1_rk)
+   call self%get_parameter(self%k_ly1,'k_ly1','','k_ly1', default=0.05_rk)
+   call self%get_parameter(self%k_ly2,'k_ly2','','k_ly2', default=0.05_rk)
+   call self%get_parameter(self%f_sl1,'f_sl1','','f_sl1', default=1.0_rk)
+   call self%get_parameter(self%f_sl2,'f_sl2','','f_sl2', default=1.0_rk)
+   call self%get_parameter(self%f_ex1,'f_ex1','','f_ex1', default=1.0_rk)
+   call self%get_parameter(self%f_ex2,'f_ex2','','f_ex2', default=1.0_rk)
+   call self%get_parameter(self%k_enz,'k_enz','d-1','rate constant for enzymatic cleavage (free lyase)', default=0.01_rk)
+   call self%get_parameter(self%k_in1,'k_in1','','k_in1', default=0.0_rk)
+   call self%get_parameter(self%k_in2,'k_in2','','k_in2', default=0.0_rk)
+   call self%get_parameter(self%h_dmspd,'h_dmspd','','half-saturation constant for bacterial dmspd uptake', default=3.0_rk)
+   call self%get_parameter(self%h_dms,'h_dms','','half-saturation constant for bacterial dms uptake', default=3.0_rk)
+   call self%get_parameter(self%k_dmspd,'k_dmspd','','k_dmspd', default=0.0_rk)
+   call self%get_parameter(self%k_dms,'k_dms','','k_dms', default=0.0_rk)
+   call self%get_parameter(self%k_pho,'k_pho','','k_pho', default=0.0_rk)
+   call self%get_parameter(self%flux,'flux','','air-sea gas transfer velocity parameterization', default=0)
+
 !  Register namelist parameters
    self%f_ow    = f_ow
    self%q1      = q1
