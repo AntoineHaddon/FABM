@@ -120,7 +120,7 @@ call self%get_parameter(self%r_pond, 'r_pond','', 'melt pond drainage rate', def
    call self%get_parameter(self%f_exi, 'f_exi','','fraction of exludation/cell lysis', default=1.0_rk)
    call self%get_parameter(self%k_lyi, 'k_lyi','','fraction of sloppy feeding', default=1.0_rk)
    call self%get_parameter(self%k_exi, 'k_exi','per day','extracellular lyase rate constant', default=0.0_rk)
-   call self%get_parameter(self%,k_ini 'k_ini','per day','intracellular lyase rate constant ', default=0.0_rk)
+   call self%get_parameter(self%k_ini, 'k_ini','per day','intracellular lyase rate constant ', default=0.0_rk)
    call self%get_parameter(self%k_phoi, 'k_phoi','per day','photolysis rate constant ', default=0.01_rk)
   
 
