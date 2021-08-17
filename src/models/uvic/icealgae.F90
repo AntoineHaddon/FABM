@@ -50,10 +50,10 @@ contains
 ! Declare namelist parameters
    real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,rnit,skno3_0,sknh4_0,sksil_0,ia_0,ia_b,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
 
-      !read in vals from fabm.yaml 
+   !read in vals from fabm.yaml 
 
-   !branch => cfg%get_child('uvic_icealgae', 'University of Victoria Ice Algae model')
    call self%get_parameter(self%r_pond, 'r_pond', '','melt pond drainage rate',default=0.0175_rk)
+   self%r_pond = self%r_pond/self%spd
    call self%get_parameter(self%fmethod, 'fmethod','', 'method for ice-ocean flux',default=0.0_rk)
    call self%get_parameter(self%fflush , 'fflush','', 'method for flushing', default=0.0_rk)
    call self%get_parameter(self%drag , 'drag','-', 'drag coefficient at the ice-water interface ', default=0.005_rk)
@@ -61,6 +61,7 @@ contains
    call self%get_parameter(self%zia, 'zia','m', 'ice algal layer thickness ', default=0.03_rk)
    call self%get_parameter(self%ac_ia, 'ac_ia','', 'specific light attenuation coefficient for ice algae', default=0.03_rk)
    call self%get_parameter(self%rnit , 'rnit','per day', 'nitrification rate ', default=0.1_rk)
+   self%rnit  = self%rnit/self%spd
    call self%get_parameter(self%ia_0 , 'ia_0','mmol-N/m3', 'ia initial value ', default=0.16_rk)
    call self%get_parameter(self%ia_b , 'ia_b','mmol-N/m3',  'ia background value ',default=0.01_rk)
    call self%get_parameter(self%skno3_0, 'skno3_0','mmol/m3', 'no3 initial value ', default=2.0_rk)
@@ -69,9 +70,13 @@ contains
    call self%get_parameter(self%ks_no3, 'ks_no3','mmol/m3', 'no3 half-saturation value ',default=1.0_rk)
    call self%get_parameter(self%ks_sil, 'ks_sil','mmol/m3', 'sil half-saturation value ', default=4.0_rk)
    call self%get_parameter(self%maxg, 'maxg','d-1', 'maximum specific growth rate ', default=0.8511_rk)
+   self%maxg = self%maxg/ self%spd
    call self%get_parameter(self%mort , 'mort','d-1', 'linear mortality rate', default=0.05_rk)
+   self%mort = self%mort/ self%spd
    call self%get_parameter(self%mort2, 'mort2','d-1',  'quadratic mortality rate ',default=0.05_rk)
+   self%mort2 = self%mort2/ self%spd
    call self%get_parameter(self%crit_melt, 'crit_melt','m d-1', 'critical melt rate [m d-1]', default=0.015_rk)
+   self%crit_melt = self%crit_melt / self%spd
    call self%get_parameter(self%lcompp, 'lcompp','umol m-2 s-1', '# compensation intensity ', default=0.4_rk)
    call self%get_parameter(self%rpp , 'rpp','[W m-2]-1', 'ratio of photosynthetic parameters (alpha and pbm) [W m-2]-1', default=0.1_rk)
    !call self%get_parameter(self%rpi , 'rpi ', 'ratio of photoinhibition parameters (beta and pbm)', default=0)
@@ -118,7 +123,7 @@ contains
    read(configunit,nml=uvic_icealgae)
 
 #endif
-
+#if 0
 !  Register namelist parameters
    self%ac_ia = ac_ia
    self%rnit  = rnit/self%spd
@@ -143,6 +148,7 @@ contains
    self%md_sil = md_sil
    self%chl2n  = chl2n
    self%sil2n  = sil2n
+#endif
 ! Register prognostic variables
       call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',initial_value=skno3_0,minimum=0.0_rk)
       call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',initial_value=sksil_0,minimum=0.0_rk)

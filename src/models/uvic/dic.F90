@@ -124,6 +124,7 @@ contains
    read(configunit,nml=uvic_dic)
 
 #endif 
+#if 0 
    !  Register namelist parameters
    self%dic_0 = dic_0
    self%alk_0 = alk_0
@@ -139,6 +140,7 @@ contains
    self%btlv = btlv
    self%prop2sw = prop2sw
    self%prop2sw_melt = prop2sw_melt
+#endif 
 ! Register prognostic variables
       call self%register_state_variable(self%id_dic,'dic','mmol DIC/m^3','dissolved inorganic carbon',initial_value=dic_0)
       call self%register_state_variable(self%id_alk,'alk','mmol(eq)/m^3','alkalinity',initial_value=alk_0,minimum=0.0_rk)

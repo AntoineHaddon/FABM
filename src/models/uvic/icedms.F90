@@ -115,17 +115,19 @@ contains
    call self%get_parameter(self%h_dmspdi, 'h_dmspdi','','half-saturation constant for bacterial dmspd uptake', default=3.0_rk)
    call self%get_parameter(self%h_dmsi, 'h_dmsi','','half-saturation constant for bacterial dms uptake', default=3.0_rk)
    call self%get_parameter(self%k_dmspdi, 'k_dmspdi','per day','dmspd loss rate constant', default=5.7_rk)
+   self%k_dmspdi = self%k_dmspdi / self%spd
    call self%get_parameter(self%k_dmsi, 'k_dmsi','per day','dms loss rate constant', default=5.7_rk)
+   self%k_dmsi   = self%k_dmsi /self%spd
    call self%get_parameter(self%yieldi, 'yieldi','-','dms yield', default=0.03_rk)
    call self%get_parameter(self%f_exi, 'f_exi','','fraction of exludation/cell lysis', default=1.0_rk)
    call self%get_parameter(self%k_lyi, 'k_lyi','','fraction of sloppy feeding', default=1.0_rk)
+   self%k_lyi    = self%k_lyi /self%spd
    call self%get_parameter(self%k_exi, 'k_exi','per day','extracellular lyase rate constant', default=0.0_rk)
    call self%get_parameter(self%k_ini, 'k_ini','per day','intracellular lyase rate constant ', default=0.0_rk)
+   self%k_ini    = self%k_ini /self%spd
    call self%get_parameter(self%k_phoi, 'k_phoi','per day','photolysis rate constant ', default=0.01_rk)
-  
-
-
-
+   self%k_phoi   = self%k_phoi /self%spd
+#if 0 
 !  Register namelist parameters
    self%qi       = qi
    self%h_dmspdi = h_dmspdi
@@ -139,6 +141,7 @@ contains
    self%k_ini    = k_ini /self%spd
    self%k_phoi   = k_phoi /self%spd
    self%zia      = zia
+#endif 
 ! Register prognostic variables
       call self%register_state_variable(self%id_dms,'dms','nmol/L','ice DMS',initial_value=dmsi_0,minimum=0.0_rk)
       call self%register_state_variable(self%id_dmspd,'dmspd','nmol/L','ice DMSPd',initial_value=dmspdi_0,minimum=0.0_rk)

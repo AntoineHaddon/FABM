@@ -36,7 +36,9 @@ module uvic_eco
       !params from icealgae jpnote 
       real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
 ! Declare anything else used in all procedures
-      real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd)
+      real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd) 
+      !jpnote maybe have to declare differently (other models use parameter and not self%)
+      
       !real(rk) :: zia,ac_ia
       logical :: use_icealgae
       !character(64),dimension(12) :: models jpnote not needed
@@ -65,13 +67,7 @@ module uvic_eco
 !---------------------------
 !read in from yaml
 
-
-!eg. s
 !fabm.nml 
-   !call self%get_parameter(self%models,'models','','model select')
-   !call self%get_parameter(self%use_icealgae,'use_icealgae', 'use the icealgae model', default=.false.)
-
-
    !uvic_eco
    call self%get_parameter(self%use_icealgae, 'use_icealgae', '', 'use icealgae', default=.false.)
    call self%get_parameter(self%ac,'ac','m-1','light attenuation coefficient', default=0.03_rk)
@@ -86,27 +82,38 @@ module uvic_eco
    call self%get_parameter(self%de2_0, 'de2_0','umol/L', 'de2 initial value', default=1.0_rk)
    call self%get_parameter(self%bsi_0, 'bsi_0','umol/L', 'bsi initial value', default=1.0_rk)
    call self%get_parameter(self%sil_0 , 'sil_0 ','umol/L', 'sil initial value', default=5.0_rk)
-   call self%get_parameter(self%w1 , 'w1 ','m/d', 'de1 sinking rate',default=6.0_rk)
-   call self%get_parameter(self%w2 , 'w2 ','m/d', 'de2 sinking rate', default=6.0_rk)
+   call self%get_parameter(self%w1, 'w1 ','m/d', 'de1 sinking rate',default=6.0_rk)
+   self%w1  = self%w1 / self%spd  
+   call self%get_parameter(self%w2, 'w2 ','m/d', 'de2 sinking rate', default=6.0_rk)
+   self%w2  = self%w2 / self%spd
    call self%get_parameter(self%mu1, 'mu1','1/d', 'ph1 maximum growth rate', default=2.0_rk)
-   call self%get_parameter(self%mu2 , 'mu2 ','1/d', 'ph2 maximum growth rate', default=2.0_rk)
+   self%mu1 = self%mu1 / self%spd
+   call self%get_parameter(self%mu2, 'mu2 ','1/d', 'ph2 maximum growth rate', default=2.0_rk)
+   self%mu2 = self%mu2 / self%spd
    call self%get_parameter(self%kn, 'kn','umol/L', ' no3 & nh4 half saturation constant', default=0.1_rk)
    !call self%get_parameter(self%al1, 'al1','m2/W/time', 'initial slope of P-I curve ([time] is same unit as pmax)', default=0)
    !call self%get_parameter(self%al2 , 'al2 ','m2/W/time', 'initial slope of P-I curve ([time] is same unit as pmax)', default=0)
    call self%get_parameter(self%rpp1, 'rpp1','1/time', 'maximum photosynthetic rate ([time] is same unit as alpha)', default=0.05_rk)
-   call self%get_parameter(self%rpp2 , 'rpp2 ','1/time', 'maximum photosynthetic rate ([time] is same unit as alpha)', default=0.05_rk)
+   call self%get_parameter(self%rpp2, 'rpp2 ','1/time', 'maximum photosynthetic rate ([time] is same unit as alpha)', default=0.05_rk)
    call self%get_parameter(self%mp1, 'mp1','1/d', 'ph1 excretion rate ', default=0.05_rk)
-   call self%get_parameter(self%mp2 , 'mp2 ','1/d', 'ph2 excretion rate', default=0.05_rk)
+   self%mp1 = self%mp1 / self%spd
+   call self%get_parameter(self%mp2, 'mp2 ','1/d', 'ph2 excretion rate', default=0.05_rk)
+   self%mp2 = self%mp2 / self%spd
    call self%get_parameter(self%mz1, 'mz1','1/d', 'zo1 excretion rate ', default=0.1_rk)
+   self%mz1 = self%mz1 / self%spd
    call self%get_parameter(self%mz2, 'mz2','1/d', 'zo2 excretion rate ', default=0.3_rk)
+   self%mz2 = self%mz2 / self%spd
    call self%get_parameter(self%gz1, 'gz1','1/d', 'zo1 maximum grazing rate ', default=1.3_rk)
+   self%gz1 = self%gz1 / self%spd
    call self%get_parameter(self%gz2, 'gz2','1/d', 'zo2 maximum grazing rate ', default=0.8_rk)
+   self%gz2 = self%gz2 / self%spd
    call self%get_parameter(self%kz1, 'kz1','umol/L', 'zo1 grazing half saturation constant ',default=0.6_rk)
    call self%get_parameter(self%kz2, 'kz2','umol/L', 'zo2 grazing half saturation constant ', default=0.75_rk)
    call self%get_parameter(self%az1, 'az1','-', 'zo1 assimilation fraction ',default=0.7_rk)
    call self%get_parameter(self%az2, 'az2','-', 'zo2 assimilation fraction ',default=0.1_rk)
    call self%get_parameter(self%rc, 'rc','1/d', 'closure mortality rate', default=0.003_rk)
-  ! call self%get_parameter(self%htlnh4, 'htlnh4','-', 'closure loss fraction to nh4', default=0)
+   self%rc  = self%rc / self%spd
+   ! call self%get_parameter(self%htlnh4, 'htlnh4','-', 'closure loss fraction to nh4', default=0)
   ! call self%get_parameter(self%htldet, 'htldet','-', 'closure loss fraction to det', default=0)
    call self%get_parameter(self%pp1, 'pp1','-', 'ph1 fraction as food for zo1', default=1.0_rk)
    call self%get_parameter(self%pp2, 'pp2','-', 'ph2 fraction as food for zo2', default=1.0_rk)
@@ -114,15 +121,20 @@ module uvic_eco
    call self%get_parameter(self%pd2, 'pd2','-', 'de2 fraction as food for zo2', default=0.5_rk)
    call self%get_parameter(self%pz1, 'pz1','-', 'zo1 fraction as food for zo2', default=1.0_rk)
    call self%get_parameter(self%rd1, 'rd1','1/d', ' de1 remineralization rate', default=0.1_rk)
+   self%rd1 = self%rd1 / self%spd
    call self%get_parameter(self%rd2, 'rd2','1/d', 'de2 remineralization rate', default=0.1_rk)
+   self%rd2 = self%rd2 / self%spd
    call self%get_parameter(self%rd3, 'rd3','1/d', 'bsi remineralization rate', default=0.1_rk)
+   self%rd3 = self%rd3 / self%spd
    call self%get_parameter(self%rpf, 'rpf','-', 'scale factor for nitrogen preference function', default=0.2_rk )
    call self%get_parameter(self%rn0, 'rn0','1/d', 'nitrification rate at 0 deg.C', default=0.03_rk)
+   self%rn0 = self%rn0 / self%spd
    call self%get_parameter(self%knt, 'knt','1/deg.C', 'nitrification temperature coefficient', default=0.0693_rk)
    call self%get_parameter(self%qp, 'qp','-', 'ph1 & ph2 Q10 factor', default=2.0_rk)
    call self%get_parameter(self%qz, 'qz','-', 'zo1 & zo2 Q10 factor', default=3.0_rk )
    call self%get_parameter(self%qb, 'qb','-', 'bacteria Q10 factor', default=3.0_rk)
    call self%get_parameter(self%agg, 'agg', '1/d', 'ph2 aggregation rate',default=0.07_rk)
+   self%agg = self%agg / self%spd
    call self%get_parameter(self%rsin, 'rsin','mol-Si/mol-N', 'ph2 Si:N ratio', default=2.0_rk)
    call self%get_parameter(self%ks, 'ks','umol/L', 'si half saturation constant', default=2.0_rk)
    call self%get_parameter(self%pmin, 'pmin','umol-N/L', 'background plankton concentration', default=0.01_rk)
@@ -234,9 +246,15 @@ endif
 
 #endif 
    !  Register namelist parameters which will be used in other routines
+#if 0 
+if (self%use_icealgae) then 
+   self%zia = zia
+   self%ac_ia = ac_ia 
+end if 
+
    self%ac     = ac
    self%f_seed = f_seed
-   self%w1  = w1 / self%spd
+   self%w1  = w1 / self%spd   !jpnote add these below where they are read in  
    self%w2  = w2 / self%spd
    self%mu1 = mu1 / self%spd
    self%mu2 = mu2 / self%spd
@@ -272,10 +290,9 @@ endif
    self%rsin= rsin
    self%ks  = ks
    self%pmin= pmin
-if (self%use_icealgae) then
-   self%zia = zia
-   self%ac_ia = ac_ia 
-end if 
+
+#endif 
+
 ! Register prognostic variables
       call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',initial_value=ph1_0,minimum=0.0_rk)
       call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=ph2_0,minimum=0.0_rk)

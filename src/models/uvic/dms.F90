@@ -104,22 +104,30 @@ contains
    call self%get_parameter(self%q2,'q2','mol-S:mol-N','S:N ratio for ph2', default=0.01_rk)
    call self%get_parameter(self%yield,'yield','per day','bacterial lyase rate constant', default=0.1_rk)
    call self%get_parameter(self%k_ly1,'k_ly1','','k_ly1', default=0.05_rk)
+   self%k_ly1  = self%k_ly1 /self%spd
    call self%get_parameter(self%k_ly2,'k_ly2','','k_ly2', default=0.05_rk)
+   self%k_ly2  = self%k_ly2 /self%spd
    call self%get_parameter(self%f_sl1,'f_sl1','','f_sl1', default=1.0_rk)
    call self%get_parameter(self%f_sl2,'f_sl2','','f_sl2', default=1.0_rk)
    call self%get_parameter(self%f_ex1,'f_ex1','','f_ex1', default=1.0_rk)
    call self%get_parameter(self%f_ex2,'f_ex2','','f_ex2', default=1.0_rk)
    call self%get_parameter(self%k_enz,'k_enz','d-1','rate constant for enzymatic cleavage (free lyase)', default=0.01_rk)
+   self%k_enz   = self%k_enz /self%spd
    call self%get_parameter(self%k_in1,'k_in1','','k_in1', default=0.0_rk)
+   self%k_in1   = self%k_in1 /self%spd
    call self%get_parameter(self%k_in2,'k_in2','','k_in2', default=0.0_rk)
+   self%k_in2   = self%k_in2 /self%spd
    call self%get_parameter(self%h_dmspd,'h_dmspd','','half-saturation constant for bacterial dmspd uptake', default=3.0_rk)
    call self%get_parameter(self%h_dms,'h_dms','','half-saturation constant for bacterial dms uptake', default=3.0_rk)
    call self%get_parameter(self%k_dmspd,'k_dmspd','','k_dmspd', default=0.0_rk)
+   self%k_dmspd = self%k_dmspd /self%spd
    call self%get_parameter(self%k_dms,'k_dms','','k_dms', default=0.0_rk)
+   self%k_dms   = self%k_dms /self%spd
    call self%get_parameter(self%k_pho,'k_pho','','k_pho', default=0.0_rk)
+   self%k_pho   = self%k_pho /self%spd
    call self%get_parameter(self%flux,'flux','','air-sea gas transfer velocity parameterization', default=0)
 
-
+#if 0 
    if(self%use_icedms)then 
       self%zia = zia  
    endif
@@ -144,6 +152,7 @@ contains
    self%k_dms   = k_dms /self%spd
    self%k_pho   = k_pho /self%spd
    self%flux    = flux
+#endif 
 ! Register prognostic variables
       call self%register_state_variable(self%id_dms,'dms','nmol/L','Dimethylsulfide',initial_value=dms_0,minimum=0.0_rk)
       call self%register_state_variable(self%id_dmspd,'dmspd','nmol/L','Dissolved dimethylsulfoniopropionate',initial_value=dmspd_0,minimum=0.0_rk)
@@ -201,7 +210,8 @@ contains
       call self%request_coupling(self%id_fph2nh4,'uvic_eco_fph2nh4')
       call self%request_coupling(self%id_fnutph1,'uvic_eco_fnutph1')
       call self%request_coupling(self%id_fnutph2,'uvic_eco_fnutph2')
-      if(any(models.eq.'uvic_icedms'))then  !jpnote need to replace with something 
+    ! if(any(models.eq.'uvic_icedms'))then  !jpnote need to replace with something 
+      if(self%use_icedms) then 
        call self%register_dependency(self%id_fdmspd3ia,'uvic_icedms_fspdaiw','','')
        call self%register_dependency(self%id_fdms3ia,'uvic_icedms_fdmsaiw','','')
        call self%register_dependency(self%id_fspdmel,'uvic_icedms_fspdmel','','')
@@ -234,6 +244,7 @@ contains
 ! Declare environmental parameters
    real(rk) :: ice_hi,temp,par,ph1,ph2,chl1,chl2,nf,sf,fph1zo1,fph2zo2,fph1nh4,fph2nh4,stemp,spar,fnutph1,fnutph2
 ! Declare anything else used in this subroutine
+   logical :: use_icedms
 ! molecular weight of N ( for mmol-N to mg-N conversion)
 !   real(rk), parameter       :: wN = 14.0_rk
 ! conversion factor 1mg-S/m3=31.25nmol/L DMS or DMSP
@@ -323,6 +334,7 @@ contains
    real (rk) :: k_600,v_dms,henry,pres_atm
    real (rk) :: osc,sc,rkb,rk0,W
    real (rk) :: fdmspd3ia,fdms3ia,fspdmel,fdmsmel,fspdpon,fdmspon,icespd,icedms,density,dmspd
+   logical :: use_icedms
    data adms/2674.0,147.12,3.726,0.038/
 ! Saltzman provides Ostwald solubility, need to be transferred into Bunsen coefficients for consistency
    data ddms/-10.1794,3761.33/
@@ -372,7 +384,8 @@ contains
    end if
    _SET_SURFACE_EXCHANGE_(self%id_dms,-dmsair)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fdmsair,dmsair*self%spd)
-   if(any(self%models.eq.'uvic_icedms')) then
+   !if(any(self%models.eq.'uvic_icedms')) then
+   if(self%use_icedms) then 
     _GET_HORIZONTAL_(self%id_fdmspd3ia,fdmspd3ia)
     _GET_HORIZONTAL_(self%id_fdms3ia,fdms3ia)
     _GET_HORIZONTAL_(self%id_fspdmel,fspdmel)
