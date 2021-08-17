@@ -79,7 +79,7 @@ contains
 
 !icealgae vars from yaml 
 
-call self%get_parameter(self%r_pond, 'r_pond','', 'melt pond drainage rate', default=0.0175_rk)
+   call self%get_parameter(self%r_pond, 'r_pond','', 'melt pond drainage rate', default=0.0175_rk)
    call self%get_parameter(self%fmethod, 'fmethod','', 'method for ice-ocean flux', default=0.0_rk)
    call self%get_parameter(self%fflush , 'fflush','', 'method for flushing', default=0.0_rk)
    call self%get_parameter(self%drag , 'drag','-', 'drag coefficient at the ice-water interface', default=0.005_rk)

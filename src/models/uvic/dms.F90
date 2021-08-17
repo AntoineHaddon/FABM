@@ -31,6 +31,7 @@ module uvic_dms
       real(rk) :: f_ow,dms_0,dmspd_0,q1,q2,yield,k_ly1,k_ly2,f_sl1,f_sl2,f_ex1,f_ex2,k_enz,k_in1,k_in2,h_dmspd,h_dms,k_dmspd,k_dms,k_pho
       integer  :: flux
       real(rk) :: zia
+      logical :: use_icedms
 ! Declare anything else used in every procedure
       real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd)
       character(64),dimension(12) :: models
@@ -52,6 +53,7 @@ contains
    real(rk) :: f_ow,dms_0,dmspd_0,q1,q2,yield,k_ly1,k_ly2,f_sl1,f_sl2,f_ex1,f_ex2,k_enz,k_in1,k_in2,h_dmspd,h_dms,k_dmspd,k_dms,k_pho
    integer  :: flux
    real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
+   logical :: use_icedms
    character(64),dimension(12) :: models 
 #if 0 
 ! Define the namelist
@@ -86,7 +88,7 @@ contains
    open(configunit,file='fabm.nml')
    read(configunit,fabm_nml)
    self%models = models
-   if(any(models.eq.'uvic_icedms'))then
+   if(any(models.eq.'uvic_icedms'))then    
     read(configunit,uvic_icealgae)
     self%zia = zia   !jp note include this elsewhere 
    endif
@@ -94,7 +96,7 @@ contains
    open(configunit,file='fabm.nml')
 #endif 
 
-
+   call self%get_parameter(self%use_icedms, 'use_icedms', '', 'use use_icedms', default=.false.)
    call self%get_parameter(self%f_ow,'f_ow','','fraction of open water during ice melting (e.g. leads)', default=0.0_rk)
    call self%get_parameter(self%dms_0,'dms_0','nmol/L','dms initial value ', default=2.0_rk)
    call self%get_parameter(self%dmspd_0,'dmspd_0','nmol/L','dmspd initial value', default=5.0_rk)
@@ -116,6 +118,11 @@ contains
    call self%get_parameter(self%k_dms,'k_dms','','k_dms', default=0.0_rk)
    call self%get_parameter(self%k_pho,'k_pho','','k_pho', default=0.0_rk)
    call self%get_parameter(self%flux,'flux','','air-sea gas transfer velocity parameterization', default=0)
+
+
+   if(self%use_icedms)then 
+      self%zia = zia  
+   endif
 
 !  Register namelist parameters
    self%f_ow    = f_ow
