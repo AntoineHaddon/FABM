@@ -37,6 +37,8 @@
       real(rk) :: no3_0,de1_0,de2_0,bsi_0
       real(rk) :: fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
       real(rk) :: ph1_0,ph2_0,zo1_0,zo2_0,nh3_0,nh4_0,det_0,sil_0,psi_0,kc,alpha,num,kn,a,ks,lfe1,lfe2,mpa,mpd,beta,rm,rc,kp,kz,ga1,ga2,pd,mza,mca,wp2,wd,re,resi,q10p,q10z,q10b,rsin,nit0,knit
+      real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd) 
+      logical :: use_icealgae
    contains
       procedure :: initialize
       procedure :: do
@@ -65,7 +67,7 @@
   ! real(rk) :: ph1_0,ph2_0,zo1_0,zo2_0,nh3_0,nh4_0,det_0,sil_0,psi_0,kc,alpha,num,kn,a,ks,lfe1,lfe2,mpa,mpd,beta,rm,rc,kp,kz,ga1,ga2,pd,mza,mca,wp2,wd,re,resi,q10p,q10z,q10b,rsin,nit0,knit
    !real(rk) :: fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
    real(rk) :: fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
-   logical :: use_icealgae = .true.
+   logical :: use_icealgae 
 
 !
 
@@ -131,8 +133,9 @@
    ! NB: all rates must be provided in values per day,
    ! and are converted here to values per second.
 #endif 
-#if 0
+
 !there isnt actually a yaml to read from? jpnote 
+   call self%get_parameter(self%use_icealgae, 'use_icealgae', '', 'use icealgae', default=.false.)
    call self%get_parameter(self%kc,'kc','m-1 (mmolN m-3)-1','PAR attenuation coefficient for ph1+ph2+det',default=0.06_rk)
    call self%get_parameter(self%alpha,'alpha','d-1 (W m-2)-1','Initial slope of P-I curve',default=0.08_rk)
    call self%get_parameter(self%num,'num','d-1','maximum phytoplankton specific growth rate',default=2.0_rk)
@@ -163,7 +166,7 @@
    call self%get_parameter(self%rsin,'rsin','molSi:molN','ph2 uptake ratio for silicon to nitrogen',default=2.0_rk)
    call self%get_parameter(self%nit0,'nit0','d-1','nitrification rate at 0 degree celcius',default=0.03_rk)
    call self%get_parameter(self%knit,'knit','degC-1','temperature sensivity for nitrification',default= 0.0693_rk)
-#endif
+
 !jpnote and the icealgae variables ..........
 
 !read in no3_0 from eco ;;
@@ -178,7 +181,7 @@
    call self%get_parameter(self%bsi_0, 'bsi_0','umol/L', 'bsi initial value', default=1.0_rk)
    call self%get_parameter(self%sil_0 , 'sil_0 ','umol/L', 'sil initial value', default=5.0_rk)
 
-   if (use_icealgae) then !read in icealgae model vars 
+   if (self%use_icealgae) then !read in icealgae model vars 
    !call self%get_parameter(self%r_pond, 'r_pond','', 'melt pond drainage rate', default=0.0175_rk)
    call self%get_parameter(self%fmethod, 'fmethod','', 'method for ice-ocean flux', default=0.0_rk)
    call self%get_parameter(self%fflush , 'fflush','', 'method for flushing', default=0.0_rk)
@@ -211,36 +214,36 @@
 
 
 
-   self%kc    = kc
-   self%alpha = alpha/spd
-   self%num = num/spd
-   self%kn = kn
-   self%a = a
-   self%ks = ks
-   self%lfe1 = lfe1
-   self%lfe2 = lfe2
-   self%mpa = mpa/spd
-   self%mpd = mpd/spd
-   self%beta = beta/spd
-   self%rm = rm/spd
-   self%rc = rc/spd
-   self%kp = kp
-   self%kz = kz
-   self%ga1 = ga1
-   self%ga2 = ga2
-   self%pd = pd
-   self%mza = mza/spd
-   self%mca = mca
-   self%wp2 = wp2/spd
-   self%wd = wd/spd
-   self%re = re/spd
-   self%resi = resi/spd
-   self%q10p = q10p
-   self%q10z = q10z
-   self%q10b = q10b
-   self%rsin = rsin
-   self%nit0 = nit0/spd
-   self%knit = knit
+   !self%kc    = kc
+   self%alpha = self%alpha/self%spd
+   self%num = self%num/self%spd
+   !self%kn = kn
+   !self%a = a
+   !self%ks = ks
+   !self%lfe1 = lfe1
+   !self%lfe2 = lfe2
+   self%mpa = self%mpa/self%spd
+   self%mpd = self%mpd/self%spd
+   self%beta = self%beta/self%spd
+   self%rm = self%rm/self%spd
+   self%rc = self%rc/self%spd
+   !self%kp = kp
+   !self%kz = kz
+   !self%ga1 = ga1
+   !self%ga2 = ga2
+   !self%pd = pd
+   self%mza = self%mza/self%spd
+   !self%mca = mca
+   self%wp2 = self%wp2/self%spd
+   self%wd = self%wd/self%spd
+   self%re = self%re/self%spd
+   self%resi = self%resi/self%spd
+   !self%q10p = q10p
+   !self%q10z = q10z
+   !self%q10b = q10b
+   !self%rsin = rsin
+   self%nit0 = self%nit0/self%spd
+   !self%knit = knit
    
    ! Register state variables
    call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton',initial_value=ph1_0,minimum=0.0_rk)
