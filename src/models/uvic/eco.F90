@@ -58,7 +58,7 @@ module uvic_eco
    integer, intent(in)                          :: configunit
 ! Declare namelist parameters
    real(rk) :: ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
-   real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
+ !jpnote not needed? !real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
 
    logical :: use_icealgae
    !character(64),dimension(12) :: models !jpnote not needed 
@@ -72,6 +72,8 @@ module uvic_eco
    call self%get_parameter(self%use_icealgae, 'use_icealgae', '', 'use icealgae', default=.false.)
    call self%get_parameter(self%ac,'ac','m-1','light attenuation coefficient', default=0.03_rk)
    call self%get_parameter(self%f_seed, 'f_seed','-', 'fraction of ice algal fux as ph2 seeding', default=0.0_rk)
+ 
+!jpnote: try doing it like they do in bsem (no get parameter just under initliazation and then register_state_variable)
    call self%get_parameter(self%ph1_0, 'ph1_0','umol/L','ph1 initial value', default=1.0_rk )
    call self%get_parameter(self%ph2_0 , 'ph2_0 ','umol/L', 'ph2 initial value', default=0.5_rk)
    call self%get_parameter(self%zo1_0, 'zo1_0','umol/L', 'zo1 initial value', default=0.2_rk)
@@ -82,6 +84,7 @@ module uvic_eco
    call self%get_parameter(self%de2_0, 'de2_0','umol/L', 'de2 initial value', default=1.0_rk)
    call self%get_parameter(self%bsi_0, 'bsi_0','umol/L', 'bsi initial value', default=1.0_rk)
    call self%get_parameter(self%sil_0 , 'sil_0 ','umol/L', 'sil initial value', default=5.0_rk)
+  
    call self%get_parameter(self%w1, 'w1 ','m/d', 'de1 sinking rate',default=6.0_rk)
    self%w1  = self%w1 / self%spd  
    call self%get_parameter(self%w2, 'w2 ','m/d', 'de2 sinking rate', default=6.0_rk)
@@ -294,16 +297,30 @@ end if
 #endif 
 
 ! Register prognostic variables
-      call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',initial_value=ph1_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=ph2_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=zo1_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',initial_value=zo2_0,minimum=0.0_rk)   
-      call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=no3_0,minimum=0.0_rk)                         
-      call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=nh4_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_de1,'de1','umol/L','Small Detritus',initial_value=de1_0,minimum=0.0_rk,vertical_movement=self%w1)                         
-      call self%register_state_variable(self%id_de2,'de2','umol/L','Large Detritus',initial_value=de2_0,minimum=0.0_rk,vertical_movement=self%w2)                         
-      call self%register_state_variable(self%id_bsi,'bsi','umol/L','Biogenic Silica',initial_value=bsi_0,minimum=0.0_rk,vertical_movement=self%w2)                         
-      call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=sil_0,minimum=0.0_rk)                         
+!jpnote these register_state_vars replace the yaml read? put them under intiliazation: 
+      call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',initial_value=self%ph1_0,minimum=0.0_rk) !jpnote change initial values to self% 
+      call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=self%ph2_0,minimum=0.0_rk)
+      call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=self%zo1_0,minimum=0.0_rk)
+      call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',initial_value=self%zo2_0,minimum=0.0_rk)   
+      call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=self%no3_0,minimum=0.0_rk)                         
+      call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=self%nh4_0,minimum=0.0_rk)
+      call self%register_state_variable(self%id_de1,'de1','umol/L','Small Detritus',initial_value=self%de1_0,minimum=0.0_rk,vertical_movement=self%w1)                         
+      call self%register_state_variable(self%id_de2,'de2','umol/L','Large Detritus',initial_value=self%de2_0,minimum=0.0_rk,vertical_movement=self%w2)                         
+      call self%register_state_variable(self%id_bsi,'bsi','umol/L','Biogenic Silica',initial_value=self%bsi_0,minimum=0.0_rk,vertical_movement=self%w2)                         
+      call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=self%sil_0,minimum=0.0_rk)  
+      
+#if 0    
+      call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',initial_value=self%ph1_0,minimum=0.0_rk) !jpnote change initial values to self% 
+      call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=self%ph2_0,minimum=0.0_rk)
+      call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=self%zo1_0,minimum=0.0_rk)
+      call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',initial_value=self%zo2_0,minimum=0.0_rk)   
+      call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=self%no3_0,minimum=0.0_rk)                         
+      call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=self%nh4_0,minimum=0.0_rk)
+      call self%register_state_variable(self%id_de1,'de1','umol/L','Small Detritus',initial_value=self%de1_0,minimum=0.0_rk,vertical_movement=self%w1)                         
+      call self%register_state_variable(self%id_de2,'de2','umol/L','Large Detritus',initial_value=self%de2_0,minimum=0.0_rk,vertical_movement=self%w2)                         
+      call self%register_state_variable(self%id_bsi,'bsi','umol/L','Biogenic Silica',initial_value=self%bsi_0,minimum=0.0_rk,vertical_movement=self%w2)                         
+      call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=self%sil_0,minimum=0.0_rk) 
+#endif
       call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph1,scale_factor=self%ac)
       call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph2,scale_factor=self%ac)
       call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_de1,scale_factor=self%ac)
@@ -401,7 +418,7 @@ end if
 
    _LOOP_BEGIN_
 
-! Retrieve prognostic variables
+! Retrieve prognostic variables   !jpnote should I set these to eg.self%ph1 
    _GET_(self%id_ph1,ph1)
    _GET_(self%id_ph2,ph2)
    _GET_(self%id_zo1,zo1)

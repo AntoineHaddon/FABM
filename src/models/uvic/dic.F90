@@ -82,7 +82,7 @@ contains
       class (type_uvic_dic), intent(inout), target :: self
       integer,                          intent(in)            :: configunit
 ! Declare namelist parameters
-   real(rk) :: dic_0, alk_0, dic_sw, alk_sw, dic_ice, alk_ice, ik_diff, ik_on, ice_on, IA_on, tplv, btlv, prop2sw, prop2sw_melt
+   !jpnote not needed bc self%dic exists ? !real(rk) :: dic_0, alk_0, dic_sw, alk_sw, dic_ice, alk_ice, ik_diff, ik_on, ice_on, IA_on, tplv, btlv, prop2sw, prop2sw_melt
    integer  :: icepump, IApump
 
 !jpnote yaml variables 

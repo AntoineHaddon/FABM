@@ -14,7 +14,7 @@
 module uvic_icealgae
 
    use fabm_types
-   use fabm_expressions
+   use fabm_expressions  !jpnote needed?  
    use fabm_standard_variables
 
    implicit none
@@ -30,7 +30,8 @@ module uvic_icealgae
       type (type_dependency_id) :: id_ph2,id_no3SW,id_nh4SW,id_silSW,id_u,id_v
       type (type_horizontal_dependency_id) :: id_airt,id_ice_hs,id_par,id_temp,id_ice_hi,id_botmelt,id_botgrowth,id_topmelt,id_termelt,id_Amelt
       type (type_global_dependency_id) :: id_dt 
-! Declare namelist parameters
+
+! Declare model parameters
       real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,rnit,skno3_0,sknh4_0,sksil_0,ia_0,ia_b,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
 ! Declare anything else used in all procedures
       real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd)
@@ -48,7 +49,8 @@ contains
    class (type_uvic_icealgae), intent(inout), target :: self
    integer, intent(in)                          :: configunit
 ! Declare namelist parameters
-   real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,rnit,skno3_0,sknh4_0,sksil_0,ia_0,ia_b,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
+   !jpnote dont need to declare again bc already have self% 
+   !real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,rnit,skno3_0,sknh4_0,sksil_0,ia_0,ia_b,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
 
    !read in vals from fabm.yaml 
 
@@ -150,10 +152,10 @@ contains
    self%sil2n  = sil2n
 #endif
 ! Register prognostic variables
-      call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',initial_value=skno3_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',initial_value=sksil_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=ia_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',initial_value=sknh4_0,minimum=0.0_rk)
+      call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',initial_value=self%skno3_0,minimum=0.0_rk)  !jpnote changed initial value to self %
+      call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',initial_value=self%sksil_0,minimum=0.0_rk)
+      call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=self%ia_0,minimum=0.0_rk)
+      call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',initial_value=self%sknh4_0,minimum=0.0_rk)
 ! Register diagnostic variables
       call self%register_horizontal_diagnostic_variable(self%id_chl,'chl','mg m-3','Ice algae in per cubic meter',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_chlia,'chlia','mg m-2','Ice algae in per square meter',source=source_do_horizontal)
@@ -217,6 +219,7 @@ contains
    _DECLARE_ARGUMENTS_DO_SURFACE_
    real(rk) :: ia,no3,nh4,sil,temp,par,ice_hi,ice_hs,k_snow,albedo,airt,ph2,no3SW,nh4SW,silSW,topmelt,termelt,botmelt,botgrowth,u,v,utaui,lice,llig,lno3,lsil,mum,hnu,grow
    real(rk) :: fgrow,fgraze,fmort,fmort2,fmelt,fpond,fpondno3,fpondnh4,fpondsil,fnit,fno3up,fnh4up,fsilup,fskelno3,fskelnh4,fskelsil,ier,dt,Amelt
+   !jpnote only redeclaring bc we are putting self% values in 
    _HORIZONTAL_LOOP_BEGIN_
    _GET_HORIZONTAL_(self%id_ia,ia)
    _GET_HORIZONTAL_(self%id_no3,no3)
@@ -341,14 +344,14 @@ contains
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fskelno3,fskelno3*self%spd)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fskelnh4,fskelnh4*self%spd)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fskelsil,fskelsil*self%spd)
-   _SET_HORIZONTAL_DIAGNOSTIC_(self%id_ier,ier*self%spd)
+   _SET_HORIZONTAL_DIAGNOSTIC_(self%id_ier,ier*self%spd)  !**
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fno3up,fno3up*self%spd)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fsilup,fsilup*self%spd)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_lice,lice)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_llig,llig)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_lno3,lno3)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_lsil,lsil)
-   _SET_HORIZONTAL_DIAGNOSTIC_(self%id_hnu,hnu)
+   _SET_HORIZONTAL_DIAGNOSTIC_(self%id_hnu,hnu)  !** there is some output
    _HORIZONTAL_LOOP_END_
    end subroutine do_surface
 end module uvic_icealgae
