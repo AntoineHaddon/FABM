@@ -268,7 +268,7 @@
    call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=self%nh4_0,minimum=0.0_rk)
    call self%register_state_variable(self%id_det,'det','umol/L','Detritus',initial_value=self%det_0,minimum=0.0_rk,vertical_movement=self%wd)                         
    call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=self%sil_0,minimum=0.0_rk)                         
-   call self%register_state_variable(self%id_psi,'psi','umol/L','Particulate silica',initial_value=psi_0,minimum=0.0_rk,vertical_movement=self%wd)                         
+   call self%register_state_variable(self%id_psi,'psi','umol/L','Particulate silica',initial_value=self%psi_0,minimum=0.0_rk,vertical_movement=self%wd)                         
    call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph1,scale_factor=self%kc)
    call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph2,scale_factor=self%kc)
    call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_det,scale_factor=self%kc)
