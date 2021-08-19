@@ -263,7 +263,7 @@
    call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=self%ph2_0,minimum=0.0_rk,vertical_movement=self%wp2)
    call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=self%zo1_0,minimum=0.0_rk)
    call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',initial_value=self%zo2_0,minimum=0.0_rk)
- ! call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=self%no3_0,minimum=0.0_rk)                         
+   call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=self%no3_0,minimum=0.0_rk)                         
    call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=self%nh4_0,minimum=0.0_rk)
    call self%register_state_variable(self%id_det,'det','umol/L','Detritus',initial_value=self%det_0,minimum=0.0_rk,vertical_movement=self%wd)                         
    call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=self%sil_0,minimum=0.0_rk)                         
