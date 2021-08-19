@@ -63,7 +63,7 @@
 ! !INPUT PARAMETERS:
    class (type_uvic_npzd_resolute), intent(inout), target :: self
    integer,                     intent(in)            :: configunit
-   real(rk) :: det_0,nh4_0,no3_0,ph1_0,ph2_0,psi_0,sil_0,zo1_0,zo2_0
+   !real(rk) :: det_0,nh4_0,no3_0,ph1_0,ph2_0,psi_0,sil_0,zo1_0,zo2_0
   ! real(rk) :: ph1_0,ph2_0,zo1_0,zo2_0,nh3_0,nh4_0,det_0,sil_0,psi_0,kc,alpha,num,kn,a,ks,lfe1,lfe2,mpa,mpd,beta,rm,rc,kp,kz,ga1,ga2,pd,mza,mca,wp2,wd,re,resi,q10p,q10z,q10b,rsin,nit0,knit
    !real(rk) :: fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
    real(rk) :: fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
@@ -259,12 +259,12 @@
    !self%knit = knit
 #endif 
    ! Register state variables
-   no3_0=7.2 
+   !no3_0=7.2 
    call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton',initial_value=self%ph1_0,minimum=0.0_rk)
    call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=self%ph2_0,minimum=0.0_rk,vertical_movement=self%wp2)
    call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=self%zo1_0,minimum=0.0_rk)
    call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',initial_value=self%zo2_0,minimum=0.0_rk)
-   call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=no3_0,minimum=0.0_rk)                         
+   call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=self%no3_0,minimum=0.0_rk)                         
    call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=self%nh4_0,minimum=0.0_rk)
    call self%register_state_variable(self%id_det,'det','umol/L','Detritus',initial_value=self%det_0,minimum=0.0_rk,vertical_movement=self%wd)                         
    call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=self%sil_0,minimum=0.0_rk)                         
