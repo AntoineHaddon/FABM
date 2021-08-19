@@ -63,14 +63,14 @@
 ! !INPUT PARAMETERS:
    class (type_uvic_npzd_resolute), intent(inout), target :: self
    integer,                     intent(in)            :: configunit
-   !real(rk) :: det_0,nh4_0,no3_0,ph1_0,ph2_0,psi_0,sil_0,zo1_0,zo2_0
+   real(rk) :: det_0,nh4_0,no3_0,ph1_0,ph2_0,psi_0,sil_0,zo1_0,zo2_0
    !real(rk) :: ph1_0,ph2_0,zo1_0,zo2_0,nh3_0,nh4_0,det_0,sil_0,psi_0,kc,alpha,num,kn,a,ks,lfe1,lfe2,mpa,mpd,beta,rm,rc,kp,kz,ga1,ga2,pd,mza,mca,wp2,wd,re,resi,q10p,q10z,q10b,rsin,nit0,knit
    !real(rk) :: fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
    !real(rk) :: fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
    logical :: use_icealgae 
 
 !
-#if 0
+!#if 0
 ! !LOCAL VARIABLES:
    real(rk) :: kc    = 0.06
    real(rk) :: alpha = 0.08
@@ -102,9 +102,9 @@
    real(rk) :: rsin  = 2.0
    real(rk) :: nit0  = 0.03
    real(rk) :: knit  = 0.0693
-   real(rk), parameter :: spd = 86400.0_rk
-   character(64),dimension(12) :: models
-#endif
+   !real(rk), parameter :: spd = 86400.0_rk
+   !character(64),dimension(12) :: models
+!#endif
 #if 0
    ! Define the namelist
    namelist /fabm_nml/ models
@@ -135,6 +135,7 @@
 #endif 
 
 !there isnt actually a yaml to read from? jpnote 
+#if 0
    call self%get_parameter(self%use_icealgae, 'use_icealgae', '', 'use icealgae', default=.false.)
    call self%get_parameter(self%kc,'kc','m-1 (mmolN m-3)-1','PAR attenuation coefficient for ph1+ph2+det',default=0.06_rk)
    call self%get_parameter(self%alpha,'alpha','d-1 (W m-2)-1','Initial slope of P-I curve',default=0.08_rk)
@@ -179,10 +180,11 @@
    call self%get_parameter(self%nit0,'nit0','d-1','nitrification rate at 0 degree celcius',default=0.03_rk)
    self%nit0 = self%nit0/self%spd
    call self%get_parameter(self%knit,'knit','degC-1','temperature sensivity for nitrification',default= 0.0693_rk)
-
+#endif
 !jpnote and the icealgae variables ..........
 
 !read in no3_0 from eco ;;
+
    call self%get_parameter(self%ph1_0, 'ph1_0','umol/L','ph1 initial value', default=1.0_rk )
    call self%get_parameter(self%ph2_0 , 'ph2_0 ','umol/L', 'ph2 initial value', default=0.5_rk)
    call self%get_parameter(self%zo1_0, 'zo1_0','umol/L', 'zo1 initial value', default=0.2_rk)
@@ -192,9 +194,9 @@
    !call self%get_parameter(self%de1_0, 'de1_0','umol/L','de1 initial value ', default=1.0_rk)
   ! call self%get_parameter(self%de2_0, 'de2_0','umol/L', 'de2 initial value', default=1.0_rk)
    !call self%get_parameter(self%bsi_0, 'bsi_0','umol/L', 'bsi initial value', default=1.0_rk)
-   call self%get_parameter(self%sil_0, 'det_0','', 'det', default=0.0_rk)
+  ! call self%get_parameter(self%det_0, 'det_0','', 'det', default=0.0_rk)
    call self%get_parameter(self%sil_0, 'sil_0','', 'sil initial value', default=5.0_rk)
-   call self%get_parameter(self%sil_0, 'psi_0','', 'psi', default=0.0_rk)
+   !call self%get_parameter(self%PSI_0, 'psi_0','', 'psi', default=0.0_rk)
 
    if (self%use_icealgae) then !read in icealgae model vars 
    !call self%get_parameter(self%r_pond, 'r_pond','', 'melt pond drainage rate', default=0.0175_rk)
@@ -227,50 +229,50 @@
    call self%get_parameter(self%sil2n, 'sil2n','', 'silicon to nitrogen ratio', default=1.7_rk)
    endif
 
-#if 0
 
-   !self%kc    = kc
-   self%alpha = self%alpha/self%spd
-   self%num = self%num/self%spd
-   !self%kn = kn
-   !self%a = a
-   !self%ks = ks
-   !self%lfe1 = lfe1
-   !self%lfe2 = lfe2
-   self%mpa = self%mpa/self%spd
-   self%mpd = self%mpd/self%spd
-   self%beta = self%beta/self%spd
-   self%rm = self%rm/self%spd
-   self%rc = self%rc/self%spd
-   !self%kp = kp
-   !self%kz = kz
-   !self%ga1 = ga1
-   !self%ga2 = ga2
-   !self%pd = pd
-   self%mza = self%mza/self%spd
-   !self%mca = mca
-   self%wp2 = self%wp2/self%spd
-   self%wd = self%wd/self%spd
-   self%re = self%re/self%spd
-   self%resi = self%resi/self%spd
-   !self%q10p = q10p
-   !self%q10z = q10z
-   !self%q10b = q10b
-   !self%rsin = rsin
-   self%nit0 = self%nit0/self%spd
-   !self%knit = knit
-#endif 
+
+   self%kc    = kc
+   self%alpha = alpha/self%spd
+   self%num = num/self%spd
+   self%kn = kn
+   self%a = a
+   self%ks = ks
+   self%lfe1 = lfe1
+   self%lfe2 = lfe2
+   self%mpa = mpa/self%spd
+   self%mpd = mpd/self%spd
+   self%beta = beta/self%spd
+   self%rm = rm/self%spd
+   self%rc = rc/self%spd
+   self%kp = kp
+   self%kz = kz
+   self%ga1 = ga1
+   self%ga2 = ga2
+   self%pd = pd
+   self%mza = mza/self%spd
+   self%mca = mca
+   self%wp2 = wp2/self%spd
+   self%wd = wd/self%spd
+   self%re = re/self%spd
+   self%resi = resi/self%spd
+   self%q10p = q10p
+   self%q10z = q10z
+   self%q10b = q10b
+   self%rsin = rsin
+   self%nit0 = nit0/self%spd
+   self%knit = knit
+
    ! Register state variables
    !no3_0=7.2 
-   call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton',initial_value=self%ph1_0,minimum=0.0_rk)
-   call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=self%ph2_0,minimum=0.0_rk,vertical_movement=self%wp2)
-   call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=self%zo1_0,minimum=0.0_rk)
-   call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',initial_value=self%zo2_0,minimum=0.0_rk)
-   call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=self%no3_0,minimum=0.0_rk)                         
-   call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=self%nh4_0,minimum=0.0_rk)
-   call self%register_state_variable(self%id_det,'det','umol/L','Detritus',initial_value=self%det_0,minimum=0.0_rk,vertical_movement=self%wd)                         
-   call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=self%sil_0,minimum=0.0_rk)                         
-   call self%register_state_variable(self%id_psi,'psi','umol/L','Particulate silica',initial_value=self%psi_0,minimum=0.0_rk,vertical_movement=self%wd)                         
+   call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton',minimum=0.0_rk) !,initial_value=self%ph1_0
+   call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',minimum=0.0_rk,vertical_movement=self%wp2) !initial_value=self%ph2_0,
+   call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',minimum=0.0_rk) !,initial_value=self%zo1_0
+   call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',minimum=0.0_rk)   !initial_value=self%zo2_0
+   call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=self%no3_0,minimum=0.0_rk)      !initial_value=self%no3_0,                   
+   call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',minimum=0.0_rk)   !,initial_value=self%nh4_0
+   call self%register_state_variable(self%id_det,'det','umol/L','Detritus',minimum=0.0_rk,vertical_movement=self%wd)   !,initial_value=self%det_0                       
+   call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',minimum=0.0_rk)      !,initial_value=self%sil_0                     
+   call self%register_state_variable(self%id_psi,'psi','umol/L','Particulate silica',minimum=0.0_rk,vertical_movement=self%wd)    !,initial_value=self%psi_0                      
    call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph1,scale_factor=self%kc)
    call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph2,scale_factor=self%kc)
    call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_det,scale_factor=self%kc)

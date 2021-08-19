@@ -7,7 +7,7 @@ add_library(fabm_models_uvic OBJECT
             dic.F90
             dms.F90
             icedms.F90
-            dmsp_papa.F90
+            #dmsp_papa.F90
            )
 
 add_dependencies(fabm_models_uvic fabm_base)
