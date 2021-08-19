@@ -64,8 +64,8 @@
    class (type_uvic_npzd_resolute), intent(inout), target :: self
    integer,                     intent(in)            :: configunit
    !real(rk) :: det_0,nh4_0,no3_0,ph1_0,ph2_0,psi_0,sil_0,zo1_0,zo2_0
-   real(rk) :: ph1_0,ph2_0,zo1_0,zo2_0,nh3_0,nh4_0,det_0,sil_0,psi_0,kc,alpha,num,kn,a,ks,lfe1,lfe2,mpa,mpd,beta,rm,rc,kp,kz,ga1,ga2,pd,mza,mca,wp2,wd,re,resi,q10p,q10z,q10b,rsin,nit0,knit
-   real(rk) :: fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
+   !real(rk) :: ph1_0,ph2_0,zo1_0,zo2_0,nh3_0,nh4_0,det_0,sil_0,psi_0,kc,alpha,num,kn,a,ks,lfe1,lfe2,mpa,mpd,beta,rm,rc,kp,kz,ga1,ga2,pd,mza,mca,wp2,wd,re,resi,q10p,q10z,q10b,rsin,nit0,knit
+   !real(rk) :: fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
    !real(rk) :: fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
    logical :: use_icealgae 
 

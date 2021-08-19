@@ -57,7 +57,7 @@ module uvic_eco
    class (type_uvic_eco), intent(inout), target :: self
    integer, intent(in)                          :: configunit
 ! Declare namelist parameters
-   real(rk) :: ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
+   !real(rk) :: ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
  !jpnote not needed? !real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
 
    logical :: use_icealgae
@@ -309,18 +309,6 @@ end if
       call self%register_state_variable(self%id_bsi,'bsi','umol/L','Biogenic Silica',initial_value=self%bsi_0,minimum=0.0_rk,vertical_movement=self%w2)                         
       call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=self%sil_0,minimum=0.0_rk)  
       
-#if 0    
-      call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',initial_value=self%ph1_0,minimum=0.0_rk) !jpnote change initial values to self% 
-      call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=self%ph2_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=self%zo1_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',initial_value=self%zo2_0,minimum=0.0_rk)   
-      call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=self%no3_0,minimum=0.0_rk)                         
-      call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=self%nh4_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_de1,'de1','umol/L','Small Detritus',initial_value=self%de1_0,minimum=0.0_rk,vertical_movement=self%w1)                         
-      call self%register_state_variable(self%id_de2,'de2','umol/L','Large Detritus',initial_value=self%de2_0,minimum=0.0_rk,vertical_movement=self%w2)                         
-      call self%register_state_variable(self%id_bsi,'bsi','umol/L','Biogenic Silica',initial_value=self%bsi_0,minimum=0.0_rk,vertical_movement=self%w2)                         
-      call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=self%sil_0,minimum=0.0_rk) 
-#endif
       call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph1,scale_factor=self%ac)
       call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph2,scale_factor=self%ac)
       call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_de1,scale_factor=self%ac)
