@@ -135,8 +135,9 @@
 #endif 
 
 !there isnt actually a yaml to read from? jpnote 
-#if 0
+
    call self%get_parameter(self%use_icealgae, 'use_icealgae', '', 'use icealgae', default=.false.)
+#if 0
    call self%get_parameter(self%kc,'kc','m-1 (mmolN m-3)-1','PAR attenuation coefficient for ph1+ph2+det',default=0.06_rk)
    call self%get_parameter(self%alpha,'alpha','d-1 (W m-2)-1','Initial slope of P-I curve',default=0.08_rk)
    self%alpha = self%alpha/self%spd
