@@ -192,9 +192,9 @@
    !call self%get_parameter(self%de1_0, 'de1_0','umol/L','de1 initial value ', default=1.0_rk)
   ! call self%get_parameter(self%de2_0, 'de2_0','umol/L', 'de2 initial value', default=1.0_rk)
    !call self%get_parameter(self%bsi_0, 'bsi_0','umol/L', 'bsi initial value', default=1.0_rk)
-   call self%get_parameter(self%sil_0, 'det','', 'det', default=0.0_rk)
+   call self%get_parameter(self%sil_0, 'det_0','', 'det', default=0.0_rk)
    call self%get_parameter(self%sil_0, 'sil_0','', 'sil initial value', default=5.0_rk)
-   call self%get_parameter(self%sil_0, 'psi_0','', '', default=0.0_rk)
+   call self%get_parameter(self%sil_0, 'psi_0','', 'psi', default=0.0_rk)
 
    if (self%use_icealgae) then !read in icealgae model vars 
    !call self%get_parameter(self%r_pond, 'r_pond','', 'melt pond drainage rate', default=0.0175_rk)
