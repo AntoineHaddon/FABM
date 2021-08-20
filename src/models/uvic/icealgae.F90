@@ -23,7 +23,7 @@ module uvic_icealgae
 
    type, extends(type_base_model), public :: type_uvic_icealgae
 ! Declare horizontal prognostic variables      
-      type (type_surface_state_variable_id) :: id_no3, id_sil,id_ia,id_nh4
+      type (type_surface_state_variable_id) :: id_no3,id_sil,id_ia,id_nh4
 ! Declare horizontal diagnostic variables
       type (type_horizontal_diagnostic_variable_id) :: id_chl,id_chlia,id_fgrow,id_fgraze,id_fmort,id_fmort2,id_fmelt,id_fpond,id_fpondno3,id_fpondnh4,id_fpondsil,id_fno3up,id_fsilup,id_fskelno3,id_fskelnh4,id_fskelsil,id_ier,id_lice,id_llig,id_lno3,id_lsil,id_hnu,id_fnit
 ! Declare environmental variables
@@ -152,10 +152,10 @@ contains
    self%sil2n  = sil2n
 #endif
 ! Register prognostic variables
-      call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',initial_value=self%skno3_0,minimum=0.0_rk)  !jpnote changed initial value to self %
-      call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',initial_value=self%sksil_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=self%ia_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',initial_value=self%sknh4_0,minimum=0.0_rk)
+      call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',initial_value=7.2,minimum=0.0_rk)  !self%skno3_0 !jpnote changed initial value to self %
+      call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',initial_value=14.7,minimum=0.0_rk) ! self%sksil_0
+      call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=1.0,minimum=0.0_rk)  !self%ia_0 !get rid of inital values and see what happens, or make the inital values more explicit because maybe they arent being read in properly 
+      call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',initial_value=0.01,minimum=0.0_rk) ! self%sknh4_0
 ! Register diagnostic variables
       call self%register_horizontal_diagnostic_variable(self%id_chl,'chl','mg m-3','Ice algae in per cubic meter',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_chlia,'chlia','mg m-2','Ice algae in per square meter',source=source_do_horizontal)
@@ -202,7 +202,7 @@ contains
      ! call self%register_dependency 
 
       call self%register_dependency(self%id_ph2,'uvic_eco_ph2','','')
-      call self%register_dependency(self%id_no3SW,'uvic_eco_no3','','')
+      call self%register_dependency(self%id_no3SW,'uvic_eco_no3','','') !jpnote? maybe here ? 
       call self%register_dependency(self%id_nh4SW,'uvic_eco_nh4','','')
       call self%register_dependency(self%id_silSW,'uvic_eco_sil','','')
       call self%request_coupling(self%id_ph2,'uvic_eco_ph2')
