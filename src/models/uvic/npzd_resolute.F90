@@ -264,16 +264,16 @@
    self%knit = knit
 
    ! Register state variables
-   no3_0=7.2 
+   !no3_0=7.2 
    call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton',initial_value=ph1_0,minimum=0.0_rk) !,initial_value=self%ph1_0
    call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=ph2_0,minimum=0.0_rk,vertical_movement=self%wp2) !initial_value=self%ph2_0,
    call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=zo1_0,minimum=0.0_rk) !,initial_value=self%zo1_0
    call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',initial_value=zo2_0,minimum=0.0_rk)   !initial_value=self%zo2_0
    call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=no3_0,minimum=0.0_rk)      !initial_value=self%no3_0,                   
    call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=nh4_0,minimum=0.0_rk)   !,initial_value=self%nh4_0
-   call self%register_state_variable(self%id_det,'det','umol/L','Detritus',minimum=0.0_rk,vertical_movement=self%wd)   !,initial_value=self%det_0                       
+   call self%register_state_variable(self%id_det,'det','umol/L','Detritus',initial_value=det_0,minimum=0.0_rk,vertical_movement=self%wd)   !,initial_value=self%det_0                       
    call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=sil_0, minimum=0.0_rk)      !,initial_value=self%sil_0                     
-   call self%register_state_variable(self%id_psi,'psi','umol/L','Particulate silica',minimum=0.0_rk,vertical_movement=self%wd)    !,initial_value=self%psi_0                      
+   call self%register_state_variable(self%id_psi,'psi','umol/L','Particulate silica',initial_value=psi_0,minimum=0.0_rk,vertical_movement=self%wd)    !,initial_value=self%psi_0                      
    call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph1,scale_factor=self%kc)
    call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph2,scale_factor=self%kc)
    call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_det,scale_factor=self%kc)
