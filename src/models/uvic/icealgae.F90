@@ -152,10 +152,10 @@ contains
    self%sil2n  = sil2n
 #endif
    ! Register prognostic variables
-      call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',initial_value=self%skno3_0,minimum=0.0_rk)  !self%skno3_0 !jpnote changed initial value to self %
-      call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',initial_value=self%sksil_0,minimum=0.0_rk) ! self%sksil_0
-      call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=self%ia_0,minimum=0.0_rk)  !self%ia_0 !get rid of inital values and see what happens, or make the inital values more explicit because maybe they arent being read in properly 
-      call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',initial_value=self%sknh4_0,minimum=0.0_rk) ! self%sknh4_0
+      call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',initial_value=self%skno3_0,minimum=0.0_rk) !jpnote changed initial value to self %
+      call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',initial_value=self%sksil_0,minimum=0.0_rk) 
+      call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=self%ia_0,minimum=0.0_rk)  
+      call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',initial_value=self%sknh4_0,minimum=0.0_rk) 
 ! Register diagnostic variables
       call self%register_horizontal_diagnostic_variable(self%id_chl,'chl','mg m-3','Ice algae in per cubic meter',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_chlia,'chlia','mg m-2','Ice algae in per square meter',source=source_do_horizontal)
