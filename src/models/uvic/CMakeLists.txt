@@ -2,7 +2,7 @@ add_library(fabm_models_uvic OBJECT
             uvic_model_library.F90
             eco.F90
             icealgae.F90
-           # npzd_resolute.F90
+            npzd_resolute.F90
             #npzd_papa.F90
            # dic.F90
            # dms.F90

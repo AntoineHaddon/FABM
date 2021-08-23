@@ -405,7 +405,7 @@ end if
 
    _LOOP_BEGIN_
 
-! Retrieve prognostic variables   !jpnote should I set these to eg.self%ph1 
+! Retrieve prognostic variables   !jpnote 
    _GET_(self%id_ph1,ph1)
    _GET_(self%id_ph2,ph2)
    _GET_(self%id_zo1,zo1)
