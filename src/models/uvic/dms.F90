@@ -300,8 +300,11 @@ contains
 !  fdmsbac = self%k_dms*10./(par+10.)*(dms/(dms+self%h_dms))*dms
    fdmspho = self%k_pho*par/(par+1)*dms
 ! Compute and save prognostic variables
-   _SET_ODE_(self%id_dms,fph1dms+fph2dms+fspdph1+fspdph2+fspddms+fbacdms-fdmsbac-fdmspho)
-   _SET_ODE_(self%id_dmspd,fph1lys+fph2lys+fzo1spd+fph1spd+fzo2spd+fph2spd-fspddms-fspdbac-fspdph1-fspdph2)
+   !jpnote change all _SET_ODE_ to _ADD_SOURCE_
+   !_SET_ODE_(self%id_dms,fph1dms+fph2dms+fspdph1+fspdph2+fspddms+fbacdms-fdmsbac-fdmspho)
+   _ADD_SOURCE_(self%id_dms,fph1dms+fph2dms+fspdph1+fspdph2+fspddms+fbacdms-fdmsbac-fdmspho)
+  ! _SET_ODE_(self%id_dmspd,fph1lys+fph2lys+fzo1spd+fph1spd+fzo2spd+fph2spd-fspddms-fspdbac-fspdph1-fspdph2)
+   _ADD_SOURCE_(self%id_dmspd,fph1lys+fph2lys+fzo1spd+fph1spd+fzo2spd+fph2spd-fspddms-fspdbac-fspdph1-fspdph2)
 ! Save diagnostic variables
    _SET_DIAGNOSTIC_(self%id_fph1dms,fph1dms*self%spd)
    _SET_DIAGNOSTIC_(self%id_fph2dms,fph2dms*self%spd)

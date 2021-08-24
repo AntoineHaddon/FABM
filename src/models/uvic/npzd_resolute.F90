@@ -407,14 +407,22 @@
 
    ! Compute and save prognostic variables
 
-   _SET_ODE_(self%id_ph1,nut_ph1-ph1_zo1-ph1_nh4)
-   _SET_ODE_(self%id_ph2,nut_ph2-ph2_zo2-ph2_nh4-ph2_det-ph2_agg)
-   _SET_ODE_(self%id_zo1,fo1_zo1-zo1_zo2-zo1_nh4)
-   _SET_ODE_(self%id_no3,-no3_phy+nh4_no3)
-   _SET_ODE_(self%id_nh4,-nh4_phy+det_nh4+ph1_nh4+ph2_nh4+zo1_nh4+zo2_nh4-nh4_no3)
-   _SET_ODE_(self%id_det,ph2_det+fo1_det-det_zo1-det_nh4)
-   _SET_ODE_(self%id_psi,ph2_psi-psi_sil)
-   _SET_ODE_(self%id_sil,-sil_ph2+psi_sil)
+   !_SET_ODE_(self%id_ph1,nut_ph1-ph1_zo1-ph1_nh4)
+   _ADD_SOURCE_(self%id_ph1,nut_ph1-ph1_zo1-ph1_nh4)
+   !_SET_ODE_(self%id_ph2,nut_ph2-ph2_zo2-ph2_nh4-ph2_det-ph2_agg)
+   _ADD_SOURCE_(self%id_ph2,nut_ph2-ph2_zo2-ph2_nh4-ph2_det-ph2_agg)
+   !_SET_ODE_(self%id_zo1,fo1_zo1-zo1_zo2-zo1_nh4)
+   _ADD_SOURCE_(self%id_zo1,fo1_zo1-zo1_zo2-zo1_nh4)
+ !  _SET_ODE_(self%id_no3,-no3_phy+nh4_no3)
+   _ADD_SOURCE_(self%id_no3,-no3_phy+nh4_no3)
+  ! _SET_ODE_(self%id_nh4,-nh4_phy+det_nh4+ph1_nh4+ph2_nh4+zo1_nh4+zo2_nh4-nh4_no3)
+   _ADD_SOURCE_(self%id_nh4,-nh4_phy+det_nh4+ph1_nh4+ph2_nh4+zo1_nh4+zo2_nh4-nh4_no3)
+   !_SET_ODE_(self%id_det,ph2_det+fo1_det-det_zo1-det_nh4)
+   _ADD_SOURCE_(self%id_det,ph2_det+fo1_det-det_zo1-det_nh4)
+  ! _SET_ODE_(self%id_psi,ph2_psi-psi_sil)
+   _ADD_SOURCE_(self%id_psi,ph2_psi-psi_sil)
+ !  _SET_ODE_(self%id_sil,-sil_ph2+psi_sil)
+   _ADD_SOURCE_(self%id_sil,-sil_ph2+psi_sil)
    
    ! Save diagnostic variables
    _SET_DIAGNOSTIC_(self%id_nut_ph1,nut_ph1*spd)

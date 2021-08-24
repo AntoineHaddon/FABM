@@ -441,8 +441,10 @@ contains
       if (depth.gt.tplv .AND. depth.lt.btlv .AND. topgrowth+botgrowth.gt.botmelt+topmelt+termelt) then      !when ICE is GROWING
          fdic_ice = (prop2sw*(-botmelt-topmelt-termelt)+prop2sw*(topgrowth+botgrowth)) * (self%dic_sw-self%dic_ice-self%ik_diff)
          falk_ice = (-botmelt-topmelt-termelt+(topgrowth+botgrowth)) * (self%alk_sw-self%alk_ice-self%ik_diff*2)
-         _SET_ODE_(self%id_dic, fdic_ice/dflv + fdic1)
-         _SET_ODE_(self%id_alk, falk_ice/dflv + falk1)
+         !_SET_ODE_(self%id_dic, fdic_ice/dflv + fdic1) !jpnote changing set_ode to add source
+         _ADD_SOURCE_(self%id_dic, fdic_ice/dflv + fdic1)
+        ! _SET_ODE_(self%id_alk, falk_ice/dflv + falk1)
+         _ADD_SOURCE_(self%id_alk, falk_ice/dflv + falk1)
       elseif (depth.lt.1.4_rk .AND. topgrowth+botgrowth.lt.botmelt+topmelt+termelt) then    !ICE MELT (dilution at surf., only ikaite here)
        !!!!I************ the dilution difference btw ice and sw dic/ta is done in surf subrout below...
        !!!!I************ also note, that the present formulation for ikaite is dissolved and precipitated at the same place, so net 0 effect!!!!
@@ -451,15 +453,21 @@ contains
 !         falk_ice=(-botmelt-topmelt-termelt+topgrowth+botgrowth) * (-self%alk_sw-self%alk_ice-self%ik_diff*2 )
          fdic_ice=0
          falk_ice=0
-         _SET_ODE_(self%id_dic, fdic_ice + fdic1)
-         _SET_ODE_(self%id_alk, falk_ice + falk1)
+        ! _SET_ODE_(self%id_dic, fdic_ice + fdic1)
+         _ADD_SOURCE_(self%id_dic, fdic_ice + fdic1)
+         !_SET_ODE_(self%id_alk, falk_ice + falk1)
+         _ADD_SOURCE_(self%id_alk, falk_ice + falk1)
       else
-         _SET_ODE_(self%id_dic, fdic1)
-         _SET_ODE_(self%id_alk, falk1)
+        ! _SET_ODE_(self%id_dic, fdic1)
+         _ADD_SOURCE_(self%id_dic, fdic1)
+        ! _SET_ODE_(self%id_alk, falk1)
+         _ADD_SOURCE_(self%id_alk, falk1)
       endif
   else if(ice_hi.eq.0.0_rk) then
-      _SET_ODE_(self%id_dic,fdic1)
-      _SET_ODE_(self%id_alk,falk1)
+     ! _SET_ODE_(self%id_dic,fdic1)
+      _ADD_SOURCE_(self%id_dic,fdic1)
+      !_SET_ODE_(self%id_alk,falk1)
+      _ADD_SOURCE_(self%id_alk,falk1)
   endif
 ! end ericmod 9apr18
 
@@ -470,7 +478,8 @@ contains
 
 
 
-   _SET_ODE_(self%id_eco_dic,fdic1)
+   !_SET_ODE_(self%id_eco_dic,fdic1)
+   _ADD_SOURCE_(self%id_eco_dic,fdic1)
 
 ! save diagnostic variables
    _SET_DIAGNOSTIC_(self%id_fdic1,fdic1)
