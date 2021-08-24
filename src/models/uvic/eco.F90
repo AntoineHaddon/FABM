@@ -492,34 +492,48 @@ end if
 !jpnote doesnt exist in any other model exept the ones I brought in 
    !_SET_ODE_ either doesnt exist or needs to be changed 
    if (ph1.lt.self%pmin) then
-    _SET_ODE_(self%id_ph1,fnutph1)
+   ! _SET_ODE_(self%id_ph1,fnutph1)
+    _ADD_SOURCE_(self%id_ph1,fnutph1)
    else
-    _SET_ODE_(self%id_ph1,fnutph1-fph1zo1-fph1nh4)
+   ! _SET_ODE_(self%id_ph1,fnutph1-fph1zo1-fph1nh4)
+    _ADD_SOURCE_(self%id_ph1,fnutph1-fph1zo1-fph1nh4)
    endif
    if (ph2.lt.self%pmin) then
-    _SET_ODE_(self%id_ph2,fnutph2)
+   ! _SET_ODE_(self%id_ph2,fnutph2)
+    _ADD_SOURCE_(self%id_ph2,fnutph2)
    else
-    _SET_ODE_(self%id_ph2,fnutph2-fph2zo2-fph2nh4-fph2de2)
+   ! _SET_ODE_(self%id_ph2,fnutph2-fph2zo2-fph2nh4-fph2de2)
+    _ADD_SOURCE_(self%id_ph2,fnutph2-fph2zo2-fph2nh4-fph2de2)
    endif
    if (zo1.lt.self%pmin) then
-    _SET_ODE_(self%id_zo1,foo1zo1)
+   ! _SET_ODE_(self%id_zo1,foo1zo1)
+    _ADD_SOURCE_(self%id_zo1,foo1zo1)
    else
-    _SET_ODE_(self%id_zo1,foo1zo1-fzo1zo2-fzo1nh4)
+  !  _SET_ODE_(self%id_zo1,foo1zo1-fzo1zo2-fzo1nh4)
+    _ADD_SOURCE_(self%id_zo1,foo1zo1-fzo1zo2-fzo1nh4)
    endif
    if (zo2.lt.self%pmin) then
-    _SET_ODE_(self%id_zo2,foo2zo2)
+   ! _SET_ODE_(self%id_zo2,foo2zo2)
+    _ADD_SOURCE_(self%id_zo2,foo2zo2)
    else
-    _SET_ODE_(self%id_zo2,foo2zo2-fzo2nh4-fzo2htl)
+   ! _SET_ODE_(self%id_zo2,foo2zo2-fzo2nh4-fzo2htl)
+    _ADD_SOURCE_(self%id_zo2,foo2zo2-fzo2nh4-fzo2htl)
    endif
-   _SET_ODE_(self%id_no3,fnh4no3-fno3phy)
+  ! _SET_ODE_(self%id_no3,fnh4no3-fno3phy)
+   _ADD_SOURCE_(self%id_no3,fnh4no3-fno3phy)
 !  _SET_ODE_(self%id_nh4,fde1nh4+fde2nh4+fph1nh4+fph2nh4+fzo1nh4+fzo2nh4-fnh4no3-fnh4phy)
-   _SET_ODE_(self%id_nh4,fde1nh4+fde2nh4+fzo1nh4+fzo2nh4-fnh4no3-fnh4phy)
+  ! _SET_ODE_(self%id_nh4,fde1nh4+fde2nh4+fzo1nh4+fzo2nh4-fnh4no3-fnh4phy)
+   _ADD_SOURCE_(self%id_nh4,fde1nh4+fde2nh4+fzo1nh4+fzo2nh4-fnh4no3-fnh4phy)
 !  _SET_ODE_(self%id_de1,foo1de1-fde1zo1-fde1nh4)
-   _SET_ODE_(self%id_de1,foo1de1-fde1zo1-fde1nh4+fph1nh4)
+  ! _SET_ODE_(self%id_de1,foo1de1-fde1zo1-fde1nh4+fph1nh4)
+   _ADD_SOURCE_(self%id_de1,foo1de1-fde1zo1-fde1nh4+fph1nh4)
 !  _SET_ODE_(self%id_de2,foo2de2+fph2de2-fde2zo2-fde2nh4)
-   _SET_ODE_(self%id_de2,foo2de2+fph2de2-fde2zo2-fde2nh4+fph2nh4)
-   _SET_ODE_(self%id_bsi,foo2bsi+fph2bsi+self%rsin*fph2nh4-self%rsin*fde2zo2-fbsisil)
-   _SET_ODE_(self%id_sil,-fsilph2+fph2sil+fbsisil)
+   !_SET_ODE_(self%id_de2,foo2de2+fph2de2-fde2zo2-fde2nh4+fph2nh4)
+   _ADD_SOURCE_(self%id_de2,foo2de2+fph2de2-fde2zo2-fde2nh4+fph2nh4)
+  ! _SET_ODE_(self%id_bsi,foo2bsi+fph2bsi+self%rsin*fph2nh4-self%rsin*fde2zo2-fbsisil)
+   _ADD_SOURCE_(self%id_bsi,foo2bsi+fph2bsi+self%rsin*fph2nh4-self%rsin*fde2zo2-fbsisil)
+  ! _SET_ODE_(self%id_sil,-fsilph2+fph2sil+fbsisil)
+   _ADD_SOURCE_(self%id_sil,-fsilph2+fph2sil+fbsisil)
 ! Save diagnostic variables  
    _SET_DIAGNOSTIC_(self%id_chl,ph1*0.795+ph2*3.533)
    _SET_DIAGNOSTIC_(self%id_chl1,ph1*0.795)
