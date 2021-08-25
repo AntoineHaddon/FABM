@@ -57,7 +57,6 @@ module uvic_eco
    class (type_uvic_eco), intent(inout), target :: self
    integer, intent(in)                          :: configunit
 ! Declare namelist parameters
-   real(rk) :: ac
   ! real(rk) :: ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
  !jpnote not needed? !real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
    real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
@@ -70,7 +69,6 @@ module uvic_eco
 !jpnote: not namelist --> bringing in from fabm.yaml .. 
 !---------------------------
 !read in from yaml
-   ac = 0.03 
 !fabm.nml 
    !uvic_eco
    call self%get_parameter(self%use_icealgae, 'use_icealgae', '', 'use icealgae', default=.false.)
@@ -154,7 +152,8 @@ module uvic_eco
      ! call self%get_parameter(self%f_graze, 'f_graze','-', 'fraction of ice algal growth lost due to grazing', default=0.1_rk)
       call self%get_parameter(self%zia, 'zia','m', 'ice algal layer thickness', default=0.03_rk) ! zia = 0.03_rk
       call self%get_parameter(self%ac_ia, 'ac_ia','', 'specific light attenuation coefficient for ice algae', default=0.007_rk) !ac_ia = 0.007_rk
-    !  call self%get_parameter(self%rnit , 'rnit','per day', 'nitrification rate', default=0.1_rk)
+      print *, 'specific light attenuation coefficient for ice algae', self%ac_ia
+      !  call self%get_parameter(self%rnit , 'rnit','per day', 'nitrification rate', default=0.1_rk)
     !  call self%get_parameter(self%ia_0 , 'ia_0','mmol-N/m3', 'ia initial value', default=0.16_rk)
     !  call self%get_parameter(self%ia_b , 'ia_b','mmol-N/m3',  'ia background value',default=0.01_rk)
     !  call self%get_parameter(self%skno3_0, 'skno3_0','mmol/m3', 'no3 initial value', default=2.0_rk)
