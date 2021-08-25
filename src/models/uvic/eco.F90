@@ -314,24 +314,20 @@ end if
      ! bsi_0 = 1.0_rk
      ! sil_0 = 5.0_rk
 
-      ph1_0 = 0.01_rk 
-      ph2_0 = 0.01_rk
-      zo1_0 = 0.01_rk
-      zo2_0 = 0.01_rk
-      no3_0 = 7.2_rk
-      nh4_0 = 0.01_rk
-      de1_0 = 0.01_rk
-      de2_0 = 0.01_rk
-      bsi_0 = 0.01_rk
-      sil_0 = 14.7_rk
+     ! ph1_0 = 0.01_rk 
+     ! ph2_0 = 0.01_rk
+     ! zo1_0 = 0.01_rk
+     ! zo2_0 = 0.01_rk
+     ! no3_0 = 7.2_rk
+     ! nh4_0 = 0.01_rk
+     ! de1_0 = 0.01_rk
+     ! de2_0 = 0.01_rk
+     ! bsi_0 = 0.01_rk
+     ! sil_0 = 14.7_rk
 ! Register prognostic variables
 !jpnote these register_state_vars replace the yaml read? put them under intiliazation: 
       call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',initial_value=ph1_0,minimum=0.0_rk) !jpnote change initial values to self%
-      print *, 'ph1_0', ph1_0
-    !  print *, 'self%id_ph1', self%id_ph1
       call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=ph2_0,minimum=0.0_rk)
-      print *, 'ph2_0', ph2_0
-     ! print *, 'self%id_ph2', self%id_ph2
       call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=zo1_0,minimum=0.0_rk)
       print *, 'zo1_0', zo1_0
       !print *, 'self%id_zo1', self%id_zo1 
