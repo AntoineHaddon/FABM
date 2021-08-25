@@ -28,8 +28,8 @@ contains
         use uvic_dic
         use uvic_npzd_resolute
         !use uvic_npzd_papa
-      !  use uvic_icedms
-      !  use uvic_dms
+        use uvic_icedms
+        use uvic_dms
         !use uvic_dmsp_papa
 
         !
@@ -44,8 +44,8 @@ contains
             case ('uvic_npzd_resolute');           allocate(type_uvic_npzd_resolute::model)
            ! !case ('uvic_npzd_papa');                  allocate(type_uvic_npzd_papa::model)
             case ('uvic_dic');                     allocate(type_uvic_dic::model)
-           ! case ('uvic_dms');                  allocate(type_uvic_dms::model)
-           ! case ('uvic_icedms');                  allocate(type_uvic_icedms::model)
+            case ('uvic_dms');                  allocate(type_uvic_dms::model)
+            case ('uvic_icedms');                  allocate(type_uvic_icedms::model)
             !case ('uvic_dmsp_papa');                  allocate(type_uvic_dmsp_papa::model)
            
             case default

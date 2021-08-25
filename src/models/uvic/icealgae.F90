@@ -52,6 +52,7 @@ contains
    !jpnote dont need to declare again bc already have self% 
    !real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,rnit,skno3_0,sknh4_0,sksil_0,ia_0,ia_b,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
    real(rk), parameter :: spd = 86400.0_rk 
+   real(rk) :: ia_0,skno3_0,sknh4_0,sksil_0
    !read in vals from fabm.yaml 
 
    call self%get_parameter(self%r_pond, 'r_pond', '','melt pond drainage rate',default=0.0175_rk,scale_factor=1.0_rk/spd)
@@ -64,11 +65,11 @@ contains
    call self%get_parameter(self%ac_ia, 'ac_ia','', 'specific light attenuation coefficient for ice algae', default=0.03_rk)
    call self%get_parameter(self%rnit , 'rnit','per day', 'nitrification rate ', default=0.1_rk,scale_factor=1.0_rk/spd)
   ! self%rnit  = self%rnit/self%spd
-   call self%get_parameter(self%ia_0 , 'ia_0','mmol-N/m3', 'ia initial value ', default=0.16_rk)
+  ! call self%get_parameter(self%ia_0 , 'ia_0','mmol-N/m3', 'ia initial value ', default=0.16_rk)
    call self%get_parameter(self%ia_b , 'ia_b','mmol-N/m3',  'ia background value ',default=0.01_rk)
-   call self%get_parameter(self%skno3_0, 'skno3_0','mmol/m3', 'no3 initial value ', default=2.0_rk)
-   call self%get_parameter(self%sknh4_0, 'sknh4_0','mmol/m3', 'nh4 initial value ', default=0.01_rk)
-   call self%get_parameter(self%sksil_0, 'sksil_0','mmol/m3', 'sil initial value ', default=5.0_rk)
+   !call self%get_parameter(self%skno3_0, 'skno3_0','mmol/m3', 'no3 initial value ', default=2.0_rk)
+   !call self%get_parameter(self%sknh4_0, 'sknh4_0','mmol/m3', 'nh4 initial value ', default=0.01_rk)
+  ! call self%get_parameter(self%sksil_0, 'sksil_0','mmol/m3', 'sil initial value ', default=5.0_rk)
    call self%get_parameter(self%ks_no3, 'ks_no3','mmol/m3', 'no3 half-saturation value ',default=1.0_rk)
    call self%get_parameter(self%ks_sil, 'ks_sil','mmol/m3', 'sil half-saturation value ', default=4.0_rk)
    call self%get_parameter(self%maxg, 'maxg','d-1', 'maximum specific growth rate ', default=0.8511_rk,scale_factor=1.0_rk/spd)
@@ -151,11 +152,17 @@ contains
    self%chl2n  = chl2n
    self%sil2n  = sil2n
 #endif
+
+      ia_0 = 1.0
+      skno3_0 = 7.2
+      sknh4_0 = 0.01
+      sksil_0 = 14.7 
+      
    ! Register prognostic variables
-      call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',initial_value=self%skno3_0,minimum=0.0_rk) !jpnote changed initial value to self %
-      call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',initial_value=self%sksil_0,minimum=0.0_rk) 
-      call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=self%ia_0,minimum=0.0_rk)  
-      call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',initial_value=self%sknh4_0,minimum=0.0_rk) 
+      call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',initial_value=skno3_0,minimum=0.0_rk) !jpnote changed initial value to self %
+      call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',initial_value=sksil_0,minimum=0.0_rk) 
+      call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=ia_0,minimum=0.0_rk)  
+      call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',initial_value=sknh4_0,minimum=0.0_rk) 
 ! Register diagnostic variables
       call self%register_horizontal_diagnostic_variable(self%id_chl,'chl','mg m-3','Ice algae in per cubic meter',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_chlia,'chlia','mg m-2','Ice algae in per square meter',source=source_do_horizontal)
