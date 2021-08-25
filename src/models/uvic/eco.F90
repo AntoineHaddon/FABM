@@ -70,12 +70,12 @@ module uvic_eco
 !jpnote: not namelist --> bringing in from fabm.yaml .. 
 !---------------------------
 !read in from yaml
-
+   ac = 0.03 
 !fabm.nml 
    !uvic_eco
    call self%get_parameter(self%use_icealgae, 'use_icealgae', '', 'use icealgae', default=.false.)
   ! call self%get_parameter(self%ac,'ac','m-1','light attenuation coefficient', default=0.03_rk)
-   call self%get_parameter(ac,'ac','m-1','light attenuation coefficient', default=0.03_rk)
+  ! call self%get_parameter(ac,'ac','m-1','light attenuation coefficient', default=0.03_rk)
   
    print *,'light attenuation coefficient',ac
    self%ac = ac
