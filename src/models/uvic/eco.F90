@@ -60,6 +60,7 @@ module uvic_eco
   ! real(rk) :: ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
  !jpnote not needed? !real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
    real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
+   real(rk) :: ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0
    !instead of declaring in object .. just define here 
 !no need to define the namelist params bc already define in model object 
   ! logical :: use_icealgae
