@@ -113,11 +113,11 @@ module uvic_eco
 
    call self%get_parameter(self%gz1, 'gz1','1/d', 'zo1 maximum grazing rate ', default=1.3_rk,scale_factor=1.0_rk/spd)
   ! self%gz1 = self%gz1 / self%spd
-   call self%get_parameter(gz2, 'gz2','1/d', 'zo2 maximum grazing rate ', default=0.8_rk,scale_factor=1.0_rk/spd)
+   call self%get_parameter(self%gz2, 'gz2','1/d', 'zo2 maximum grazing rate ', default=0.8_rk,scale_factor=1.0_rk/spd)
   ! self%gz2 = self%gz2 / self%spd
    !not part of self 
    call self%get_parameter(self%kz1, 'kz1','umol/L', 'zo1 grazing half saturation constant ',default=0.6_rk)
-   call self%get_parameter(kz2, 'kz2','umol/L', 'zo2 grazing half saturation constant ', default=0.75_rk)
+   call self%get_parameter(self%kz2, 'kz2','umol/L', 'zo2 grazing half saturation constant ', default=0.75_rk)
   !jpnote
    call self%get_parameter(self%az1, 'az1','-', 'zo1 assimilation fraction ',default=0.7_rk)
    call self%get_parameter(self%az2, 'az2','-', 'zo2 assimilation fraction ',default=0.1_rk)
