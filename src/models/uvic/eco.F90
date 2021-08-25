@@ -303,16 +303,27 @@ end if
    self%pmin= pmin
 
 #endif 
-      ph1_0 = 1.0_rk 
-      ph2_0 = 0.5_rk
-      zo1_0 = 0.2_rk
-      zo2_0 = 0.1_rk
-      no3_0 = 10.0_rk
-      nh4_0 = 10.0_rk
-      de1_0 = 1.0_rk
-      de2_0 = 1.0_rk
-      bsi_0 = 1.0_rk
-      sil_0 = 5.0_rk
+    !  ph1_0 = 1.0_rk 
+    !  ph2_0 = 0.5_rk
+    !  zo1_0 = 0.2_rk
+    !  zo2_0 = 0.1_rk
+    !  no3_0 = 10.0_rk
+    !  nh4_0 = 10.0_rk
+    !  de1_0 = 1.0_rk
+    !  de2_0 = 1.0_rk
+    !  bsi_0 = 1.0_rk
+    !  sil_0 = 5.0_rk
+
+      ph1_0 = 0.01_rk 
+      ph2_0 = 0.01_rk
+      zo1_0 = 0.01_rk
+      zo2_0 = 0.01_rk
+      no3_0 = 7.2_rk
+      nh4_0 = 0.01_rk
+      de1_0 = 0.01_rk
+      de2_0 = 0.01_rk
+      bsi_0 = 0.01_rk
+      sil_0 = 14.7_rk
 ! Register prognostic variables
 !jpnote these register_state_vars replace the yaml read? put them under intiliazation: 
       call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',initial_value=ph1_0,minimum=0.0_rk) !jpnote change initial values to self% 
