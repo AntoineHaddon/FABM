@@ -165,7 +165,7 @@ contains
       call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=ia_0,minimum=0.0_rk)  
       call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',initial_value=sknh4_0,minimum=0.0_rk) 
 ! Register diagnostic variables
-   #if 0 
+#if 0 
       call self%register_horizontal_diagnostic_variable(self%id_chl,'chl','mg m-3','Ice algae in per cubic meter',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_chlia,'chlia','mg m-2','Ice algae in per square meter',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_fgrow,'fgrow','mmol-N m-3 d-1','ice algal growth rate',source=source_do_horizontal)
@@ -371,6 +371,7 @@ contains
      _ADD_SURFACE_SOURCE_(self%id_ia,fgrow-fgraze-fmort-fmort2+fmelt-fpond)
     endif
    endif
+#if 0
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_chl,ia*self%chl2n)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_chlia,ia*self%chl2n*self%zia)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fgrow,fgrow*self%spd)
@@ -394,6 +395,30 @@ contains
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_lno3,lno3)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_lsil,lsil)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_hnu,hnu)  !** there is some output
+#endif 
+   _SET_DIAGNOSTIC_(self%id_chl,ia*self%chl2n)
+   _SET_DIAGNOSTIC_(self%id_chlia,ia*self%chl2n*self%zia)
+   _SET_DIAGNOSTIC_(self%id_fgrow,fgrow*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fgraze,fgraze*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fmort,fmort*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fmort2,fmort2*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fmelt,fmelt*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fpond,fpond*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fpondno3,fpondno3*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fpondnh4,fpondnh4*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fpondsil,fpondsil*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fnit,fnit*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fskelno3,fskelno3*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fskelnh4,fskelnh4*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fskelsil,fskelsil*self%spd)
+   _SET_DIAGNOSTIC_(self%id_ier,ier*self%spd)  !**
+   _SET_DIAGNOSTIC_(self%id_fno3up,fno3up*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fsilup,fsilup*self%spd)
+   _SET_DIAGNOSTIC_(self%id_lice,lice)
+   _SET_DIAGNOSTIC_(self%id_llig,llig)
+   _SET_DIAGNOSTIC_(self%id_lno3,lno3)
+   _SET_DIAGNOSTIC_(self%id_lsil,lsil)
+   _SET_DIAGNOSTIC_(self%id_hnu,hnu)  !** there is some output
    _HORIZONTAL_LOOP_END_
    end subroutine do_surface
 end module uvic_icealgae
