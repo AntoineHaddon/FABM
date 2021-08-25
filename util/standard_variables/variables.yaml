@@ -132,7 +132,7 @@ horizontal:  #jpnote added
 global:
   - name: number_of_days_since_start_of_the_year
     units: d
-  - name: timestep #jpnote added  ???maybe not needed 
+  - name: timestep #jpnote added  
     units: s
 universal:
   - name: total_carbon

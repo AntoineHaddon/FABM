@@ -74,6 +74,7 @@ module uvic_eco
    !uvic_eco
    call self%get_parameter(self%use_icealgae, 'use_icealgae', '', 'use icealgae', default=.false.)
    call self%get_parameter(self%ac,'ac','m-1','light attenuation coefficient', default=0.03_rk)
+   print *,'light attenuation coefficient',self%ac
    call self%get_parameter(self%f_seed, 'f_seed','-', 'fraction of ice algal fux as ph2 seeding', default=0.0_rk)
  
 !jpnote: try doing it like they do in bsem (no get parameter just under initliazation and then register_state_variable)
