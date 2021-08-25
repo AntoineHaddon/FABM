@@ -54,7 +54,8 @@ contains
    integer  :: flux
    real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
    logical :: use_icedms
-   character(64),dimension(12) :: models 
+  ! character(64),dimension(12) :: models 
+   real(rk), parameter :: spd = 86400.0_rk 
 #if 0 
 ! Define the namelist
    namelist /fabm_nml/ models
@@ -103,28 +104,28 @@ contains
    call self%get_parameter(self%q1,'q1','mol-S:mol-N','S:N ratio for ph1', default=0.45_rk)
    call self%get_parameter(self%q2,'q2','mol-S:mol-N','S:N ratio for ph2', default=0.01_rk)
    call self%get_parameter(self%yield,'yield','per day','bacterial lyase rate constant', default=0.1_rk)
-   call self%get_parameter(self%k_ly1,'k_ly1','','k_ly1', default=0.05_rk)
-   self%k_ly1  = self%k_ly1 /self%spd
-   call self%get_parameter(self%k_ly2,'k_ly2','','k_ly2', default=0.05_rk)
-   self%k_ly2  = self%k_ly2 /self%spd
+   call self%get_parameter(self%k_ly1,'k_ly1','','k_ly1', default=0.05_rk,scale_factor=1.0_rk/spd)
+  ! self%k_ly1  = self%k_ly1 /self%spd
+   call self%get_parameter(self%k_ly2,'k_ly2','','k_ly2', default=0.05_rk,scale_factor=1.0_rk/spd)
+   !self%k_ly2  = self%k_ly2 /self%spd
    call self%get_parameter(self%f_sl1,'f_sl1','','f_sl1', default=1.0_rk)
    call self%get_parameter(self%f_sl2,'f_sl2','','f_sl2', default=1.0_rk)
    call self%get_parameter(self%f_ex1,'f_ex1','','f_ex1', default=1.0_rk)
    call self%get_parameter(self%f_ex2,'f_ex2','','f_ex2', default=1.0_rk)
-   call self%get_parameter(self%k_enz,'k_enz','d-1','rate constant for enzymatic cleavage (free lyase)', default=0.01_rk)
-   self%k_enz   = self%k_enz /self%spd
-   call self%get_parameter(self%k_in1,'k_in1','','k_in1', default=0.0_rk)
-   self%k_in1   = self%k_in1 /self%spd
-   call self%get_parameter(self%k_in2,'k_in2','','k_in2', default=0.0_rk)
-   self%k_in2   = self%k_in2 /self%spd
+   call self%get_parameter(self%k_enz,'k_enz','d-1','rate constant for enzymatic cleavage (free lyase)', default=0.01_rk,scale_factor=1.0_rk/spd)
+  ! self%k_enz   = self%k_enz /self%spd
+   call self%get_parameter(self%k_in1,'k_in1','','k_in1', default=0.0_rk,scale_factor=1.0_rk/spd)
+  ! self%k_in1   = self%k_in1 /self%spd
+   call self%get_parameter(self%k_in2,'k_in2','','k_in2', default=0.0_rk,scale_factor=1.0_rk/spd)
+  ! self%k_in2   = self%k_in2 /self%spd
    call self%get_parameter(self%h_dmspd,'h_dmspd','','half-saturation constant for bacterial dmspd uptake', default=3.0_rk)
    call self%get_parameter(self%h_dms,'h_dms','','half-saturation constant for bacterial dms uptake', default=3.0_rk)
-   call self%get_parameter(self%k_dmspd,'k_dmspd','','k_dmspd', default=0.0_rk)
-   self%k_dmspd = self%k_dmspd /self%spd
-   call self%get_parameter(self%k_dms,'k_dms','','k_dms', default=0.0_rk)
-   self%k_dms   = self%k_dms /self%spd
-   call self%get_parameter(self%k_pho,'k_pho','','k_pho', default=0.0_rk)
-   self%k_pho   = self%k_pho /self%spd
+   call self%get_parameter(self%k_dmspd,'k_dmspd','','k_dmspd', default=0.0_rk,scale_factor=1.0_rk/spd)
+  ! self%k_dmspd = self%k_dmspd /self%spd
+   call self%get_parameter(self%k_dms,'k_dms','','k_dms', default=0.0_rk,scale_factor=1.0_rk/spd)
+   !self%k_dms   = self%k_dms /self%spd
+   call self%get_parameter(self%k_pho,'k_pho','','k_pho', default=0.0_rk,scale_factor=1.0_rk/spd)
+   !self%k_pho   = self%k_pho /self%spd
    call self%get_parameter(self%flux,'flux','','air-sea gas transfer velocity parameterization', default=0)
 
 #if 0 
@@ -385,7 +386,8 @@ contains
 !     dmsair=0.0_rk
 !    end if
    end if
-   _SET_SURFACE_EXCHANGE_(self%id_dms,-dmsair)
+   !_SET_SURFACE_EXCHANGE_(self%id_dms,-dmsair)
+   _ADD_SURFACE_FLUX_(self%id_dms,-dmsair)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fdmsair,dmsair*self%spd)
    !if(any(self%models.eq.'uvic_icedms')) then
    if(self%use_icedms) then 
@@ -399,8 +401,10 @@ contains
     _GET_HORIZONTAL_(self%id_icedms,icedms)
     _GET_(self%id_dmspd,dmspd)
     _GET_(self%id_density,density)
-    _SET_SURFACE_EXCHANGE_(self%id_dmspd,(-fspdmel+fspdpon)/self%spd*self%zia-fdmspd3ia/self%spd*self%zia)
-    _SET_SURFACE_EXCHANGE_(self%id_dms,(-fdmsmel+fdmspon)/self%spd*self%zia-fdms3ia/self%spd*self%zia)
+    !_SET_SURFACE_EXCHANGE_(self%id_dmspd,(-fspdmel+fspdpon)/self%spd*self%zia-fdmspd3ia/self%spd*self%zia)
+    _ADD_SURFACE_FLUX_(self%id_dmspd,(-fspdmel+fspdpon)/self%spd*self%zia-fdmspd3ia/self%spd*self%zia)
+    !_SET_SURFACE_EXCHANGE_(self%id_dms,(-fdmsmel+fdmspon)/self%spd*self%zia-fdms3ia/self%spd*self%zia)
+    _ADD_SURFACE_FLUX_(self%id_dms,(-fdmsmel+fdmspon)/self%spd*self%zia-fdms3ia/self%spd*self%zia)
 !    _SET_SURFACE_EXCHANGE_(self%id_dmspd,913./density*(icespd-dmspd)*(-fspdmel+fspdpon)/icespd/self%spd*self%zia-fdmspd3ia/self%spd*self%zia)
 !    _SET_SURFACE_EXCHANGE_(self%id_dms,913./density*(icedms-dms)*(-fdmsmel+fdmspon)/icedms/self%spd*self%zia-fdms3ia/self%spd*self%zia)
    end if

@@ -51,19 +51,19 @@ contains
 ! Declare namelist parameters
    !jpnote dont need to declare again bc already have self% 
    !real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,rnit,skno3_0,sknh4_0,sksil_0,ia_0,ia_b,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
-
+   real(rk), parameter :: spd = 86400.0_rk 
    !read in vals from fabm.yaml 
 
-   call self%get_parameter(self%r_pond, 'r_pond', '','melt pond drainage rate',default=0.0175_rk)
-   self%r_pond = self%r_pond/self%spd
+   call self%get_parameter(self%r_pond, 'r_pond', '','melt pond drainage rate',default=0.0175_rk,scale_factor=1.0_rk/spd)
+  ! self%r_pond = self%r_pond/self%spd
    call self%get_parameter(self%fmethod, 'fmethod','', 'method for ice-ocean flux',default=0.0_rk)
    call self%get_parameter(self%fflush , 'fflush','', 'method for flushing', default=0.0_rk)
    call self%get_parameter(self%drag , 'drag','-', 'drag coefficient at the ice-water interface ', default=0.005_rk)
    call self%get_parameter(self%f_graze, 'f_graze','-', 'fraction of ice algal growth lost due to grazing ', default=0.1_rk)
    call self%get_parameter(self%zia, 'zia','m', 'ice algal layer thickness ', default=0.03_rk)
    call self%get_parameter(self%ac_ia, 'ac_ia','', 'specific light attenuation coefficient for ice algae', default=0.03_rk)
-   call self%get_parameter(self%rnit , 'rnit','per day', 'nitrification rate ', default=0.1_rk)
-   self%rnit  = self%rnit/self%spd
+   call self%get_parameter(self%rnit , 'rnit','per day', 'nitrification rate ', default=0.1_rk,scale_factor=1.0_rk/spd)
+  ! self%rnit  = self%rnit/self%spd
    call self%get_parameter(self%ia_0 , 'ia_0','mmol-N/m3', 'ia initial value ', default=0.16_rk)
    call self%get_parameter(self%ia_b , 'ia_b','mmol-N/m3',  'ia background value ',default=0.01_rk)
    call self%get_parameter(self%skno3_0, 'skno3_0','mmol/m3', 'no3 initial value ', default=2.0_rk)
@@ -71,14 +71,14 @@ contains
    call self%get_parameter(self%sksil_0, 'sksil_0','mmol/m3', 'sil initial value ', default=5.0_rk)
    call self%get_parameter(self%ks_no3, 'ks_no3','mmol/m3', 'no3 half-saturation value ',default=1.0_rk)
    call self%get_parameter(self%ks_sil, 'ks_sil','mmol/m3', 'sil half-saturation value ', default=4.0_rk)
-   call self%get_parameter(self%maxg, 'maxg','d-1', 'maximum specific growth rate ', default=0.8511_rk)
-   self%maxg = self%maxg/ self%spd
-   call self%get_parameter(self%mort , 'mort','d-1', 'linear mortality rate', default=0.05_rk)
-   self%mort = self%mort/ self%spd
-   call self%get_parameter(self%mort2, 'mort2','d-1',  'quadratic mortality rate ',default=0.05_rk)
-   self%mort2 = self%mort2/ self%spd
-   call self%get_parameter(self%crit_melt, 'crit_melt','m d-1', 'critical melt rate [m d-1]', default=0.015_rk)
-   self%crit_melt = self%crit_melt / self%spd
+   call self%get_parameter(self%maxg, 'maxg','d-1', 'maximum specific growth rate ', default=0.8511_rk,scale_factor=1.0_rk/spd)
+  !! self%maxg = self%maxg/ self%spd
+   call self%get_parameter(self%mort , 'mort','d-1', 'linear mortality rate', default=0.05_rk,scale_factor=1.0_rk/spd)
+  ! self%mort = self%mort/ self%spd
+   call self%get_parameter(self%mort2, 'mort2','d-1',  'quadratic mortality rate ',default=0.05_rk,scale_factor=1.0_rk/spd)
+  ! self%mort2 = self%mort2/ self%spd
+   call self%get_parameter(self%crit_melt, 'crit_melt','m d-1', 'critical melt rate [m d-1]', default=0.015_rk,scale_factor=1.0_rk/spd)
+  ! self%crit_melt = self%crit_melt / self%spd
    call self%get_parameter(self%lcompp, 'lcompp','umol m-2 s-1', '# compensation intensity ', default=0.4_rk)
    call self%get_parameter(self%rpp , 'rpp','[W m-2]-1', 'ratio of photosynthetic parameters (alpha and pbm) [W m-2]-1', default=0.1_rk)
    !call self%get_parameter(self%rpi , 'rpi ', 'ratio of photoinhibition parameters (beta and pbm)', default=0)
@@ -309,24 +309,33 @@ contains
     fpondnh4=0.0_rk
     fpondsil=0.0_rk
     fnit    =0.0_rk
-    _SET_SURFACE_ODE_(self%id_no3,(no3SW-no3)/dt)
-    _SET_SURFACE_ODE_(self%id_nh4,(nh4SW-nh4)/dt)
-    _SET_SURFACE_ODE_(self%id_sil,(silSW-sil)/dt)
-    _SET_SURFACE_ODE_(self%id_ia,(ph2-ia)/dt)
+   ! _SET_SURFACE_ODE_(self%id_no3,(no3SW-no3)/dt)
+    _ADD_SURFACE_SOURCE_(self%id_no3,(no3SW-no3)/dt)
+   ! _SET_SURFACE_ODE_(self%id_nh4,(nh4SW-nh4)/dt)
+    _ADD_SURFACE_SOURCE_(self%id_nh4,(nh4SW-nh4)/dt)
+   ! _SET_SURFACE_ODE_(self%id_sil,(silSW-sil)/dt)
+    _ADD_SURFACE_SOURCE_(self%id_sil,(silSW-sil)/dt)
+   ! _SET_SURFACE_ODE_(self%id_ia,(ph2-ia)/dt)
+    _ADD_SURFACE_SOURCE_(self%id_ia,(ph2-ia)/dt)
    else
-    _SET_SURFACE_ODE_(self%id_no3,-fno3up+fskelno3+fnit-fpondno3)
+    !_SET_SURFACE_ODE_(self%id_no3,-fno3up+fskelno3+fnit-fpondno3)
+    _ADD_SURFACE_SOURCE_(self%id_no3,-fno3up+fskelno3+fnit-fpondno3)
 !   _SET_SURFACE_ODE_(self%id_nh4,fmort+fskelnh4-fnit-fpondnh4)
-    _SET_SURFACE_ODE_(self%id_nh4,-fnh4up+0.3*fmort+fskelnh4-fnit-fpondnh4)
-    _SET_SURFACE_ODE_(self%id_sil,-fsilup+fskelsil-fpondsil)
+    !_SET_SURFACE_ODE_(self%id_nh4,-fnh4up+0.3*fmort+fskelnh4-fnit-fpondnh4)
+    _ADD_SURFACE_SOURCE_(self%id_nh4,-fnh4up+0.3*fmort+fskelnh4-fnit-fpondnh4)
+   ! _SET_SURFACE_ODE_(self%id_sil,-fsilup+fskelsil-fpondsil)
+    _ADD_SURFACE_SOURCE_(self%id_sil,-fsilup+fskelsil-fpondsil)
     if (ia.lt.self%ia_b) then
-     _SET_SURFACE_ODE_(self%id_ia,fgrow)
+    ! _SET_SURFACE_ODE_(self%id_ia,fgrow)
+     _ADD_SURFACE_SOURCE_(self%id_ia,fgrow)
      fgrow=0.0_rk
      fgraze=0.0_rk
      fmort=0.0_rk
      fmort2=0.0_rk
      fpond=0.0_rk
     else
-     _SET_SURFACE_ODE_(self%id_ia,fgrow-fgraze-fmort-fmort2+fmelt-fpond)
+     !_SET_SURFACE_ODE_(self%id_ia,fgrow-fgraze-fmort-fmort2+fmelt-fpond)
+     _ADD_SURFACE_SOURCE_(self%id_ia,fgrow-fgraze-fmort-fmort2+fmelt-fpond)
     endif
    endif
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_chl,ia*self%chl2n)

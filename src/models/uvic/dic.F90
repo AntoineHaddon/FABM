@@ -758,13 +758,18 @@ contains
 !write(*,*) fIA_co2
 !NO ICE, airsea flux only
    if(ice_hi.eq.0.0_rk) then
-      _SET_SURFACE_EXCHANGE_(self%id_dic, co2flux)
+     ! _SET_SURFACE_EXCHANGE_(self%id_dic, co2flux)
+      _ADD_SURFACE_FLUX_(self%id_dic, co2flux)
    else if((ice_hi.gt.0) .AND. (ice_hi.lt.thinice_lim)) then
-      _SET_SURFACE_EXCHANGE_(self%id_dic, co2_thinice*co2flux - fIA_co2 + fdic_ice)
-      _SET_SURFACE_EXCHANGE_(self%id_alk, +fIA_ta + falk_ice)
+     ! _SET_SURFACE_EXCHANGE_(self%id_dic, co2_thinice*co2flux - fIA_co2 + fdic_ice)
+      _ADD_SURFACE_FLUX_(self%id_dic, co2_thinice*co2flux - fIA_co2 + fdic_ice)
+      !_SET_SURFACE_EXCHANGE_(self%id_alk, +fIA_ta + falk_ice)
+      _ADD_SURFACE_FLUX_(self%id_alk, +fIA_ta + falk_ice)
    else if(ice_hi.gt.thinice_lim) then                                  !dic flux due to ice melt/growth
-      _SET_SURFACE_EXCHANGE_(self%id_dic, -fIA_co2 + fdic_ice)
-      _SET_SURFACE_EXCHANGE_(self%id_alk, +fIA_ta + falk_ice)
+     ! _SET_SURFACE_EXCHANGE_(self%id_dic, -fIA_co2 + fdic_ice)
+      _ADD_SURFACE_FLUX_(self%id_dic, -fIA_co2 + fdic_ice)
+      !_SET_SURFACE_EXCHANGE_(self%id_alk, +fIA_ta + falk_ice)
+      _ADD_SURFACE_FLUX_(self%id_alk, +fIA_ta + falk_ice)
       co2flux=0                                                         !killing airsea exchange of co2 when ice is present
    endif
 
