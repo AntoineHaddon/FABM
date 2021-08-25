@@ -303,16 +303,16 @@ end if
    self%pmin= pmin
 
 #endif 
-    !  ph1_0 = 1.0_rk 
-    !  ph2_0 = 0.5_rk
-    !  zo1_0 = 0.2_rk
-    !  zo2_0 = 0.1_rk
-    !  no3_0 = 10.0_rk
-    !  nh4_0 = 10.0_rk
-    !  de1_0 = 1.0_rk
-    !  de2_0 = 1.0_rk
-    !  bsi_0 = 1.0_rk
-    !  sil_0 = 5.0_rk
+     ! ph1_0 = 1.0_rk 
+     ! ph2_0 = 0.5_rk
+     ! zo1_0 = 0.2_rk
+     ! zo2_0 = 0.1_rk
+     ! no3_0 = 10.0_rk
+     ! nh4_0 = 10.0_rk
+     ! de1_0 = 1.0_rk
+     ! de2_0 = 1.0_rk
+     ! bsi_0 = 1.0_rk
+     ! sil_0 = 5.0_rk
 
       ph1_0 = 0.01_rk 
       ph2_0 = 0.01_rk
@@ -326,9 +326,15 @@ end if
       sil_0 = 14.7_rk
 ! Register prognostic variables
 !jpnote these register_state_vars replace the yaml read? put them under intiliazation: 
-      call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',initial_value=ph1_0,minimum=0.0_rk) !jpnote change initial values to self% 
+      call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',initial_value=ph1_0,minimum=0.0_rk) !jpnote change initial values to self%
+      print *, 'ph1_0', ph1_0
+    !  print *, 'self%id_ph1', self%id_ph1
       call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=ph2_0,minimum=0.0_rk)
+      print *, 'ph2_0', ph2_0
+     ! print *, 'self%id_ph2', self%id_ph2
       call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=zo1_0,minimum=0.0_rk)
+      print *, 'zo1_0', zo1_0
+      !print *, 'self%id_zo1', self%id_zo1 
       call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',initial_value=zo2_0,minimum=0.0_rk)   
       call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=no3_0,minimum=0.0_rk)                         
       call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=nh4_0,minimum=0.0_rk)
@@ -433,6 +439,7 @@ end if
 
 ! Retrieve prognostic variables   !jpnote 
    _GET_(self%id_ph1,ph1)
+   print *,'id_ph1',ph1
    _GET_(self%id_ph2,ph2)
    _GET_(self%id_zo1,zo1)
    _GET_(self%id_zo2,zo2)
