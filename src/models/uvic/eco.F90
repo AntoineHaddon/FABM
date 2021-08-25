@@ -74,14 +74,8 @@ module uvic_eco
 !fabm.nml 
    !uvic_eco
    call self%get_parameter(self%use_icealgae, 'use_icealgae', '', 'use icealgae', default=.false.)
-  ! call self%get_parameter(self%ac,'ac','m-1','light attenuation coefficient', default=0.03_rk)
-  ! call self%get_parameter(ac,'ac','m-1','light attenuation coefficient', default=0.03_rk)
-  
-   print *,'light attenuation coefficient',ac
-   self%ac = ac
-   print *,'light attenuation coefficient',self%ac
+   call self%get_parameter(self%ac,'ac','m-1','light attenuation coefficient', default=0.03_rk)
    call self%get_parameter(self%f_seed, 'f_seed','-', 'fraction of ice algal fux as ph2 seeding', default=0.0_rk)
-   print *,'fraction of ice algal fux as ph2 seeding',self%f_seed
 !jpnote: try doing it like they do in bsem (no get parameter just under initliazation and then register_state_variable)
   ! call self%get_parameter(self%ph1_0, 'ph1_0','umol/L','ph1 initial value', default=1.0_rk )
   ! call self%get_parameter(self%ph2_0 , 'ph2_0 ','umol/L', 'ph2 initial value', default=0.5_rk)
@@ -108,7 +102,6 @@ module uvic_eco
    call self%get_parameter(self%rpp1, 'rpp1','1/time', 'maximum photosynthetic rate ([time] is same unit as alpha)', default=0.05_rk)
    call self%get_parameter(self%rpp2, 'rpp2 ','1/time', 'maximum photosynthetic rate ([time] is same unit as alpha)', default=0.05_rk)
    call self%get_parameter(self%mp1, 'mp1','1/d', 'ph1 excretion rate ', default=0.05_rk,scale_factor=1.0_rk/spd)
-   print *, 'ph1 excretion rate ', self%mp1
   ! self%mp1 = self%mp1 / self%spd
    call self%get_parameter(self%mp2, 'mp2 ','1/d', 'ph2 excretion rate', default=0.05_rk,scale_factor=1.0_rk/spd)
   ! self%mp2 = self%mp2 / self%spd
