@@ -238,9 +238,13 @@ contains
    _GET_HORIZONTAL_(self%id_par,par)
    _GET_HORIZONTAL_(self%id_airt,airt)
    _GET_(self%id_ph2,ph2)
+   print *, 'ph2', ph2
    _GET_(self%id_no3SW,no3SW)
+   print *, 'no3SW',no3SW
    _GET_(self%id_nh4SW,nh4SW)
+   print *, 'nh4SW',nh4SW 
    _GET_(self%id_silSW,silSW)
+   print *, 'silSW',silSW 
    _GET_HORIZONTAL_(self%id_topmelt,topmelt)
    _GET_HORIZONTAL_(self%id_termelt,termelt)
    _GET_HORIZONTAL_(self%id_Amelt,Amelt)
