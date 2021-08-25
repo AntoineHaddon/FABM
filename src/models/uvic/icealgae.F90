@@ -25,7 +25,8 @@ module uvic_icealgae
 ! Declare horizontal prognostic variables      
       type (type_surface_state_variable_id) :: id_no3,id_sil,id_ia,id_nh4
 ! Declare horizontal diagnostic variables
-      type (type_horizontal_diagnostic_variable_id) :: id_chl,id_chlia,id_fgrow,id_fgraze,id_fmort,id_fmort2,id_fmelt,id_fpond,id_fpondno3,id_fpondnh4,id_fpondsil,id_fno3up,id_fsilup,id_fskelno3,id_fskelnh4,id_fskelsil,id_ier,id_lice,id_llig,id_lno3,id_lsil,id_hnu,id_fnit
+      type (type_diagnostic_variable_id) :: id_chl,id_chlia,id_fgrow,id_fgraze,id_fmort,id_fmort2,id_fmelt,id_fpond,id_fpondno3,id_fpondnh4,id_fpondsil,id_fno3up,id_fsilup,id_fskelno3,id_fskelnh4,id_fskelsil,id_ier,id_lice,id_llig,id_lno3,id_lsil,id_hnu,id_fnit
+      !type (type_horizontal_diagnostic_variable_id) :: id_chl,id_chlia,id_fgrow,id_fgraze,id_fmort,id_fmort2,id_fmelt,id_fpond,id_fpondno3,id_fpondnh4,id_fpondsil,id_fno3up,id_fsilup,id_fskelno3,id_fskelnh4,id_fskelsil,id_ier,id_lice,id_llig,id_lno3,id_lsil,id_hnu,id_fnit
 ! Declare environmental variables
       type (type_dependency_id) :: id_ph2,id_no3SW,id_nh4SW,id_silSW,id_u,id_v
       type (type_horizontal_dependency_id) :: id_airt,id_ice_hs,id_par,id_temp,id_ice_hi,id_botmelt,id_botgrowth,id_topmelt,id_termelt,id_Amelt
@@ -164,6 +165,7 @@ contains
       call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=ia_0,minimum=0.0_rk)  
       call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',initial_value=sknh4_0,minimum=0.0_rk) 
 ! Register diagnostic variables
+   #if 0 
       call self%register_horizontal_diagnostic_variable(self%id_chl,'chl','mg m-3','Ice algae in per cubic meter',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_chlia,'chlia','mg m-2','Ice algae in per square meter',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_fgrow,'fgrow','mmol-N m-3 d-1','ice algal growth rate',source=source_do_horizontal)
@@ -187,7 +189,31 @@ contains
       call self%register_horizontal_diagnostic_variable(self%id_lno3,'lno3','-','Limitation due to nitrate',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_lsil,'lsil','-','Limitation due to silicate',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_hnu,'hnu','m','Molecular sublayer thickness',source=source_do_horizontal)
-! Register environmental variables
+#endif
+      call self%register_diagnostic_variable(self%id_chl,'chl','mg m-3','Ice algae in per cubic meter')
+      call self%register_diagnostic_variable(self%id_chlia,'chlia','mg m-2','Ice algae in per square meter')
+      call self%register_diagnostic_variable(self%id_fgrow,'fgrow','mmol-N m-3 d-1','ice algal growth rate')
+      call self%register_diagnostic_variable(self%id_fgraze,'fgraze','mmol-N m-3 d-1','ice algal grazing rate')
+      call self%register_diagnostic_variable(self%id_fmort,'fmort','mmol-N m-3 d-1','ice algal mortality rate')
+      call self%register_diagnostic_variable(self%id_fmort2,'fmort2','mmol-N m-3 d-1','ice algal quadratic mortality rate')
+      call self%register_diagnostic_variable(self%id_fmelt,'fmelt','mmol-N m-3 d-1','ice algal loss rate due to ice melting')
+      call self%register_diagnostic_variable(self%id_fpond,'fpond','mmol-N m-3 d-1','ice algal loss rate due to meltpond drainage')
+      call self%register_diagnostic_variable(self%id_fpondno3,'fpondno3','mmol-N m-3 d-1','no3 loss rate due to meltpond drainage')
+      call self%register_diagnostic_variable(self%id_fpondnh4,'fpondnh4','mmol-N m-3 d-1','nh4 loss rate due to meltpond drainage')
+      call self%register_diagnostic_variable(self%id_fpondsil,'fpondsil','mmol-N m-3 d-1','sil loss rate due to meltpond drainage')
+      call self%register_diagnostic_variable(self%id_fnit,'fnit','mmol-N m-3 d-1','nitrification in skeletal layer')
+      call self%register_diagnostic_variable(self%id_fno3up,'fno3up','mmol m-3 d-1','ice algal no3 uptake rate')
+      call self%register_diagnostic_variable(self%id_fsilup,'fsilup','mmol m-3 d-1','ice algal sil uptake rate')
+      call self%register_diagnostic_variable(self%id_fskelno3,'fskelno3','mmol m-3 d-1','no3 flux to skeletal layer')
+      call self%register_diagnostic_variable(self%id_fskelnh4,'fskelnh4','mmol m-3 d-1','nh4 flux to skeletal layer')
+      call self%register_diagnostic_variable(self%id_fskelsil,'fskelsil','mmol m-3 d-1','sil flux to skeletal layer')
+      call self%register_diagnostic_variable(self%id_ier,'ier','m d-1','Ice evolution rate (+ means growth, - means melting)')
+      call self%register_diagnostic_variable(self%id_lice,'lice','-','Limitation due to ice growth/melt')
+      call self%register_diagnostic_variable(self%id_llig,'llig','-','Limitation due to light')
+      call self%register_diagnostic_variable(self%id_lno3,'lno3','-','Limitation due to nitrate')
+      call self%register_diagnostic_variable(self%id_lsil,'lsil','-','Limitation due to silicate')
+      call self%register_diagnostic_variable(self%id_hnu,'hnu','m','Molecular sublayer thickness')
+      ! Register environmental variables
      
 
       call self%register_horizontal_dependency(self%id_temp,standard_variables%sea_ice_temperature) 
@@ -238,13 +264,9 @@ contains
    _GET_HORIZONTAL_(self%id_par,par)
    _GET_HORIZONTAL_(self%id_airt,airt)
    _GET_(self%id_ph2,ph2)
-   print *, 'ph2', ph2
    _GET_(self%id_no3SW,no3SW)
-   print *, 'no3SW',no3SW
    _GET_(self%id_nh4SW,nh4SW)
-   print *, 'nh4SW',nh4SW 
-   _GET_(self%id_silSW,silSW)
-   print *, 'silSW',silSW 
+   _GET_(self%id_silSW,silSW) 
    _GET_HORIZONTAL_(self%id_topmelt,topmelt)
    _GET_HORIZONTAL_(self%id_termelt,termelt)
    _GET_HORIZONTAL_(self%id_Amelt,Amelt)
