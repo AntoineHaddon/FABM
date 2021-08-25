@@ -439,7 +439,6 @@ end if
 
 ! Retrieve prognostic variables   !jpnote 
    _GET_(self%id_ph1,ph1)
-   print *,'id_ph1',ph1
    _GET_(self%id_ph2,ph2)
    _GET_(self%id_zo1,zo1)
    _GET_(self%id_zo2,zo2)
