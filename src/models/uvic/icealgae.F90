@@ -160,7 +160,7 @@ contains
       
    ! Register prognostic variables
       call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',initial_value=skno3_0,minimum=0.0_rk)
-      print *, 'jpsknh4_0', sknh4_0
+      print *, 'jpskno3_0', skno3_0
       call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',initial_value=sksil_0,minimum=0.0_rk) 
       print *, 'jpsksil_0', sksil_0
       call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=ia_0,minimum=0.0_rk) 
