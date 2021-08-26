@@ -160,13 +160,13 @@ contains
       
    ! Register prognostic variables
       call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',initial_value=skno3_0,minimum=0.0_rk)
-      print *, 'jpskno3_0', skno3_0
+    !  print *, 'jpskno3_0', skno3_0
       call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',initial_value=sksil_0,minimum=0.0_rk) 
-      print *, 'jpsksil_0', sksil_0
+     ! print *, 'jpsksil_0', sksil_0
       call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=ia_0,minimum=0.0_rk) 
-      print *, 'jpia_0', ia_0 
+     ! print *, 'jpia_0', ia_0 
       call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',initial_value=sknh4_0,minimum=0.0_rk) 
-      print *, 'jpsknh4_0', sknh4_0
+    !  print *, 'jpsknh4_0', sknh4_0
 ! Register diagnostic variables
       call self%register_horizontal_diagnostic_variable(self%id_chl,'chl','mg m-3','Ice algae in per cubic meter',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_chlia,'chlia','mg m-2','Ice algae in per square meter',source=source_do_horizontal)
@@ -230,14 +230,14 @@ contains
    real(rk) :: fgrow,fgraze,fmort,fmort2,fmelt,fpond,fpondno3,fpondnh4,fpondsil,fnit,fno3up,fnh4up,fsilup,fskelno3,fskelnh4,fskelsil,ier,dt,Amelt
    _HORIZONTAL_LOOP_BEGIN_
    _GET_HORIZONTAL_(self%id_ia,ia)
-    print *, 'ia', ia
+  !  print *, 'ia', ia
   ! print *, 'self%id_ia', seid_ia
    _GET_HORIZONTAL_(self%id_no3,no3)
-    print *, 'no3', no3
+   ! print *, 'no3', no3
    _GET_HORIZONTAL_(self%id_nh4,nh4)
-   print *, 'nh4', nh4
+  ! print *, 'nh4', nh4
    _GET_HORIZONTAL_(self%id_sil,sil)
-   print *, 'sil', sil
+  ! print *, 'sil', sil
    _GET_HORIZONTAL_(self%id_temp,temp)
    _GET_HORIZONTAL_(self%id_ice_hi,ice_hi)
    _GET_HORIZONTAL_(self%id_ice_hs,ice_hs)
