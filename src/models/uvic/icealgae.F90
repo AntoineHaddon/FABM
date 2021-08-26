@@ -227,13 +227,10 @@ contains
    _HORIZONTAL_LOOP_BEGIN_
    _GET_HORIZONTAL_(self%id_ia,ia)
    print *, 'ia', ia
-  ! print *, 'self%id_ia', self%id_ia
+  ! print *, 'self%id_ia', seid_ia
    _GET_HORIZONTAL_(self%id_no3,no3)
-   print *, 'no3',no3 
    _GET_HORIZONTAL_(self%id_nh4,nh4)
-   print *, 'nh4',nh4 
    _GET_HORIZONTAL_(self%id_sil,sil)
-   print *, 'sil',sil 
    _GET_HORIZONTAL_(self%id_temp,temp)
    _GET_HORIZONTAL_(self%id_ice_hi,ice_hi)
    _GET_HORIZONTAL_(self%id_ice_hs,ice_hs)
