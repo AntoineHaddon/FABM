@@ -158,7 +158,7 @@ module uvic_eco
      ! call self%get_parameter(self%f_graze, 'f_graze','-', 'fraction of ice algal growth lost due to grazing', default=0.1_rk)
       call self%get_parameter(self%zia, 'zia','m', 'ice algal layer thickness', default=0.03_rk) ! zia = 0.03_rk
       call self%get_parameter(self%ac_ia, 'ac_ia','', 'specific light attenuation coefficient for ice algae', default=0.007_rk) !ac_ia = 0.007_rk
-      print *, 'specific light attenuation coefficient for ice algae', self%ac_ia
+     ! print *, 'specific light attenuation coefficient for ice algae', self%ac_ia
       !  call self%get_parameter(self%rnit , 'rnit','per day', 'nitrification rate', default=0.1_rk)
     !  call self%get_parameter(self%ia_0 , 'ia_0','mmol-N/m3', 'ia initial value', default=0.16_rk)
     !  call self%get_parameter(self%ia_b , 'ia_b','mmol-N/m3',  'ia background value',default=0.01_rk)
@@ -474,6 +474,7 @@ end if
    fph1zo1 = graz1*self%pp1*ph1/food1                    
    fde1zo1 = graz1*self%pd1*de1/food1
    fde2zo2 = graz2*self%pd2*de2/food2
+ !  print *, 'jpbeforefde2zo2', fde2zo2
    fph2zo2 = graz2*self%pp2*ph2/food2
    fzo1zo2 = graz2*self%pz1*zo1/food2
    lf1 = 1.0_rk - exp(-self%rpp1*par)
@@ -497,7 +498,9 @@ end if
    foo2bsi = (1.0_rk-self%az2)*graz2*self%rsin   
    fde1nh4 = rd1q*de1
    fde2nh4 = rd2q*de2
+  ! print *, 'jpbeforefde2nh4', fde2nh4
    fbsisil = rd3q*bsi
+  ! print *, 'jpbeforefbsisil ',fbsisil  
    fsilph2 = self%rsin*fnutph2
    foo1zo1 = self%az1*graz1
    foo2zo2 = self%az2*graz2
@@ -583,8 +586,8 @@ end if
    _SET_DIAGNOSTIC_(self%id_fde1nh4,fde1nh4*self%spd)
    _SET_DIAGNOSTIC_(self%id_fde2nh4,fde2nh4*self%spd)
   ! print *, 'self%id_fde2nh4', self%id_fde2nh4
-   print *, 'jpfde2nh4', fde2nh4
-   print *, 'jpself%spd', self%spd
+  ! print *, 'jpfde2nh4', fde2nh4
+   !print *, 'jpself%spd', self%spd
    _SET_DIAGNOSTIC_(self%id_fnh4no3,fnh4no3*self%spd)
    _SET_DIAGNOSTIC_(self%id_fno3phy,fno3phy*self%spd)
    _SET_DIAGNOSTIC_(self%id_foo1de1,foo1de1*self%spd)
@@ -592,12 +595,12 @@ end if
    _SET_DIAGNOSTIC_(self%id_fde1zo1,fde1zo1*self%spd)
    _SET_DIAGNOSTIC_(self%id_fde2zo2,fde2zo2*self%spd)
    !print *, 'self%fde2zo2', self%id_fde2zo2
-   print *, 'jpfde2zo2', fde2zo2
+  ! print *, 'jpfde2zo2', fde2zo2
    _SET_DIAGNOSTIC_(self%id_foo2bsi,foo2bsi*self%spd)
    _SET_DIAGNOSTIC_(self%id_fph2bsi,fph2bsi*self%spd)   
    _SET_DIAGNOSTIC_(self%id_fbsisil,fbsisil*self%spd) !***
    !print *, 'self%id_fbsisil',self%id_fbsisil
-   print *, 'jpfbsisil',fbsisil
+  ! print *, 'jpfbsisil',fbsisil
    _SET_DIAGNOSTIC_(self%id_fsilph2,fsilph2*self%spd)
    _SET_DIAGNOSTIC_(self%id_foo1zo1,foo1zo1*self%spd)
    _SET_DIAGNOSTIC_(self%id_foo2zo2,foo2zo2*self%spd)
