@@ -360,13 +360,16 @@ end if
       call self%register_diagnostic_variable(self%id_fzo2nh4,'fzo2nh4','umol/L/day','zo2-->nh4 (Excretion)')
       call self%register_diagnostic_variable(self%id_fde1nh4,'fde1nh4','umol/L/day','de1-->nh4 (Remineralization)')
       call self%register_diagnostic_variable(self%id_fde2nh4,'fde2nh4','umol/L/day','de2-->nh4 (Remineralization)')
+      print *, 'self%id_fde2nh4', self%id_fde2nh4
       call self%register_diagnostic_variable(self%id_fnh4no3,'fnh4no3','umol/L/day','nh4-->no3 (Nitrification)')
       call self%register_diagnostic_variable(self%id_fno3phy,'fno3phy','umol/L/day','no3-->ph1,ph2 (no3 uptake)')
       call self%register_diagnostic_variable(self%id_foo1de1,'foo1de1','umol/L/day','food1-->de1 (Sloppy feeding/Egestion)')
       call self%register_diagnostic_variable(self%id_foo2de2,'foo2de2','umol/L/day','food2-->de2 (Sloppy feeding/Egestion)')
       call self%register_diagnostic_variable(self%id_fde1zo1,'fde1zo1','umol/L/day','de1-->zo1 (Grazing)')
       call self%register_diagnostic_variable(self%id_fde2zo2,'fde2zo2','umol/L/day','de2-->zo2 (Grazing)')
-      call self%register_diagnostic_variable(self%id_fbsisil,'fbsisil','umol/L/day','bsi-->sil (Remineralization)')
+      print *, 'self%id_fde2zo2', self%id_fde2zo2
+      call self%register_diagnostic_variable(self%id_fbsisil,'fbsisil','umol/L/day','bsi-->sil (Remineralization)') !**
+      print *, 'self%id_fbsisil',self%id_fbsisil
       call self%register_diagnostic_variable(self%id_fsilph2,'fsilph2','umol/L/day','sil-->ph2 (Uptake)')
       call self%register_diagnostic_variable(self%id_foo1zo1,'foo1zo1','umol/L/day','ph1,det-->zo1 (zo1 grazing)')
       call self%register_diagnostic_variable(self%id_foo2zo2,'foo2zo2','umol/L/day','ph2,zo1-->zo2 (zo2 grazing)')
@@ -579,15 +582,19 @@ end if
    _SET_DIAGNOSTIC_(self%id_fzo2nh4,fzo2nh4*self%spd)
    _SET_DIAGNOSTIC_(self%id_fde1nh4,fde1nh4*self%spd)
    _SET_DIAGNOSTIC_(self%id_fde2nh4,fde2nh4*self%spd)
+   print *, 'fde2nh4', fde2nh4
+   print *, 'self%spd', self%spd
    _SET_DIAGNOSTIC_(self%id_fnh4no3,fnh4no3*self%spd)
    _SET_DIAGNOSTIC_(self%id_fno3phy,fno3phy*self%spd)
    _SET_DIAGNOSTIC_(self%id_foo1de1,foo1de1*self%spd)
    _SET_DIAGNOSTIC_(self%id_foo2de2,foo2de2*self%spd)
    _SET_DIAGNOSTIC_(self%id_fde1zo1,fde1zo1*self%spd)
    _SET_DIAGNOSTIC_(self%id_fde2zo2,fde2zo2*self%spd)
+   print *, 'fde2zo2', fde2zo2
    _SET_DIAGNOSTIC_(self%id_foo2bsi,foo2bsi*self%spd)
    _SET_DIAGNOSTIC_(self%id_fph2bsi,fph2bsi*self%spd)   
-   _SET_DIAGNOSTIC_(self%id_fbsisil,fbsisil*self%spd)
+   _SET_DIAGNOSTIC_(self%id_fbsisil,fbsisil*self%spd) !***
+   print *, 'fbsisil',fbsisil
    _SET_DIAGNOSTIC_(self%id_fsilph2,fsilph2*self%spd)
    _SET_DIAGNOSTIC_(self%id_foo1zo1,foo1zo1*self%spd)
    _SET_DIAGNOSTIC_(self%id_foo2zo2,foo2zo2*self%spd)
