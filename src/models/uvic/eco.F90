@@ -474,6 +474,7 @@ end if
    fph1zo1 = graz1*self%pp1*ph1/food1                    
    fde1zo1 = graz1*self%pd1*de1/food1
    fde2zo2 = graz2*self%pd2*de2/food2
+   print *, 'jpbeforefde2zo2', fde2zo2
    fph2zo2 = graz2*self%pp2*ph2/food2
    fzo1zo2 = graz2*self%pz1*zo1/food2
    lf1 = 1.0_rk - exp(-self%rpp1*par)
@@ -497,7 +498,9 @@ end if
    foo2bsi = (1.0_rk-self%az2)*graz2*self%rsin   
    fde1nh4 = rd1q*de1
    fde2nh4 = rd2q*de2
+   print *, 'jpbeforefde2nh4', fde2nh4
    fbsisil = rd3q*bsi
+   print *, 'jpbeforefbsisil ',fbsisil  
    fsilph2 = self%rsin*fnutph2
    foo1zo1 = self%az1*graz1
    foo2zo2 = self%az2*graz2
