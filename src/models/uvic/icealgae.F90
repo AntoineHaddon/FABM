@@ -227,7 +227,7 @@ contains
    _HORIZONTAL_LOOP_BEGIN_
    _GET_HORIZONTAL_(self%id_ia,ia)
    print *, 'ia', ia
-   print *, 'self%id_ia', self%id_ia
+  ! print *, 'self%id_ia', self%id_ia
    _GET_HORIZONTAL_(self%id_no3,no3)
    _GET_HORIZONTAL_(self%id_nh4,nh4)
    _GET_HORIZONTAL_(self%id_sil,sil)
