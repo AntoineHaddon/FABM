@@ -163,6 +163,7 @@ contains
       call self%register_horizontal_diagnostic_variable(self%id_pH,'pH','-log(H)','pH/acidity',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_pco2sw,'pco2sw','micro atm ','partial P of CO2 in seawater',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_co2flux,'co2flux','mmol CO_2/m**2/s','air-sea CO2 flux',source=source_do_horizontal)
+      print *, 'self%id_co2flux', self%id_co2flux
       call self%register_horizontal_diagnostic_variable(self%id_fIA_co2,'fIA_co2','mmol CO_2/m**2/s','ice-algal CO2 flux',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_fdic_ice,'fdic_ice','mmol CO_2/m**2/s','ice-growth/melt CO2 flux',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_falk_ice,'falk_ice','[mmol-eq]/m**2/s','ice-growth/melt alk flux',source=source_do_horizontal)
@@ -683,16 +684,16 @@ contains
    k_gasex=pv
    delta_e=0.01*(wind/U_CO2)*(wind/U_CO2)  !7
    co2flux=alpha*(pco2_a*(1+delta_e)-pco2sw)*k_gasex/spd !units = mmol/m2/s
-   print *, 'jp1co2flux', co2flux
+   !print *, 'jp1co2flux', co2flux
 
 !ericmod 6sep2017 adding cubic pv as in Wanninkhof and McGillis 1999
    pv = 0.0283*wind*wind*wind/sqrt(sc/660.)*0.24
    co2flux=alpha*(pco2_a-pco2sw)*pv/spd
-   print *, 'jp2co2flux', co2flux
+  ! print *, 'jp2co2flux', co2flux
 ! and changing to Wanninkhof 1992
    pv = 0.39*wind*wind/sqrt(sc/660.)*0.24
    co2flux=alpha*(pco2_a-pco2sw)*pv/spd
-   print *, 'jp3co2flux', co2flux
+  ! print *, 'jp3co2flux', co2flux
 !write(*,*) 'a,delp,pv,flux,wind',alpha, (pco2_a-pco2sw), pv, spd*co2flux, wind
 !end ericmod 6sep2017
 
