@@ -788,15 +788,15 @@ contains
 
 
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_co2flux, co2flux)
-   print *, 'co2flux',co2flux
+  ! print *, 'co2flux',co2flux
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fIA_co2, fIA_co2)
-   print *, 'fIA_co2',fIA_co2
+   !print *, 'fIA_co2',fIA_co2
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fdic_ice, fdic_ice)
-   print *, 'fdic_ice',fdic_ice
+  ! print *, 'fdic_ice',fdic_ice
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_pH,pH)
-   print *, 'pH', pH
+  ! print *, 'pH', pH
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_pco2sw,pco2sw)
-   print *, 'pco2sw',pco2sw
+  ! print *, 'pco2sw',pco2sw
    _HORIZONTAL_LOOP_END_
 
 
