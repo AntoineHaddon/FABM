@@ -264,8 +264,11 @@ contains
    _LOOP_BEGIN_
 ! retrieve prognostic/state variables
    _GET_(self%id_dic,dic)
+   print *, 'dic', dic
    _GET_(self%id_alk,alk)
+   print *, 'alk', alk
    _GET_(self%id_eco_dic,eco_dic)
+   print *, 'eco_dic', eco_dic
 
 ! ericmod 25aug16 adding new variables for ice brine rejection in do loop 
 !!!               (need to take it OUT of surface loop)
@@ -785,10 +788,15 @@ contains
 
 
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_co2flux, co2flux)
+   print *, 'co2flux',co2flux
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fIA_co2, fIA_co2)
+   print *, 'fIA_co2',fIA_co2
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fdic_ice, fdic_ice)
+   print *, 'fdic_ice',fdic_ice
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_pH,pH)
+   print *, 'pH', pH
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_pco2sw,pco2sw)
+   print *, 'pco2sw',pco2sw
    _HORIZONTAL_LOOP_END_
 
 
