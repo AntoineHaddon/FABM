@@ -143,9 +143,9 @@ contains
 #endif
 ! Register prognostic variables
       call self%register_state_variable(self%id_dic,'dic','mmol DIC/m^3','dissolved inorganic carbon',initial_value=self%dic_0) !jpnote changed to self %
-      print *, 'jpself%dic_0', self%dic_0
+     ! print *, 'jpself%dic_0', self%dic_0
       call self%register_state_variable(self%id_alk,'alk','mmol(eq)/m^3','alkalinity',initial_value=self%alk_0,minimum=0.0_rk)
-      print *, 'jpself%alk_0', self%alk_0
+     ! print *, 'jpself%alk_0', self%alk_0
       call self%register_state_variable(self%id_eco_dic,'eco_dic','mmol DIC/m^3','eco DIC')
 ! Register diagnostic variables
       call self%register_diagnostic_variable(self%id_fdic1,'fdic1','mmol DIC/m**3/day','1st DIC flux')
@@ -163,7 +163,6 @@ contains
       call self%register_horizontal_diagnostic_variable(self%id_pH,'pH','-log(H)','pH/acidity',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_pco2sw,'pco2sw','micro atm ','partial P of CO2 in seawater',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_co2flux,'co2flux','mmol CO_2/m**2/s','air-sea CO2 flux',source=source_do_horizontal)
-      print *, 'self%id_co2flux', self%id_co2flux
       call self%register_horizontal_diagnostic_variable(self%id_fIA_co2,'fIA_co2','mmol CO_2/m**2/s','ice-algal CO2 flux',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_fdic_ice,'fdic_ice','mmol CO_2/m**2/s','ice-growth/melt CO2 flux',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_falk_ice,'falk_ice','[mmol-eq]/m**2/s','ice-growth/melt alk flux',source=source_do_horizontal)
