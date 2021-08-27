@@ -143,7 +143,9 @@ contains
 #endif
 ! Register prognostic variables
       call self%register_state_variable(self%id_dic,'dic','mmol DIC/m^3','dissolved inorganic carbon',initial_value=self%dic_0) !jpnote changed to self %
+      print *, 'jpself%dic_0', self%dic_0
       call self%register_state_variable(self%id_alk,'alk','mmol(eq)/m^3','alkalinity',initial_value=self%alk_0,minimum=0.0_rk)
+      print *, 'jpself%alk_0', self%alk_0
       call self%register_state_variable(self%id_eco_dic,'eco_dic','mmol DIC/m^3','eco DIC')
 ! Register diagnostic variables
       call self%register_diagnostic_variable(self%id_fdic1,'fdic1','mmol DIC/m**3/day','1st DIC flux')
@@ -760,16 +762,21 @@ contains
    if(ice_hi.eq.0.0_rk) then
      ! _SET_SURFACE_EXCHANGE_(self%id_dic, co2flux)
       _ADD_SURFACE_FLUX_(self%id_dic, co2flux)
+      print *, 'jpgetsurfaceco2flux', co2flux
    else if((ice_hi.gt.0) .AND. (ice_hi.lt.thinice_lim)) then
      ! _SET_SURFACE_EXCHANGE_(self%id_dic, co2_thinice*co2flux - fIA_co2 + fdic_ice)
       _ADD_SURFACE_FLUX_(self%id_dic, co2_thinice*co2flux - fIA_co2 + fdic_ice)
+      print *, 'jpfdic_ice', fdic_ice
       !_SET_SURFACE_EXCHANGE_(self%id_alk, +fIA_ta + falk_ice)
       _ADD_SURFACE_FLUX_(self%id_alk, +fIA_ta + falk_ice)
+      print *, 'jpfalk_ice',falk_ice
    else if(ice_hi.gt.thinice_lim) then                                  !dic flux due to ice melt/growth
      ! _SET_SURFACE_EXCHANGE_(self%id_dic, -fIA_co2 + fdic_ice)
       _ADD_SURFACE_FLUX_(self%id_dic, -fIA_co2 + fdic_ice)
+      print *, 'jpfdic_ice', fdic_ice
       !_SET_SURFACE_EXCHANGE_(self%id_alk, +fIA_ta + falk_ice)
       _ADD_SURFACE_FLUX_(self%id_alk, +fIA_ta + falk_ice)
+      print *, 'jpfalk_ice', falk_ice
       co2flux=0                                                         !killing airsea exchange of co2 when ice is present
    endif
 
