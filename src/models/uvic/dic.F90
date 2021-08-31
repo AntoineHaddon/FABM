@@ -264,11 +264,11 @@ contains
    _LOOP_BEGIN_
 ! retrieve prognostic/state variables
    _GET_(self%id_dic,dic)
-   print *, 'dic', dic
+   !print *, 'dic', dic
    _GET_(self%id_alk,alk)
-   print *, 'alk', alk
+  ! print *, 'alk', alk
    _GET_(self%id_eco_dic,eco_dic)
-   print *, 'eco_dic', eco_dic
+  ! print *, 'eco_dic', eco_dic
 
 ! ericmod 25aug16 adding new variables for ice brine rejection in do loop 
 !!!               (need to take it OUT of surface loop)
@@ -554,6 +554,7 @@ contains
 
    _HORIZONTAL_LOOP_BEGIN_
    _GET_(self%id_dic,dic)
+   print *, 'dic ', dic
    _GET_(self%id_alk,alk)
    _GET_HORIZONTAL_(self%id_Tatm,Tatm)
    _GET_HORIZONTAL_(self%id_Patm,Patm)
@@ -666,6 +667,7 @@ contains
 !  pco2sw = sdic/(alpha*1.e-6*(1.+k1_carb/hplus+(k1_carb*k2_carb)/hplus**2))
 ! dropped 1.e-6 in pco2sw eq here and in sdic def. above
   pco2sw = sdic/(alpha*(1.+k1_carb/hplus+(k1_carb*k2_carb)/hplus**2))
+  !print *, 'pco2sw',pco2sw
   pH=-log10(hplus)
 !!!!!!!!end of carbonate chemistry stuff!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -686,16 +688,19 @@ contains
    k_gasex=pv
    delta_e=0.01*(wind/U_CO2)*(wind/U_CO2)  !7
    co2flux=alpha*(pco2_a*(1+delta_e)-pco2sw)*k_gasex/spd !units = mmol/m2/s
-   !print *, 'jp1co2flux', co2flux
+   !print *, 'pco2sw',pco2sw
+  ! print *, 'jp1co2flux', co2flux
 
 !ericmod 6sep2017 adding cubic pv as in Wanninkhof and McGillis 1999
    pv = 0.0283*wind*wind*wind/sqrt(sc/660.)*0.24
    co2flux=alpha*(pco2_a-pco2sw)*pv/spd
-  ! print *, 'jp2co2flux', co2flux
+   !print *, 'pco2sw',pco2sw
+   !print *, 'jp2co2flux', co2flux
 ! and changing to Wanninkhof 1992
    pv = 0.39*wind*wind/sqrt(sc/660.)*0.24
    co2flux=alpha*(pco2_a-pco2sw)*pv/spd
-  ! print *, 'jp3co2flux', co2flux
+   !print *, 'pco2sw',pco2sw
+   !print *, 'jp3co2flux', co2flux
 !write(*,*) 'a,delp,pv,flux,wind',alpha, (pco2_a-pco2sw), pv, spd*co2flux, wind
 !end ericmod 6sep2017
 
@@ -768,18 +773,19 @@ contains
    if(ice_hi.eq.0.0_rk) then
      ! _SET_SURFACE_EXCHANGE_(self%id_dic, co2flux)
       _ADD_SURFACE_FLUX_(self%id_dic, co2flux)
-    !  print *, 'jpgetsurfaceco2flux', co2flux
+     ! print *, 'id_dic ',id_dic  ! ?? what is happeneding that is making it negative -- can I just switch the sign here? 
+     ! print *, 'jpgetsurfaceco2flux', co2flux  !jpnote co2flux is negative here -- unlike mortenson -- find why ? 
    else if((ice_hi.gt.0) .AND. (ice_hi.lt.thinice_lim)) then
      ! _SET_SURFACE_EXCHANGE_(self%id_dic, co2_thinice*co2flux - fIA_co2 + fdic_ice)
       _ADD_SURFACE_FLUX_(self%id_dic, co2_thinice*co2flux - fIA_co2 + fdic_ice)
-     ! print *, 'jpfdic_ice', fdic_ice
+    !  print *, 'jpfdic_ice', fdic_ice
       !_SET_SURFACE_EXCHANGE_(self%id_alk, +fIA_ta + falk_ice)
       _ADD_SURFACE_FLUX_(self%id_alk, +fIA_ta + falk_ice)
     !  print *, 'jpfalk_ice',falk_ice
    else if(ice_hi.gt.thinice_lim) then                                  !dic flux due to ice melt/growth
      ! _SET_SURFACE_EXCHANGE_(self%id_dic, -fIA_co2 + fdic_ice)
       _ADD_SURFACE_FLUX_(self%id_dic, -fIA_co2 + fdic_ice)
-      !print *, 'jpfdic_ice', fdic_ice
+   !   print *, 'jpfdic_ice', fdic_ice
       !_SET_SURFACE_EXCHANGE_(self%id_alk, +fIA_ta + falk_ice)
       _ADD_SURFACE_FLUX_(self%id_alk, +fIA_ta + falk_ice)
      ! print *, 'jpfalk_ice', falk_ice
@@ -790,13 +796,13 @@ contains
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_co2flux, co2flux)
   ! print *, 'co2flux',co2flux
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fIA_co2, fIA_co2)
-   !print *, 'fIA_co2',fIA_co2
+  ! print *, 'fIA_co2',fIA_co2
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fdic_ice, fdic_ice)
   ! print *, 'fdic_ice',fdic_ice
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_pH,pH)
-  ! print *, 'pH', pH
+   !print *, 'pH', pH
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_pco2sw,pco2sw)
-  ! print *, 'pco2sw',pco2sw
+  ! print *, 'jppco2sw',pco2sw
    _HORIZONTAL_LOOP_END_
 
 

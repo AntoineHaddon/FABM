@@ -327,25 +327,25 @@ end if
 ! Register prognostic variables
 !jpnote these register_state_vars replace the yaml read? put them under intiliazation: 
       call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',initial_value=ph1_0,minimum=0.0_rk) !jpnote change initial values to self%
-      print *, 'ph1_0', ph1_0
+     ! print *, 'jpph1_0', ph1_0
       call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=ph2_0,minimum=0.0_rk)
-      print *, 'ph2_0', ph2_0
+     ! print *, 'ph2_0', ph2_0
       call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=zo1_0,minimum=0.0_rk)
-      print *, 'zo1_0', zo1_0
+     ! print *, 'zo1_0', zo1_0
       call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',initial_value=zo2_0,minimum=0.0_rk)   
-      print *, 'zo2_0', zo2_0
+     ! print *, 'zo2_0', zo2_0
       call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=no3_0,minimum=0.0_rk)                         
-      print *, 'no3_0', no3_0
+     ! print *, 'no3_0', no3_0
       call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=nh4_0,minimum=0.0_rk)
-      print *, 'nh4_0', nh4_0
+     ! print *, 'nh4_0', nh4_0
       call self%register_state_variable(self%id_de1,'de1','umol/L','Small Detritus',initial_value=de1_0,minimum=0.0_rk,vertical_movement=self%w1)                         
-      print *, 'de1_0', de1_0
+     ! print *, 'de1_0', de1_0
       call self%register_state_variable(self%id_de2,'de2','umol/L','Large Detritus',initial_value=de2_0,minimum=0.0_rk,vertical_movement=self%w2)                         
-      print *, 'de2_0', de2_0
+     ! print *, 'de2_0', de2_0
       call self%register_state_variable(self%id_bsi,'bsi','umol/L','Biogenic Silica',initial_value=bsi_0,minimum=0.0_rk,vertical_movement=self%w2)                         
-      print *, 'bsi_0', bsi_0
+      !print *, 'bsi_0', bsi_0
       call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=sil_0,minimum=0.0_rk)  
-      print *, 'sil_0', sil_0
+      !print *, 'sil_0', sil_0
       call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph1,scale_factor=self%ac)
       call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph2,scale_factor=self%ac)
       call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_de1,scale_factor=self%ac)
@@ -379,7 +379,7 @@ end if
       call self%register_diagnostic_variable(self%id_fde2zo2,'fde2zo2','umol/L/day','de2-->zo2 (Grazing)')
      ! print *, 'self%id_fde2zo2', self%id_fde2zo2
       call self%register_diagnostic_variable(self%id_fbsisil,'fbsisil','umol/L/day','bsi-->sil (Remineralization)') !**
-      !print *, 'self%id_fbsisil',self%id_fbsisil
+     ! print *, 'self%id_fbsisil',self%id_fbsisil
       call self%register_diagnostic_variable(self%id_fsilph2,'fsilph2','umol/L/day','sil-->ph2 (Uptake)')
       call self%register_diagnostic_variable(self%id_foo1zo1,'foo1zo1','umol/L/day','ph1,det-->zo1 (zo1 grazing)')
       call self%register_diagnostic_variable(self%id_foo2zo2,'foo2zo2','umol/L/day','ph2,zo1-->zo2 (zo2 grazing)')
@@ -484,7 +484,7 @@ end if
    fph1zo1 = graz1*self%pp1*ph1/food1                    
    fde1zo1 = graz1*self%pd1*de1/food1
    fde2zo2 = graz2*self%pd2*de2/food2
- !  print *, 'jpbeforefde2zo2', fde2zo2
+   !print *, 'jpbeforefde2zo2', fde2zo2
    fph2zo2 = graz2*self%pp2*ph2/food2
    fzo1zo2 = graz2*self%pz1*zo1/food2
    lf1 = 1.0_rk - exp(-self%rpp1*par)
@@ -531,7 +531,6 @@ end if
       
 ! Compute and save prognostic variables
 
-!jpnote doesnt exist in any other model exept the ones I brought in 
    !_SET_ODE_ either doesnt exist or needs to be changed 
    if (ph1.lt.self%pmin) then
    ! _SET_ODE_(self%id_ph1,fnutph1)
@@ -596,7 +595,7 @@ end if
    _SET_DIAGNOSTIC_(self%id_fde1nh4,fde1nh4*self%spd)
    _SET_DIAGNOSTIC_(self%id_fde2nh4,fde2nh4*self%spd)
   ! print *, 'self%id_fde2nh4', self%id_fde2nh4
-  ! print *, 'jpfde2nh4', fde2nh4
+   !print *, 'jpfde2nh4', fde2nh4
    !print *, 'jpself%spd', self%spd
    _SET_DIAGNOSTIC_(self%id_fnh4no3,fnh4no3*self%spd)
    _SET_DIAGNOSTIC_(self%id_fno3phy,fno3phy*self%spd)
@@ -605,12 +604,12 @@ end if
    _SET_DIAGNOSTIC_(self%id_fde1zo1,fde1zo1*self%spd)
    _SET_DIAGNOSTIC_(self%id_fde2zo2,fde2zo2*self%spd)
    !print *, 'self%fde2zo2', self%id_fde2zo2
-  ! print *, 'jpfde2zo2', fde2zo2
+   !print *, 'jpfde2zo2', fde2zo2
    _SET_DIAGNOSTIC_(self%id_foo2bsi,foo2bsi*self%spd)
    _SET_DIAGNOSTIC_(self%id_fph2bsi,fph2bsi*self%spd)   
    _SET_DIAGNOSTIC_(self%id_fbsisil,fbsisil*self%spd) !***
    !print *, 'self%id_fbsisil',self%id_fbsisil
-  ! print *, 'jpfbsisil',fbsisil
+   !print *, 'jpfbsisil',fbsisil
    _SET_DIAGNOSTIC_(self%id_fsilph2,fsilph2*self%spd)
    _SET_DIAGNOSTIC_(self%id_foo1zo1,foo1zo1*self%spd)
    _SET_DIAGNOSTIC_(self%id_foo2zo2,foo2zo2*self%spd)
