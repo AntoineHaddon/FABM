@@ -264,11 +264,11 @@ contains
    _LOOP_BEGIN_
 ! retrieve prognostic/state variables
    _GET_(self%id_dic,dic)
-   print *, 'dic', dic
+  ! print *, 'dic', dic
    _GET_(self%id_alk,alk)
-   print *, 'alk', alk
+  ! print *, 'alk', alk
    _GET_(self%id_eco_dic,eco_dic)
-   print *, 'eco_dic', eco_dic
+  ! print *, 'eco_dic', eco_dic
 
 ! ericmod 25aug16 adding new variables for ice brine rejection in do loop 
 !!!               (need to take it OUT of surface loop)
