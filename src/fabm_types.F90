@@ -2047,16 +2047,12 @@ contains
       class (type_base_model),                       intent(inout), target :: self
       type (type_horizontal_diagnostic_variable_id), intent(inout), target :: id
       character(len=*),                              intent(in)            :: name, units, long_name
-      integer,                                       intent(in), optional          :: source !jpnote made optional
+      integer,                                       intent(in),           :: source 
       integer,                                       intent(in), optional  :: output, domain
       real(rk),                                      intent(in), optional  :: missing_value
       class (type_base_standard_variable),           intent(in), optional  :: standard_variable
       logical,                                       intent(in), optional  :: act_as_state_variable
       
-      !integer :: source_
-
-     ! source_ = source_do_horizontal
-     ! if (present(source)) source_ = source !jpnote added porblems with source 
       
       call self%add_horizontal_variable(name, units, long_name, missing_value, &
                                         standard_variable=standard_variable, output=output, &
