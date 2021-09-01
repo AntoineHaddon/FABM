@@ -554,7 +554,7 @@ contains
 
    _HORIZONTAL_LOOP_BEGIN_
    _GET_(self%id_dic,dic)
-   print *, 'dic ', dic
+  ! print *, 'dic ', dic
    _GET_(self%id_alk,alk)
    _GET_HORIZONTAL_(self%id_Tatm,Tatm)
    _GET_HORIZONTAL_(self%id_Patm,Patm)
