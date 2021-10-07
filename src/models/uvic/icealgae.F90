@@ -33,6 +33,7 @@ module uvic_icealgae
 
 ! Declare model parameters
       real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,rnit,skno3_0,sknh4_0,sksil_0,ia_0,ia_b,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
+    !  real(rk) :: ia_0,skno3_0,sknh4_0,sksil_0
 ! Declare anything else used in all procedures
       real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd)
 
@@ -51,11 +52,13 @@ contains
 ! Declare namelist parameters
    !jpnote dont need to declare again bc already have self% 
    !real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,rnit,skno3_0,sknh4_0,sksil_0,ia_0,ia_b,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
-   real(rk), parameter :: spd = 86400.0_rk 
+   !real(rk), parameter :: spd = 86400.0_rk 
    real(rk) :: ia_0,skno3_0,sknh4_0,sksil_0
+   
+   print *, '----------the icealg model in the old code is being run----------'
    !read in vals from fabm.yaml 
 
-   call self%get_parameter(self%r_pond, 'r_pond', '','melt pond drainage rate',default=0.0175_rk,scale_factor=1.0_rk/spd)
+   call self%get_parameter(self%r_pond, 'r_pond', '','melt pond drainage rate',default=0.0175_rk,scale_factor=1.0_rk/self%spd)
   ! self%r_pond = self%r_pond/self%spd
    call self%get_parameter(self%fmethod, 'fmethod','', 'method for ice-ocean flux',default=0.0_rk)
    call self%get_parameter(self%fflush , 'fflush','', 'method for flushing', default=0.0_rk)
@@ -63,22 +66,22 @@ contains
    call self%get_parameter(self%f_graze, 'f_graze','-', 'fraction of ice algal growth lost due to grazing ', default=0.1_rk)
    call self%get_parameter(self%zia, 'zia','m', 'ice algal layer thickness ', default=0.03_rk)
    call self%get_parameter(self%ac_ia, 'ac_ia','', 'specific light attenuation coefficient for ice algae', default=0.03_rk)
-   call self%get_parameter(self%rnit , 'rnit','per day', 'nitrification rate ', default=0.1_rk,scale_factor=1.0_rk/spd)
+   call self%get_parameter(self%rnit , 'rnit','per day', 'nitrification rate ', default=0.1_rk,scale_factor=1.0_rk/self%spd)
   ! self%rnit  = self%rnit/self%spd
-  ! call self%get_parameter(self%ia_0 , 'ia_0','mmol-N/m3', 'ia initial value ', default=0.16_rk)
+ !  call self%get_parameter(ia_0 , 'ia_0','mmol-N/m3', 'ia initial value ', default=0.16_rk)
    call self%get_parameter(self%ia_b , 'ia_b','mmol-N/m3',  'ia background value ',default=0.01_rk)
-   !call self%get_parameter(self%skno3_0, 'skno3_0','mmol/m3', 'no3 initial value ', default=2.0_rk)
-   !call self%get_parameter(self%sknh4_0, 'sknh4_0','mmol/m3', 'nh4 initial value ', default=0.01_rk)
-  ! call self%get_parameter(self%sksil_0, 'sksil_0','mmol/m3', 'sil initial value ', default=5.0_rk)
+!   call self%get_parameter(skno3_0, 'skno3_0','mmol/m3', 'no3 initial value ', default=2.0_rk)
+ !  call self%get_parameter(sknh4_0, 'sknh4_0','mmol/m3', 'nh4 initial value ', default=0.01_rk)
+ !  call self%get_parameter(sksil_0, 'sksil_0','mmol/m3', 'sil initial value ', default=5.0_rk)
    call self%get_parameter(self%ks_no3, 'ks_no3','mmol/m3', 'no3 half-saturation value ',default=1.0_rk)
    call self%get_parameter(self%ks_sil, 'ks_sil','mmol/m3', 'sil half-saturation value ', default=4.0_rk)
-   call self%get_parameter(self%maxg, 'maxg','d-1', 'maximum specific growth rate ', default=0.8511_rk,scale_factor=1.0_rk/spd)
+   call self%get_parameter(self%maxg, 'maxg','d-1', 'maximum specific growth rate ', default=0.8511_rk,scale_factor=1.0_rk/self%spd)
   !! self%maxg = self%maxg/ self%spd
-   call self%get_parameter(self%mort , 'mort','d-1', 'linear mortality rate', default=0.05_rk,scale_factor=1.0_rk/spd)
+   call self%get_parameter(self%mort , 'mort','d-1', 'linear mortality rate', default=0.05_rk,scale_factor=1.0_rk/self%spd)
   ! self%mort = self%mort/ self%spd
-   call self%get_parameter(self%mort2, 'mort2','d-1',  'quadratic mortality rate ',default=0.05_rk,scale_factor=1.0_rk/spd)
+   call self%get_parameter(self%mort2, 'mort2','d-1',  'quadratic mortality rate ',default=0.05_rk,scale_factor=1.0_rk/self%spd)
   ! self%mort2 = self%mort2/ self%spd
-   call self%get_parameter(self%crit_melt, 'crit_melt','m d-1', 'critical melt rate [m d-1]', default=0.015_rk,scale_factor=1.0_rk/spd)
+   call self%get_parameter(self%crit_melt, 'crit_melt','m d-1', 'critical melt rate [m d-1]', default=0.015_rk,scale_factor=1.0_rk/self%spd)
   ! self%crit_melt = self%crit_melt / self%spd
    call self%get_parameter(self%lcompp, 'lcompp','umol m-2 s-1', '# compensation intensity ', default=0.4_rk)
    call self%get_parameter(self%rpp , 'rpp','[W m-2]-1', 'ratio of photosynthetic parameters (alpha and pbm) [W m-2]-1', default=0.1_rk)
@@ -152,21 +155,24 @@ contains
    self%chl2n  = chl2n
    self%sil2n  = sil2n
 #endif
-
-      ia_0 = 1.0
-      skno3_0 = 7.2
-      sknh4_0 = 0.01
-      sksil_0 = 14.7 
+! test
+   !  ia_0 = 1.0
+   !   skno3_0 = 7.2
+   !   sknh4_0 = 0.01
+   !   sksil_0 = 14.7 
       
    ! Register prognostic variables
+#if 0
       call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',initial_value=skno3_0,minimum=0.0_rk)
-    !  print *, 'jpskno3_0', skno3_0
       call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',initial_value=sksil_0,minimum=0.0_rk) 
-     ! print *, 'jpsksil_0', sksil_0
       call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',initial_value=ia_0,minimum=0.0_rk) 
-     ! print *, 'jpia_0', ia_0 
       call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',initial_value=sknh4_0,minimum=0.0_rk) 
-    !  print *, 'jpsknh4_0', sknh4_0
+#endif
+      call self%register_state_variable(self%id_no3,'no3','mmol m-3','skel. NO_3',minimum=0.0_rk)
+      call self%register_state_variable(self%id_sil,'sil','mmol m-3','skel. Si',minimum=0.0_rk) 
+      call self%register_state_variable(self%id_ia,'ia','mmol m-3','Ice algae',minimum=0.0_rk) 
+      call self%register_state_variable(self%id_nh4,'nh4','mmol m-3','NH4',minimum=0.0_rk) 
+
 ! Register diagnostic variables
       call self%register_horizontal_diagnostic_variable(self%id_chl,'chl','mg m-3','Ice algae in per cubic meter',source=source_do_horizontal)
       call self%register_horizontal_diagnostic_variable(self%id_chlia,'chlia','mg m-2','Ice algae in per square meter',source=source_do_horizontal)
