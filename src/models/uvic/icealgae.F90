@@ -33,7 +33,6 @@ module uvic_icealgae
 
 ! Declare model parameters
       real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,rnit,skno3_0,sknh4_0,sksil_0,ia_0,ia_b,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
-    !  real(rk) :: ia_0,skno3_0,sknh4_0,sksil_0
 ! Declare anything else used in all procedures
       real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd)
 
@@ -49,13 +48,9 @@ contains
    subroutine initialize(self,configunit)
    class (type_uvic_icealgae), intent(inout), target :: self
    integer, intent(in)                          :: configunit
-! Declare namelist parameters
-   !jpnote dont need to declare again bc already have self% 
-   !real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,rnit,skno3_0,sknh4_0,sksil_0,ia_0,ia_b,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
-   !real(rk), parameter :: spd = 86400.0_rk 
+! Declare yaml parameters
    real(rk) :: ia_0,skno3_0,sknh4_0,sksil_0
    
-   print *, '----------the icealg model in the old code is being run----------'
    !read in vals from fabm.yaml 
 
    call self%get_parameter(self%r_pond, 'r_pond', '','melt pond drainage rate',default=0.0175_rk,scale_factor=1.0_rk/self%spd)
@@ -92,74 +87,6 @@ contains
    call self%get_parameter(self%md_sil , 'md_sil','', 'molecular diffusion coefficient for dissolved silica', default=0.47e-9_rk)
    call self%get_parameter(self%chl2n , 'chl2n','', 'chl to nitrogen ratio', default=2.8_rk)
    call self%get_parameter(self%sil2n , 'sil2n','', 'silicon to nitrogen ratio', default=1.7_rk)
-
-#if 0
-!jpnote commented out 
-   ! Define the namelist
-   namelist /uvic_icealgae/ r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,t_sens,nu,md_no3,md_sil,chl2n,sil2n
-!  Initialize parameters to default values.
-   r_pond    = 0.0175_rk
-   fmethod   = 0.0_rk
-   fflush     = 0
-   drag      = 0.005_rk
-   f_graze   = 0.1_rk
-   zia       = 0.03_rk
-   ac_ia     = 0.03_rk
-   ia_0      = 0.1_rk
-   ia_b      = 0.16_rk
-   rnit      = 0.01_rk
-   skno3_0   = 2.0_rk 
-   sknh4_0   = 0.01_rk 
-   sksil_0   = 5.0_rk
-   ks_no3    = 1.0_rk
-   ks_sil    = 4.0_rk
-   maxg      = 0.8511_rk
-   mort      = 0.05_rk
-   mort2     = 0.05_rk
-   crit_melt = 0.015_rk
-   lcompp    = 0.4_rk
-   rpp       = 0.1_rk
-   t_sens    = 0.0633_rk
-   nu        = 1.86e-6_rk
-   md_no3    = 0.47e-9_rk
-   md_sil    = 0.47e-9_rk
-   chl2n     = 2.8_rk
-   sil2n     = 1.7_rk
-!  Read namelist parameters
-   read(configunit,nml=uvic_icealgae)
-
-#endif
-#if 0
-!  Register namelist parameters
-   self%ac_ia = ac_ia
-   self%rnit  = rnit/self%spd
-   self%ia_b = ia_b
-   self%f_graze = f_graze
-   self%r_pond = r_pond/self%spd
-   self%fmethod = fmethod
-   self%fflush   = fflush
-   self%drag = drag
-   self%zia = zia
-   self%ks_no3 =ks_no3
-   self%ks_sil =ks_sil
-   self%maxg = maxg/ self%spd
-   self%mort = mort/ self%spd
-   self%mort2 = mort2/ self%spd
-   self%crit_melt = crit_melt / self%spd
-   self%lcompp = lcompp
-   self%rpp = rpp
-   self%t_sens = t_sens
-   self%nu     = nu
-   self%md_no3 = md_no3
-   self%md_sil = md_sil
-   self%chl2n  = chl2n
-   self%sil2n  = sil2n
-#endif
-! test
-   !  ia_0 = 1.0
-   !   skno3_0 = 7.2
-   !   sknh4_0 = 0.01
-   !   sksil_0 = 14.7 
       
    ! Register prognostic variables
 #if 0
@@ -212,12 +139,12 @@ contains
 
       call self%register_dependency(self%id_u,  standard_variables%zonal_current)
       call self%register_dependency(self%id_v,standard_variables%meridional_current) 
-      call self%register_global_dependency(self%id_dt,standard_variables%timestep)  !??? jpnote needed ??   
+      call self%register_global_dependency(self%id_dt,standard_variables%timestep) 
 
      ! call self%register_dependency 
 
       call self%register_dependency(self%id_ph2,'uvic_eco_ph2','','')
-      call self%register_dependency(self%id_no3SW,'uvic_eco_no3','','') !jpnote? maybe here ? 
+      call self%register_dependency(self%id_no3SW,'uvic_eco_no3','','') 
       call self%register_dependency(self%id_nh4SW,'uvic_eco_nh4','','')
       call self%register_dependency(self%id_silSW,'uvic_eco_sil','','')
       call self%request_coupling(self%id_ph2,'uvic_eco_ph2')
@@ -236,14 +163,9 @@ contains
    real(rk) :: fgrow,fgraze,fmort,fmort2,fmelt,fpond,fpondno3,fpondnh4,fpondsil,fnit,fno3up,fnh4up,fsilup,fskelno3,fskelnh4,fskelsil,ier,dt,Amelt
    _HORIZONTAL_LOOP_BEGIN_
    _GET_HORIZONTAL_(self%id_ia,ia)
-  !  print *, 'ia', ia
-  ! print *, 'self%id_ia', seid_ia
    _GET_HORIZONTAL_(self%id_no3,no3)
-   ! print *, 'no3', no3
    _GET_HORIZONTAL_(self%id_nh4,nh4)
-  ! print *, 'nh4', nh4
    _GET_HORIZONTAL_(self%id_sil,sil)
-  ! print *, 'sil', sil
    _GET_HORIZONTAL_(self%id_temp,temp)
    _GET_HORIZONTAL_(self%id_ice_hi,ice_hi)
    _GET_HORIZONTAL_(self%id_ice_hs,ice_hs)
@@ -372,14 +294,14 @@ contains
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fskelno3,fskelno3*self%spd)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fskelnh4,fskelnh4*self%spd)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fskelsil,fskelsil*self%spd)
-   _SET_HORIZONTAL_DIAGNOSTIC_(self%id_ier,ier*self%spd)  !**
+   _SET_HORIZONTAL_DIAGNOSTIC_(self%id_ier,ier*self%spd)  
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fno3up,fno3up*self%spd)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fsilup,fsilup*self%spd)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_lice,lice)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_llig,llig)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_lno3,lno3)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_lsil,lsil)
-   _SET_HORIZONTAL_DIAGNOSTIC_(self%id_hnu,hnu)  !** there is some output
+   _SET_HORIZONTAL_DIAGNOSTIC_(self%id_hnu,hnu) 
    _HORIZONTAL_LOOP_END_
    end subroutine do_surface
 end module uvic_icealgae

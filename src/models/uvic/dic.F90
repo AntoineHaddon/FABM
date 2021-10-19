@@ -82,11 +82,12 @@ contains
       class (type_uvic_dic), intent(inout), target :: self
       integer,                          intent(in)            :: configunit
 ! Declare namelist parameters
-   !jpnote not needed bc self%dic exists ? !real(rk) :: dic_0, alk_0, dic_sw, alk_sw, dic_ice, alk_ice, ik_diff, ik_on, ice_on, IA_on, tplv, btlv, prop2sw, prop2sw_melt
+   
+   real(rk) :: dic_0, alk_0, dic_sw, alk_sw, dic_ice, alk_ice, ik_diff, ik_on, ice_on, IA_on, tplv, btlv, prop2sw, prop2sw_melt
    integer  :: icepump, IApump
 
 !jpnote yaml variables 
-  ! branch => cfg%get_child('uvic_icedic', 'University of Victoria Ice DIC model')   
+ 
    call self%get_parameter(self%dic_0, 'dic_0', 'initial DIC in water column','mmol/m3', default=2190.0_rk)
    call self%get_parameter(self%alk_0 , 'alk_0 ', 'initial TA in water column','mmol/m3', default=2100.0_rk)
    call self%get_parameter(self%dic_sw, 'dic_sw', 'dic_sw','', default=2100.0_rk)
@@ -99,54 +100,17 @@ contains
    call self%get_parameter(self%IA_on, 'IA_on', '(0 or 1), turns off ice algae carbon pump (not used now, bc can do same by ia_0=ia_b=0 in uvic_icealgae)','0 or 1', default=1.0_rk)
    call self%get_parameter(self%tplv, 'tplv', 'top of brine-associated DIC depth','m', default=40.0_rk)
    call self%get_parameter(self%btlv, 'btlv', 'bottom of brine-associated DIC depth','m', default=50.0_rk)
-   call self%get_parameter(self%prop2sw, 'prop2sw', 'proportion of DIC rejected that is released into the ocean (the remainder presumably into the atmosphere)','', default=0.99_rk)
-   !prop2sw_melt=0.975_rk !SA: 1.0, def., 0.95, 0.9, 0.5  !right now, default = 0.975
-
-#if 0
-   ! Define the namelist
-   namelist /uvic_dic/ dic_0, alk_0, dic_sw, alk_sw, dic_ice, alk_ice, ik_diff, ik_on, ice_on, IA_on, tplv, btlv, prop2sw
-! Initialize parameters to default values
-   dic_0=2190.0_rk
-   alk_0=2100.0_rk
-   dic_sw=2100.0_rk 
-   alk_sw=2200.0_rk
-   dic_ice=400.0_rk !400.0_rk 
-   alk_ice=500.0_rk  !500.0_rk
-   ik_diff=50.0_rk
-   ik_on=1
-   ice_on=1
-   IA_on=1
-   tplv=40.0_rk
-   btlv=50.0_rk
-   prop2sw=0.99_rk
+   call self%get_parameter(self%prop2sw, 'prop2sw', 'proportion of DIC rejected that is released into the ocean (the remainder presumably into the atmosphere)','', default=0.99_rk) 
+   
    prop2sw_melt=0.975_rk !SA: 1.0, def., 0.95, 0.9, 0.5  !right now, default = 0.975
-!  Read namelist parameters
-   read(configunit,nml=uvic_dic)
-
-#endif 
-#if 0
-   !  Register namelist parameters
-   self%dic_0 = dic_0
-   self%alk_0 = alk_0
-   self%dic_sw = dic_sw
-   self%alk_sw = alk_sw
-   self%dic_ice = dic_ice
-   self%alk_ice = alk_ice
-   self%ik_diff =ik_diff
-   self%ik_on = ik_on
-   self%ice_on = ice_on
-   self%IA_on = IA_on
-   self%tplv = tplv
-   self%btlv = btlv
-   self%prop2sw = prop2sw
    self%prop2sw_melt = prop2sw_melt
-#endif
-! Register prognostic variables
-      call self%register_state_variable(self%id_dic,'dic','mmol DIC/m^3','dissolved inorganic carbon',initial_value=self%dic_0) !jpnote changed to self %
-     ! print *, 'jpself%dic_0', self%dic_0
-      call self%register_state_variable(self%id_alk,'alk','mmol(eq)/m^3','alkalinity',initial_value=self%alk_0,minimum=0.0_rk)
-     ! print *, 'jpself%alk_0', self%alk_0
-      call self%register_state_variable(self%id_eco_dic,'eco_dic','mmol DIC/m^3','eco DIC')
+   !#endif 
+
+! Register prognostic variables 
+   call self%register_state_variable(self%id_dic,'dic','mmol DIC/m^3','dissolved inorganic carbon',initial_value=self%dic_0)
+   call self%register_state_variable(self%id_alk,'alk','mmol(eq)/m^3','alkalinity',initial_value=self%alk_0,minimum=0.0_rk)
+   call self%register_state_variable(self%id_eco_dic,'eco_dic','mmol DIC/m^3','eco DIC')
+
 ! Register diagnostic variables
       call self%register_diagnostic_variable(self%id_fdic1,'fdic1','mmol DIC/m**3/day','1st DIC flux')
       call self%register_diagnostic_variable(self%id_falk1,'falk1','mmol(eq)/m**3/day','1st alk flux')
@@ -169,7 +133,7 @@ contains
 
 ! Register environmental variables
 
-      call self%register_global_dependency(self%id_dt,standard_variables%timestep) !jpnote
+      call self%register_global_dependency(self%id_dt,standard_variables%timestep) 
       call self%register_horizontal_dependency(self%id_Tatm,standard_variables%surface_temperature)
       call self%register_horizontal_dependency(self%id_Patm,standard_variables%surface_air_pressure)
       call self%register_horizontal_dependency(self%id_wind,standard_variables%wind_speed)
@@ -182,7 +146,6 @@ contains
       call self%register_horizontal_dependency(self%id_topgrowth,standard_variables%topgrowth)
       call self%register_horizontal_dependency(self%id_termelt,standard_variables%termelt)
       call self%register_horizontal_dependency(self%id_botgrowth,standard_variables%tendency_of_sea_ice_thickness_due_to_thermodynamics_grow)
-
 
       call self%register_dependency(self%id_depth,standard_variables%depth)
       call self%register_dependency(self%id_temp,standard_variables%temperature)
@@ -224,7 +187,6 @@ contains
 
    end subroutine initialize
 
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!          do subroutine                     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -264,11 +226,9 @@ contains
    _LOOP_BEGIN_
 ! retrieve prognostic/state variables
    _GET_(self%id_dic,dic)
-   !print *, 'dic', dic
    _GET_(self%id_alk,alk)
-  ! print *, 'alk', alk
    _GET_(self%id_eco_dic,eco_dic)
-  ! print *, 'eco_dic', eco_dic
+
 
 ! ericmod 25aug16 adding new variables for ice brine rejection in do loop 
 !!!               (need to take it OUT of surface loop)
@@ -554,7 +514,6 @@ contains
 
    _HORIZONTAL_LOOP_BEGIN_
    _GET_(self%id_dic,dic)
-  ! print *, 'dic ', dic
    _GET_(self%id_alk,alk)
    _GET_HORIZONTAL_(self%id_Tatm,Tatm)
    _GET_HORIZONTAL_(self%id_Patm,Patm)
@@ -667,7 +626,6 @@ contains
 !  pco2sw = sdic/(alpha*1.e-6*(1.+k1_carb/hplus+(k1_carb*k2_carb)/hplus**2))
 ! dropped 1.e-6 in pco2sw eq here and in sdic def. above
   pco2sw = sdic/(alpha*(1.+k1_carb/hplus+(k1_carb*k2_carb)/hplus**2))
-  !print *, 'pco2sw',pco2sw
   pH=-log10(hplus)
 !!!!!!!!end of carbonate chemistry stuff!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -688,19 +646,15 @@ contains
    k_gasex=pv
    delta_e=0.01*(wind/U_CO2)*(wind/U_CO2)  !7
    co2flux=alpha*(pco2_a*(1+delta_e)-pco2sw)*k_gasex/spd !units = mmol/m2/s
-   !print *, 'pco2sw',pco2sw
-  ! print *, 'jp1co2flux', co2flux
 
 !ericmod 6sep2017 adding cubic pv as in Wanninkhof and McGillis 1999
    pv = 0.0283*wind*wind*wind/sqrt(sc/660.)*0.24
    co2flux=alpha*(pco2_a-pco2sw)*pv/spd
-   !print *, 'pco2sw',pco2sw
-   !print *, 'jp2co2flux', co2flux
+
 ! and changing to Wanninkhof 1992
    pv = 0.39*wind*wind/sqrt(sc/660.)*0.24
    co2flux=alpha*(pco2_a-pco2sw)*pv/spd
-   !print *, 'pco2sw',pco2sw
-   !print *, 'jp3co2flux', co2flux
+   
 !write(*,*) 'a,delp,pv,flux,wind',alpha, (pco2_a-pco2sw), pv, spd*co2flux, wind
 !end ericmod 6sep2017
 
@@ -773,36 +727,25 @@ contains
    if(ice_hi.eq.0.0_rk) then
      ! _SET_SURFACE_EXCHANGE_(self%id_dic, co2flux)
       _ADD_SURFACE_FLUX_(self%id_dic, co2flux)
-     ! print *, 'id_dic ',id_dic  ! ?? what is happeneding that is making it negative -- can I just switch the sign here? 
-     ! print *, 'jpgetsurfaceco2flux', co2flux  !jpnote co2flux is negative here -- unlike mortenson -- find why ? 
    else if((ice_hi.gt.0) .AND. (ice_hi.lt.thinice_lim)) then
      ! _SET_SURFACE_EXCHANGE_(self%id_dic, co2_thinice*co2flux - fIA_co2 + fdic_ice)
       _ADD_SURFACE_FLUX_(self%id_dic, co2_thinice*co2flux - fIA_co2 + fdic_ice)
-    !  print *, 'jpfdic_ice', fdic_ice
       !_SET_SURFACE_EXCHANGE_(self%id_alk, +fIA_ta + falk_ice)
       _ADD_SURFACE_FLUX_(self%id_alk, +fIA_ta + falk_ice)
-    !  print *, 'jpfalk_ice',falk_ice
    else if(ice_hi.gt.thinice_lim) then                                  !dic flux due to ice melt/growth
      ! _SET_SURFACE_EXCHANGE_(self%id_dic, -fIA_co2 + fdic_ice)
       _ADD_SURFACE_FLUX_(self%id_dic, -fIA_co2 + fdic_ice)
-   !   print *, 'jpfdic_ice', fdic_ice
       !_SET_SURFACE_EXCHANGE_(self%id_alk, +fIA_ta + falk_ice)
       _ADD_SURFACE_FLUX_(self%id_alk, +fIA_ta + falk_ice)
-     ! print *, 'jpfalk_ice', falk_ice
       co2flux=0                                                         !killing airsea exchange of co2 when ice is present
    endif
 
 
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_co2flux, co2flux)
-  ! print *, 'co2flux',co2flux
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fIA_co2, fIA_co2)
-  ! print *, 'fIA_co2',fIA_co2
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fdic_ice, fdic_ice)
-  ! print *, 'fdic_ice',fdic_ice
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_pH,pH)
-   !print *, 'pH', pH
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_pco2sw,pco2sw)
-  ! print *, 'jppco2sw',pco2sw
    _HORIZONTAL_LOOP_END_
 
 
