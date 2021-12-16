@@ -26,15 +26,14 @@ module uvic_dms
 ! Declare environmental variables
       type (type_dependency_id) :: id_temp,id_par,id_fph1zo1,id_fph2zo2,id_fph1nh4,id_fph2nh4,id_ph1,id_ph2,id_chl1,id_chl2,id_nf,id_sf,id_fnutph1,id_fnutph2,id_density
 ! Declare horizontal environmental variables
-      type (type_horizontal_dependency_id) :: id_botmelt,id_stemp,id_spar,id_patm,id_wind,id_ice_hi,id_fdmspd3ia,id_fdms3ia,id_fspdmel,id_fspdpon,id_fdmsmel,id_fdmspon,id_icespd,id_icedms
+      type (type_horizontal_dependency_id) :: id_botgrowth,id_botmelt,id_stemp,id_spar,id_patm,id_wind,id_ice_hi,id_fdmspd3ia,id_fdms3ia,id_fspdmel,id_fspdpon,id_fdmsmel,id_fdmspon,id_icespd,id_icedms
 ! Declare namelist parameters
       real(rk) :: f_ow,dms_0,dmspd_0,q1,q2,yield,k_ly1,k_ly2,f_sl1,f_sl2,f_ex1,f_ex2,k_enz,k_in1,k_in2,h_dmspd,h_dms,k_dmspd,k_dms,k_pho
       integer  :: flux
       real(rk) :: zia
-      logical :: use_icedms
 ! Declare anything else used in every procedure
       real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd)
-      character(64),dimension(12) :: models
+      logical :: use_icedms != .true.
 
       contains
 
@@ -53,15 +52,10 @@ contains
    real(rk) :: f_ow,dms_0,dmspd_0,q1,q2,yield,k_ly1,k_ly2,f_sl1,f_sl2,f_ex1,f_ex2,k_enz,k_in1,k_in2,h_dmspd,h_dms,k_dmspd,k_dms,k_pho
    integer  :: flux
    real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
-   logical :: use_icedms
-  ! character(64),dimension(12) :: models 
-   real(rk), parameter :: spd = 86400.0_rk 
-#if 0 
-! Define the namelist
-   namelist /fabm_nml/ models
-   namelist /uvic_dms/ f_ow,dms_0,dmspd_0,q1,q2,yield,k_ly1,k_ly2,f_sl1,f_sl2,f_ex1,f_ex2,k_enz,k_in1,k_in2,h_dmspd,h_dms,k_dmspd,k_dms,k_pho,flux
-   namelist /uvic_icealgae/ r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
+
 !  Initialize parameters to default values
+#if 0
+!for testing purposes
    f_ow    = 0.0_rk
    dms_0   = 2.0_rk
    dmspd_0 = 5.0_rk
@@ -83,55 +77,31 @@ contains
    k_dms   = 0_rk
    k_pho   = 0_rk
    flux    = 0
-!  Read namelist parameters
-   read(configunit,uvic_dms)
-   close(configunit)
-   open(configunit,file='fabm.nml')
-   read(configunit,fabm_nml)
-   self%models = models
-   if(any(models.eq.'uvic_icedms'))then    
-    read(configunit,uvic_icealgae)
-    self%zia = zia   !jp note include this elsewhere 
-   endif
-   close(configunit)
-   open(configunit,file='fabm.nml')
-#endif 
 
-   call self%get_parameter(self%use_icedms, 'use_icedms', '', 'use use_icedms', default=.false.)
-   call self%get_parameter(self%f_ow,'f_ow','','fraction of open water during ice melting (e.g. leads)', default=0.0_rk)
-   call self%get_parameter(self%dms_0,'dms_0','nmol/L','dms initial value ', default=2.0_rk)
-   call self%get_parameter(self%dmspd_0,'dmspd_0','nmol/L','dmspd initial value', default=5.0_rk)
-   call self%get_parameter(self%q1,'q1','mol-S:mol-N','S:N ratio for ph1', default=0.45_rk)
-   call self%get_parameter(self%q2,'q2','mol-S:mol-N','S:N ratio for ph2', default=0.01_rk)
-   call self%get_parameter(self%yield,'yield','per day','bacterial lyase rate constant', default=0.1_rk)
-   call self%get_parameter(self%k_ly1,'k_ly1','','k_ly1', default=0.05_rk,scale_factor=1.0_rk/spd)
-  ! self%k_ly1  = self%k_ly1 /self%spd
-   call self%get_parameter(self%k_ly2,'k_ly2','','k_ly2', default=0.05_rk,scale_factor=1.0_rk/spd)
-   !self%k_ly2  = self%k_ly2 /self%spd
-   call self%get_parameter(self%f_sl1,'f_sl1','','f_sl1', default=1.0_rk)
-   call self%get_parameter(self%f_sl2,'f_sl2','','f_sl2', default=1.0_rk)
-   call self%get_parameter(self%f_ex1,'f_ex1','','f_ex1', default=1.0_rk)
-   call self%get_parameter(self%f_ex2,'f_ex2','','f_ex2', default=1.0_rk)
-   call self%get_parameter(self%k_enz,'k_enz','d-1','rate constant for enzymatic cleavage (free lyase)', default=0.01_rk,scale_factor=1.0_rk/spd)
-  ! self%k_enz   = self%k_enz /self%spd
-   call self%get_parameter(self%k_in1,'k_in1','','k_in1', default=0.0_rk,scale_factor=1.0_rk/spd)
-  ! self%k_in1   = self%k_in1 /self%spd
-   call self%get_parameter(self%k_in2,'k_in2','','k_in2', default=0.0_rk,scale_factor=1.0_rk/spd)
-  ! self%k_in2   = self%k_in2 /self%spd
-   call self%get_parameter(self%h_dmspd,'h_dmspd','','half-saturation constant for bacterial dmspd uptake', default=3.0_rk)
-   call self%get_parameter(self%h_dms,'h_dms','','half-saturation constant for bacterial dms uptake', default=3.0_rk)
-   call self%get_parameter(self%k_dmspd,'k_dmspd','','k_dmspd', default=0.0_rk,scale_factor=1.0_rk/spd)
-  ! self%k_dmspd = self%k_dmspd /self%spd
-   call self%get_parameter(self%k_dms,'k_dms','','k_dms', default=0.0_rk,scale_factor=1.0_rk/spd)
-   !self%k_dms   = self%k_dms /self%spd
-   call self%get_parameter(self%k_pho,'k_pho','','k_pho', default=0.0_rk,scale_factor=1.0_rk/spd)
-   !self%k_pho   = self%k_pho /self%spd
-   call self%get_parameter(self%flux,'flux','','air-sea gas transfer velocity parameterization', default=0)
+!#if 0
+   f_ow        = 0.0
+   dms_0       = 0.1
+   dmspd_0     = 0.1
+   q1          = 100 !0.15, !Stefels 2007
+   q2          = 9.5 !6 !0.015 Galindo 2014
+   yield       = 0.20 !Galindo 2015
+   k_ly1       = 0.03
+   k_ly2       = 0.03
+   f_sl1       = 0.3
+   f_sl2       = 0.3
+   f_ex1       = 0.05
+   f_ex2       = 0.05
+   k_enz       = 0.02 
+   k_in1       = 0
+   k_in2       = 0
+   h_dmspd     = 0
+   h_dms       = 0
+   k_dmspd     = 5
+   k_dms       = 0.5
+   k_pho       = 0.1
+   flux        = 0
 
-#if 0 
-   if(self%use_icedms)then 
-      self%zia = zia  
-   endif
+   zia = 0.03
 
 !  Register namelist parameters
    self%f_ow    = f_ow
@@ -153,10 +123,41 @@ contains
    self%k_dms   = k_dms /self%spd
    self%k_pho   = k_pho /self%spd
    self%flux    = flux
-#endif 
+!if(self%use_icedms) then 
+   self%zia = zia
+!endif
+#endif
+!----
+
+   call self%get_parameter(self%use_icedms, 'use_icedms', '', 'use use_icedms', default=.false.)
+   call self%get_parameter(self%f_ow,'f_ow','','fraction of open water during ice melting (e.g. leads)', default=0.0_rk)
+   !call self%get_parameter(dms_0,'dms_0','nmol/L','dms initial value ', default=2.0_rk)
+   !call self%get_parameter(dmspd_0,'dmspd_0','nmol/L','dmspd initial value', default=5.0_rk)
+   call self%get_parameter(self%q1,'q1','mol-S:mol-N','S:N ratio for ph1', default=0.45_rk)
+   call self%get_parameter(self%q2,'q2','mol-S:mol-N','S:N ratio for ph2', default=0.01_rk)
+   call self%get_parameter(self%yield,'yield','per day','bacterial lyase rate constant', default=0.1_rk)
+   call self%get_parameter(self%k_ly1,'k_ly1','','k_ly1', default=0.05_rk,scale_factor=1.0_rk/self%spd)
+   call self%get_parameter(self%k_ly2,'k_ly2','','k_ly2', default=0.05_rk,scale_factor=1.0_rk/self%spd)
+   call self%get_parameter(self%f_sl1,'f_sl1','','f_sl1', default=1.0_rk)
+   call self%get_parameter(self%f_sl2,'f_sl2','','f_sl2', default=1.0_rk)
+   call self%get_parameter(self%f_ex1,'f_ex1','','f_ex1', default=1.0_rk)
+   call self%get_parameter(self%f_ex2,'f_ex2','','f_ex2', default=1.0_rk)
+   call self%get_parameter(self%k_enz,'k_enz','d-1','rate constant for enzymatic cleavage (free lyase)', default=0.01_rk,scale_factor=1.0_rk/self%spd)
+   call self%get_parameter(self%k_in1,'k_in1','','k_in1', default=0.0_rk,scale_factor=1.0_rk/self%spd)
+   call self%get_parameter(self%k_in2,'k_in2','','k_in2', default=0.0_rk,scale_factor=1.0_rk/self%spd)
+   call self%get_parameter(self%h_dmspd,'h_dmspd','','half-saturation constant for bacterial dmspd uptake', default=3.0_rk)
+   call self%get_parameter(self%h_dms,'h_dms','','half-saturation constant for bacterial dms uptake', default=3.0_rk)
+   call self%get_parameter(self%k_dmspd,'k_dmspd','','k_dmspd', default=0.0_rk,scale_factor=1.0_rk/self%spd)
+   call self%get_parameter(self%k_dms,'k_dms','','k_dms', default=0.0_rk,scale_factor=1.0_rk/self%spd)
+   call self%get_parameter(self%k_pho,'k_pho','','k_pho', default=0.0_rk,scale_factor=1.0_rk/self%spd)
+   call self%get_parameter(self%flux,'flux','','air-sea gas transfer velocity parameterization', default=0)
+   if (self%use_icedms) then!read in icealgae model vars -- as long as use_icedms is not working keep this commented jpnote 
+      call self%get_parameter(self%zia, 'zia','m', 'ice algal layer thickness', default=0.03_rk) ! zia = 0.03_rk
+   endif
+
 ! Register prognostic variables
-      call self%register_state_variable(self%id_dms,'dms','nmol/L','Dimethylsulfide',initial_value=dms_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_dmspd,'dmspd','nmol/L','Dissolved dimethylsulfoniopropionate',initial_value=dmspd_0,minimum=0.0_rk)
+      call self%register_state_variable(self%id_dms,'dms','nmol/L','Dimethylsulfide',minimum=0.0_rk) !initial_value=dms_0
+      call self%register_state_variable(self%id_dmspd,'dmspd','nmol/L','Dissolved dimethylsulfoniopropionate',minimum=0.0_rk) !initial_value=dmspd_0
 ! Register diagnostic variables
       call self%register_diagnostic_variable(self%id_dmspp,'dmspp','nmol/L','Particulate dimethylsulfoniopropionate in ph1 and ph2')
       call self%register_diagnostic_variable(self%id_dmspp1,'dmspp1','nmol/L','Particulate dimethylsulfoniopropionate in ph1')
@@ -179,6 +180,7 @@ contains
       call self%register_horizontal_diagnostic_variable(self%id_fdmsair,'fdmsair','umol m-2 d-1','Sea-to-air DMS flux',source=source_do_horizontal)
 ! Register environmental variables
       call self%register_horizontal_dependency(self%id_botmelt,standard_variables%tendency_of_sea_ice_thickness_due_to_thermodynamics_melt)
+      call self%register_horizontal_dependency(self%id_botgrowth,standard_variables%tendency_of_sea_ice_thickness_due_to_thermodynamics_grow)
       call self%register_dependency(self%id_temp,standard_variables%temperature)
       call self%register_dependency(self%id_patm,standard_variables%surface_air_pressure)
       call self%register_dependency(self%id_par,standard_variables%downwelling_photosynthetic_radiative_flux)
@@ -211,26 +213,25 @@ contains
       call self%request_coupling(self%id_fph2nh4,'uvic_eco_fph2nh4')
       call self%request_coupling(self%id_fnutph1,'uvic_eco_fnutph1')
       call self%request_coupling(self%id_fnutph2,'uvic_eco_fnutph2')
-    ! if(any(models.eq.'uvic_icedms'))then  !jpnote need to replace with something 
+ 
       if(self%use_icedms) then 
-       call self%register_dependency(self%id_fdmspd3ia,'uvic_icedms_fspdaiw','','')
+       call self%register_dependency(self%id_fdmspd3ia,'uvic_icedms_fspdaiw','','')  !jpnote: runs if are commented ... ? 
        call self%register_dependency(self%id_fdms3ia,'uvic_icedms_fdmsaiw','','')
-       call self%register_dependency(self%id_fspdmel,'uvic_icedms_fspdmel','','')
-       call self%register_dependency(self%id_fspdpon,'uvic_icedms_fspdpon','','')
-       call self%register_dependency(self%id_fdmsmel,'uvic_icedms_fdmsmel','','')
-       call self%register_dependency(self%id_fdmspon,'uvic_icedms_fdmspon','','')
+      ! call self%register_dependency(self%id_fspdmel,'uvic_icedms_fspdmel','','')   !this
+      ! call self%register_dependency(self%id_fspdpon,'uvic_icedms_fspdpon','','')   !this
+      ! call self%register_dependency(self%id_fdmsmel,'uvic_icedms_fdmsmel','','') !this
+      ! call self%register_dependency(self%id_fdmspon,'uvic_icedms_fdmspon','','')  !this
        call self%request_coupling(self%id_fdmspd3ia,'uvic_icedms_fspdaiw')
        call self%request_coupling(self%id_fdms3ia,'uvic_icedms_fdmsaiw')
-       call self%request_coupling(self%id_fspdmel,'uvic_icedms_fspdmel')
-       call self%request_coupling(self%id_fspdpon,'uvic_icedms_fspdpon')
-       call self%request_coupling(self%id_fdmsmel,'uvic_icedms_fdmsmel')
-       call self%request_coupling(self%id_fdmspon,'uvic_icedms_fdmspon')
+       !call self%request_coupling(self%id_fspdmel,'uvic_icedms_fspdmel')  !this
+       !call self%request_coupling(self%id_fspdpon,'uvic_icedms_fspdpon')  !this
+       !call self%request_coupling(self%id_fdmsmel,'uvic_icedms_fdmsmel') !this
+       !call self%request_coupling(self%id_fdmspon,'uvic_icedms_fdmspon') !this
        call self%register_dependency(self%id_icespd,'uvic_icedms_dmspd','','')
        call self%request_coupling(self%id_icespd,'uvic_icedms_dmspd')
        call self%register_dependency(self%id_icedms,'uvic_icedms_dms','','')
        call self%request_coupling(self%id_icedms,'uvic_icedms_dms')  
-      call self%register_dependency(self%id_density,standard_variables%density)
-
+       call self%register_dependency(self%id_density,standard_variables%density)
       endif
    end subroutine initialize
    
@@ -245,7 +246,6 @@ contains
 ! Declare environmental parameters
    real(rk) :: ice_hi,temp,par,ph1,ph2,chl1,chl2,nf,sf,fph1zo1,fph2zo2,fph1nh4,fph2nh4,stemp,spar,fnutph1,fnutph2
 ! Declare anything else used in this subroutine
-   logical :: use_icedms
 ! molecular weight of N ( for mmol-N to mg-N conversion)
 !   real(rk), parameter       :: wN = 14.0_rk
 ! conversion factor 1mg-S/m3=31.25nmol/L DMS or DMSP
@@ -265,7 +265,7 @@ contains
    _GET_(self%id_chl1,chl1)
    _GET_(self%id_chl2,chl2)
    _GET_(self%id_ph1,ph1)
-   _GET_(self%id_ph2,ph2)
+   _GET_(self%id_ph2,ph2) 
    _GET_(self%id_nf,nf)
    _GET_(self%id_sf,sf)
    _GET_(self%id_fph1zo1,fph1zo1)
@@ -301,11 +301,8 @@ contains
 !  fdmsbac = self%k_dms*10./(par+10.)*(dms/(dms+self%h_dms))*dms
    fdmspho = self%k_pho*par/(par+1)*dms
 ! Compute and save prognostic variables
-   !jpnote change all _SET_ODE_ to _ADD_SOURCE_
-   !_SET_ODE_(self%id_dms,fph1dms+fph2dms+fspdph1+fspdph2+fspddms+fbacdms-fdmsbac-fdmspho)
-   _ADD_SOURCE_(self%id_dms,fph1dms+fph2dms+fspdph1+fspdph2+fspddms+fbacdms-fdmsbac-fdmspho)
-  ! _SET_ODE_(self%id_dmspd,fph1lys+fph2lys+fzo1spd+fph1spd+fzo2spd+fph2spd-fspddms-fspdbac-fspdph1-fspdph2)
-   _ADD_SOURCE_(self%id_dmspd,fph1lys+fph2lys+fzo1spd+fph1spd+fzo2spd+fph2spd-fspddms-fspdbac-fspdph1-fspdph2)
+   _SET_ODE_(self%id_dms,fph1dms+fph2dms+fspdph1+fspdph2+fspddms+fbacdms-fdmsbac-fdmspho)
+   _SET_ODE_(self%id_dmspd,fph1lys+fph2lys+fzo1spd+fph1spd+fzo2spd+fph2spd-fspddms-fspdbac-fspdph1-fspdph2)
 ! Save diagnostic variables
    _SET_DIAGNOSTIC_(self%id_fph1dms,fph1dms*self%spd)
    _SET_DIAGNOSTIC_(self%id_fph2dms,fph2dms*self%spd)
@@ -333,12 +330,11 @@ contains
 ! Surface Flux
    subroutine do_surface(self,_ARGUMENTS_DO_SURFACE_)
    class (type_uvic_dms),intent(in) :: self
-   real (rk) :: botmelt,dms,stemp,patm,dmsair,wind,ice_hi,tracd_fascm
+   real (rk) :: botgrowth,botmelt,dms,stemp,patm,dmsair,wind,ice_hi,tracd_fascm
    real (rk) :: adms(4),ddms(2)
    real (rk) :: k_600,v_dms,henry,pres_atm
    real (rk) :: osc,sc,rkb,rk0,W
    real (rk) :: fdmspd3ia,fdms3ia,fspdmel,fdmsmel,fspdpon,fdmspon,icespd,icedms,density,dmspd
-   logical :: use_icedms
    data adms/2674.0,147.12,3.726,0.038/
 ! Saltzman provides Ostwald solubility, need to be transferred into Bunsen coefficients for consistency
    data ddms/-10.1794,3761.33/
@@ -353,6 +349,7 @@ contains
    _GET_HORIZONTAL_(self%id_patm,patm)
    _GET_HORIZONTAL_(self%id_ice_hi,ice_hi)
    _GET_HORIZONTAL_(self%id_botmelt,botmelt)
+   _GET_HORIZONTAL_(self%id_botgrowth,botgrowth)
    pres_atm = patm*9.87e-6 ! converting from [Pa] to [atm]
    pres_atm = 10000*9.87e-6 ! converting from [Pa] to [atm]
 ! Question: treatment of DMS_atm (0 for now)
@@ -386,11 +383,10 @@ contains
 !     dmsair=0.0_rk
 !    end if
    end if
-   !_SET_SURFACE_EXCHANGE_(self%id_dms,-dmsair)
-   _ADD_SURFACE_FLUX_(self%id_dms,-dmsair)
+   _SET_SURFACE_EXCHANGE_(self%id_dms,-dmsair)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fdmsair,dmsair*self%spd)
-   !if(any(self%models.eq.'uvic_icedms')) then
-   if(self%use_icedms) then 
+ 
+   if(self%use_icedms) then  !jpnote
     _GET_HORIZONTAL_(self%id_fdmspd3ia,fdmspd3ia)
     _GET_HORIZONTAL_(self%id_fdms3ia,fdms3ia)
     _GET_HORIZONTAL_(self%id_fspdmel,fspdmel)
@@ -401,12 +397,12 @@ contains
     _GET_HORIZONTAL_(self%id_icedms,icedms)
     _GET_(self%id_dmspd,dmspd)
     _GET_(self%id_density,density)
-    !_SET_SURFACE_EXCHANGE_(self%id_dmspd,(-fspdmel+fspdpon)/self%spd*self%zia-fdmspd3ia/self%spd*self%zia)
-    _ADD_SURFACE_FLUX_(self%id_dmspd,(-fspdmel+fspdpon)/self%spd*self%zia-fdmspd3ia/self%spd*self%zia)
-    !_SET_SURFACE_EXCHANGE_(self%id_dms,(-fdmsmel+fdmspon)/self%spd*self%zia-fdms3ia/self%spd*self%zia)
-    _ADD_SURFACE_FLUX_(self%id_dms,(-fdmsmel+fdmspon)/self%spd*self%zia-fdms3ia/self%spd*self%zia)
-!    _SET_SURFACE_EXCHANGE_(self%id_dmspd,913./density*(icespd-dmspd)*(-fspdmel+fspdpon)/icespd/self%spd*self%zia-fdmspd3ia/self%spd*self%zia)
-!    _SET_SURFACE_EXCHANGE_(self%id_dms,913./density*(icedms-dms)*(-fdmsmel+fdmspon)/icedms/self%spd*self%zia-fdms3ia/self%spd*self%zia)
+!HH0: concentration/dilution effect
+!    _SET_SURFACE_EXCHANGE_(self%id_dmspd,(-fspdmel+fspdpon)/self%spd*self%zia-fdmspd3ia/self%spd*self%zia)
+!    _SET_SURFACE_EXCHANGE_(self%id_dms,(-fdmsmel+fdmspon)/self%spd*self%zia-fdms3ia/self%spd*self%zia)
+    _SET_SURFACE_EXCHANGE_(self%id_dmspd,913./density*botgrowth*(dmspd)+(1000./density*icespd-dmspd)*(-913./density*fspdmel+1000./density*fspdpon)/icespd/self%spd*self%zia-fdmspd3ia/self%spd*self%zia)
+    _SET_SURFACE_EXCHANGE_(self%id_dms,913./density*botgrowth*(dms)+(1000./density*icedms-dms)*(-913./density*fdmsmel+1000./density*fdmspon)/icedms/self%spd*self%zia-fdms3ia/self%spd*self%zia)
+!HH1
    end if
    _HORIZONTAL_LOOP_END_
 

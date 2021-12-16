@@ -127,6 +127,8 @@ horizontal:  #jpnote added
     units: W m-2
   - name: surface_ice_temperature
     units: degree_Kelvin
+ # - name: brine_volume_fraction #jpnote added from hayashida 
+  #  units: percent
   - name: f_melt
     units: 1
 global:

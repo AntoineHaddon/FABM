@@ -14,7 +14,7 @@
 module uvic_icealgae
 
    use fabm_types
-   use fabm_expressions  !jpnote needed?  
+   use fabm_expressions  
    use fabm_standard_variables
 
    implicit none
@@ -28,7 +28,10 @@ module uvic_icealgae
       type (type_horizontal_diagnostic_variable_id) :: id_chl,id_chlia,id_fgrow,id_fgraze,id_fmort,id_fmort2,id_fmelt,id_fpond,id_fpondno3,id_fpondnh4,id_fpondsil,id_fno3up,id_fsilup,id_fskelno3,id_fskelnh4,id_fskelsil,id_ier,id_lice,id_llig,id_lno3,id_lsil,id_hnu,id_fnit
 ! Declare environmental variables
       type (type_dependency_id) :: id_ph2,id_no3SW,id_nh4SW,id_silSW,id_u,id_v
-      type (type_horizontal_dependency_id) :: id_airt,id_ice_hs,id_par,id_temp,id_ice_hi,id_botmelt,id_botgrowth,id_topmelt,id_termelt,id_Amelt
+      !mortenson
+      !type (type_horizontal_dependency_id) :: id_airt,id_ice_hs,id_par,id_temp,id_ice_hi,id_botmelt,id_botgrowth,id_topmelt,id_termelt,id_Amelt
+      !hayashida
+      type (type_horizontal_dependency_id) :: id_airt,id_ice_hs,id_par,id_temp,id_ice_hi,id_botmelt,id_botgrowth,id_topmelt,id_termelt,id_Amelt,id_ts !,id_bvf
       type (type_global_dependency_id) :: id_dt 
 
 ! Declare model parameters
@@ -49,7 +52,7 @@ contains
    class (type_uvic_icealgae), intent(inout), target :: self
    integer, intent(in)                          :: configunit
 ! Declare yaml parameters
-   real(rk) :: ia_0,skno3_0,sknh4_0,sksil_0
+  real(rk) :: ia_0,skno3_0,sknh4_0,sksil_0
    
    !read in vals from fabm.yaml 
 
@@ -127,6 +130,11 @@ contains
       ! Register environmental variables
      
       call self%register_horizontal_dependency(self%id_temp,standard_variables%sea_ice_temperature) 
+     
+      !hayashida
+      call self%register_horizontal_dependency(self%id_ts,standard_variables%surface_ice_temperature)
+      !call self%register_horizontal_dependency(self%id_bvf,standard_variables%brine_volume_fraction) 
+
       call self%register_horizontal_dependency(self%id_ice_hi,standard_variables%sea_ice_thickness)
       call self%register_horizontal_dependency(self%id_ice_hs,standard_variables%snow_thickness)
       call self%register_horizontal_dependency(self%id_par,standard_variables%lowest_ice_layer_PAR)
@@ -160,6 +168,9 @@ contains
 
    _DECLARE_ARGUMENTS_DO_SURFACE_
    real(rk) :: ia,no3,nh4,sil,temp,par,ice_hi,ice_hs,k_snow,albedo,airt,ph2,no3SW,nh4SW,silSW,topmelt,termelt,botmelt,botgrowth,u,v,utaui,lice,llig,lno3,lsil,mum,hnu,grow
+   !hayashida 
+   real(rk) :: ts  !bvf,
+
    real(rk) :: fgrow,fgraze,fmort,fmort2,fmelt,fpond,fpondno3,fpondnh4,fpondsil,fnit,fno3up,fnh4up,fsilup,fskelno3,fskelnh4,fskelsil,ier,dt,Amelt
    _HORIZONTAL_LOOP_BEGIN_
    _GET_HORIZONTAL_(self%id_ia,ia)
@@ -167,6 +178,11 @@ contains
    _GET_HORIZONTAL_(self%id_nh4,nh4)
    _GET_HORIZONTAL_(self%id_sil,sil)
    _GET_HORIZONTAL_(self%id_temp,temp)
+
+!hayashida
+   _GET_HORIZONTAL_(self%id_ts,ts)
+   !_GET_HORIZONTAL_(self%id_bvf,bvf)
+
    _GET_HORIZONTAL_(self%id_ice_hi,ice_hi)
    _GET_HORIZONTAL_(self%id_ice_hs,ice_hs)
    _GET_HORIZONTAL_(self%id_par,par)
@@ -210,7 +226,14 @@ contains
    fgraze = self%f_graze*fgrow
    fmort = self%mort*ia*exp(self%t_sens*(temp-273.15_rk))
    fmort2 = self%mort2*ia**2
-   fmelt = min(0.0,ier*ia/self%zia)
+   !mortenson
+   !fmelt = min(0.0,ier*ia/self%zia)
+   !hayashida
+   fmelt = min(0.0,913./1000.*ier*ia/self%zia) !use hakase  !double check (make sure its consistent -- ratio) 
+
+
+
+
    fpond = Amelt*self%r_pond*ia/self%zia 
    fpondno3 = Amelt*self%r_pond*no3/self%zia 
    fpondnh4 = Amelt*self%r_pond*nh4/self%zia 
@@ -223,9 +246,16 @@ contains
    fsilup   = grow*self%sil2n*ia
    utaui    = sqrt(self%drag)*sqrt(u**2+v**2)
    hnu      = self%nu/utaui
-   fskelno3 = self%md_no3/hnu*(no3SW-no3)/self%zia+min(0.0,ier*no3/self%zia)
-   fskelnh4 = self%md_no3/hnu*(nh4SW-nh4)/self%zia+min(0.0,ier*nh4/self%zia)
+
+!mortenson
+   fskelno3 = self%md_no3/hnu*(no3SW-no3)/self%zia+min(0.0,ier*no3/self%zia)  !probably this bc more conservative 
+   fskelnh4 = self%md_no3/hnu*(nh4SW-nh4)/self%zia+min(0.0,ier*nh4/self%zia) 
    fskelsil = self%md_sil/hnu*(silSW-sil)/self%zia+min(0.0,ier*sil/self%zia)
+!hayashida
+   !fskelno3 = self%md_no3/hnu*(no3SW-no3)/self%zia
+   !fskelnh4 = self%md_no3/hnu*(nh4SW-nh4)/self%zia
+   !fskelsil = self%md_sil/hnu*(silSW-sil)/self%zia
+
    if (self%fmethod.eq.1) then ! ice-ocean flux based on melting/growth.
     fskelno3 = max(0.0,ier*(no3SW-no3)/self%zia)+min(0.0,ier*no3/self%zia)
     fskelnh4 = max(0.0,ier*(nh4SW-nh4)/self%zia)+min(0.0,ier*nh4/self%zia)
@@ -235,7 +265,10 @@ contains
     fskelno3 = fskelno3+max(0.0,ier*(no3SW-no3)/self%zia)
     fskelnh4 = fskelnh4+max(0.0,ier*(nh4SW-nh4)/self%zia)
     fskelsil = fskelsil+max(0.0,ier*(silSW-sil)/self%zia)
-    fmelt    = max(0.0,ier*ph2/self%zia)+min(0.0,ier*ia/self%zia)
+   !mortenson
+    fmelt    = max(0.0,ier*ph2/self%zia)+min(0.0,ier*ia/self%zia)  !use eric
+    !hayashida
+    !fmelt    = fmelt+max(0.0,ier*ph2/self%zia)
    endif
    if (ice_hi .lt. 0.1_rk) then ! Ice algal layer is absent.
     fskelno3=0.0_rk
@@ -259,6 +292,8 @@ contains
    ! _SET_SURFACE_ODE_(self%id_ia,(ph2-ia)/dt)
     _ADD_SURFACE_SOURCE_(self%id_ia,(ph2-ia)/dt)
    else
+!mortenson
+#if 0
     !_SET_SURFACE_ODE_(self%id_no3,-fno3up+fskelno3+fnit-fpondno3)
     _ADD_SURFACE_SOURCE_(self%id_no3,-fno3up+fskelno3+fnit-fpondno3)
 !   _SET_SURFACE_ODE_(self%id_nh4,fmort+fskelnh4-fnit-fpondnh4)
@@ -266,6 +301,14 @@ contains
     _ADD_SURFACE_SOURCE_(self%id_nh4,-fnh4up+0.3*fmort+fskelnh4-fnit-fpondnh4)
    ! _SET_SURFACE_ODE_(self%id_sil,-fsilup+fskelsil-fpondsil)
     _ADD_SURFACE_SOURCE_(self%id_sil,-fsilup+fskelsil-fpondsil)
+#endif
+!hayashida
+
+   _SET_SURFACE_ODE_(self%id_no3,-fno3up+fskelno3+fnit-fpondno3+min(0.0,913./1000.*ier*no3/self%zia))  !probably this one 
+   _SET_SURFACE_ODE_(self%id_nh4,-fnh4up+0.3*fmort+fskelnh4-fnit-fpondnh4+min(0.0,913./1000.*ier*nh4/self%zia))
+   _SET_SURFACE_ODE_(self%id_sil,-fsilup+fskelsil-fpondsil+min(0.0,913./1000.*ier*sil/self%zia))
+
+   
     if (ia.lt.self%ia_b) then
     ! _SET_SURFACE_ODE_(self%id_ia,fgrow)
      _ADD_SURFACE_SOURCE_(self%id_ia,fgrow)

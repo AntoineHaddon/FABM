@@ -30,9 +30,15 @@ module uvic_eco
 ! Declare horizontal diagnostic variables
       type (type_horizontal_diagnostic_variable_id) :: id_stemp,id_fialde2,id_fialbsi,id_fialph2
 ! Declare environmental variables
-      type (type_dependency_id) :: id_temp,id_par
+      !mortenson 
+      !type (type_dependency_id) :: id_temp,id_par
+     !hayashida ! 
+      type (type_dependency_id) :: id_temp,id_par,id_density
 ! Declare horizontal environmental variables
-      type (type_horizontal_dependency_id) :: id_ia,id_fmelt,id_fpond,id_fpondno3,id_fpondnh4,id_fpondsil,id_fmort,id_fmort2,id_fskelno3,id_fskelnh4,id_fskelsil
+      !mortenson
+      !type (type_horizontal_dependency_id) :: id_ia,id_fmelt,id_fpond,id_fpondno3,id_fpondnh4,id_fpondsil,id_fmort,id_fmort2,id_fskelno3,id_fskelnh4,id_fskelsil
+     ! hayashida  !
+      type (type_horizontal_dependency_id) :: id_botmelt,id_botgrowth,id_ia,id_iceno3,id_icenh4,id_icesil,id_fmelt,id_fpond,id_fpondno3,id_fpondnh4,id_fpondsil,id_fmort,id_fmort2,id_fskelno3,id_fskelnh4,id_fskelsil
 ! Declare namelist parameters jpnote: yaml paramteters 
       real(rk) :: ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
 ! Declare anything else used in all procedures
@@ -203,6 +209,15 @@ module uvic_eco
 ! Register horizontal environmental variables
       !if(any(models.eq.'uvic_icealgae'))then jpnote changed to 
       if (self%use_icealgae) then 
+
+      !hayashida  !
+       call self%register_horizontal_dependency(self%id_botgrowth,standard_variables%tendency_of_sea_ice_thickness_due_to_thermodynamics_grow)
+       call self%register_horizontal_dependency(self%id_botmelt,standard_variables%tendency_of_sea_ice_thickness_due_to_thermodynamics_melt) 
+      ! call self%register_dependency(self%id_ia,'uvic_icealgae_ia','','') !repeat do not need
+       call self%register_dependency(self%id_iceno3,'uvic_icealgae_no3','','')
+       call self%register_dependency(self%id_icenh4,'uvic_icealgae_nh4','','')
+       call self%register_dependency(self%id_icesil,'uvic_icealgae_sil','','')
+
        call self%register_dependency(self%id_ia,'uvic_icealgae_ia','','')
        call self%register_dependency(self%id_fmelt,'uvic_icealgae_fmelt','','')
        call self%register_dependency(self%id_fpond,'uvic_icealgae_fpond','','')
@@ -215,6 +230,14 @@ module uvic_eco
        call self%register_dependency(self%id_fskelnh4,'uvic_icealgae_fskelnh4','','')
        call self%register_dependency(self%id_fskelsil,'uvic_icealgae_fskelsil','','')
        call self%request_coupling(self%id_ia,'uvic_icealgae_ia')
+
+       !hayashida !
+       call self%request_coupling(self%id_iceno3,'uvic_icealgae_no3')
+       !hayashida !
+       call self%request_coupling(self%id_icenh4,'uvic_icealgae_nh4')
+       !hayashida !
+       call self%request_coupling(self%id_icesil,'uvic_icealgae_sil')
+
        call self%request_coupling(self%id_fmelt,'uvic_icealgae_fmelt')
        call self%request_coupling(self%id_fmort,'uvic_icealgae_fmort')
        call self%request_coupling(self%id_fmort2,'uvic_icealgae_fmort2')
@@ -225,6 +248,8 @@ module uvic_eco
        call self%request_coupling(self%id_fskelno3,'uvic_icealgae_fskelno3')
        call self%request_coupling(self%id_fskelnh4,'uvic_icealgae_fskelnh4')
        call self%request_coupling(self%id_fskelsil,'uvic_icealgae_fskelsil')
+       !hayashida !
+       call self%register_dependency(self%id_density,standard_variables%density)
       endif
 
 
@@ -424,7 +449,13 @@ module uvic_eco
    class (type_uvic_eco),intent(in) :: self
 
    _DECLARE_ARGUMENTS_DO_SURFACE_
-   real(rk) :: fialde2,fialbsi,fialph2,stemp,fmelt,fpond,fpondno3,fpondnh4,fpondsil,fmort,fmort2,fskelno3,fskelnh4,fskelsil
+   !mortenson
+   !real(rk) :: fialde2,fialbsi,fialph2,stemp,fmelt,fpond,fpondno3,fpondnh4,fpondsil,fmort,fmort2,fskelno3,fskelnh4,fskelsil
+  
+   !hayashida !
+   real(rk) :: botmelt,botgrowth,ia,iceno3,icenh4,icesil,fialde2,fialbsi,fialph2,stemp,fmelt,fpond,fpondno3,fpondnh4,fpondsil,fmort,fmort2,fskelno3,fskelnh4,fskelsil
+   !hayashida !
+   real(rk) :: ph1,ph2,zo1,zo2,no3,nh4,de1,de2,bsi,sil,density
 
    logical :: use_icealgae  !jpnote 
 
@@ -433,6 +464,28 @@ module uvic_eco
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_stemp,stemp)
   ! if(any(self%models.eq.'uvic_icealgae'))then   jpnote : changed to 
    if(self%use_icealgae) then 
+
+   !hayashida !
+
+      _GET_HORIZONTAL_(self%id_botgrowth,botgrowth)
+      _GET_HORIZONTAL_(self%id_botmelt,botmelt)
+      _GET_HORIZONTAL_(self%id_ia,ia)
+      _GET_HORIZONTAL_(self%id_iceno3,iceno3)
+      _GET_HORIZONTAL_(self%id_icenh4,icenh4)
+      _GET_HORIZONTAL_(self%id_icesil,icesil)
+      _GET_(self%id_ph2,ph2)
+      _GET_(self%id_no3,no3)
+      _GET_(self%id_nh4,nh4)
+      _GET_(self%id_sil,sil)
+      _GET_(self%id_ph1,ph1)
+      _GET_(self%id_zo1,zo1)
+      _GET_(self%id_zo2,zo2)
+      _GET_(self%id_de1,de1)
+      _GET_(self%id_bsi,bsi)
+      _GET_(self%id_density,density)
+
+
+
     _GET_HORIZONTAL_(self%id_fmelt,fmelt)
     _GET_HORIZONTAL_(self%id_fmort,fmort)
     _GET_HORIZONTAL_(self%id_fmort2,fmort2)
@@ -457,6 +510,9 @@ module uvic_eco
     fialde2=min(0.0,(1-self%f_seed)*fmelt)-(1-self%f_seed)*fpond
     fialbsi=(min(0.0,(1-self%f_seed)*fmelt)-(1-self%f_seed)*fpond)*self%rsin
     fialph2=max(0.0,fmelt)+min(0.0,self%f_seed*fmelt)-self%f_seed*fpond
+
+!mortenson --> 
+#if 0
 !   _SET_SURFACE_EXCHANGE_(self%id_de2,-fialde2+(1-self%f_seed)*fmort2)
     !_SET_SURFACE_EXCHANGE_(self%id_de2,-fialde2+0.7*fmort+fmort2) !jpnote change set bottom/surface exchange to addbottom/surface flux
     _ADD_SURFACE_FLUX_(self%id_de2,-fialde2+0.7*fmort+fmort2)
@@ -472,6 +528,26 @@ module uvic_eco
     _ADD_SURFACE_FLUX_(self%id_nh4,-fskelnh4+fpondnh4)
     !_SET_SURFACE_EXCHANGE_(self%id_sil,-fskelsil+fpondsil)
     _ADD_SURFACE_FLUX_(self%id_sil,-fskelsil+fpondsil)
+#endif
+!hayashida --> 
+
+    _SET_SURFACE_EXCHANGE_(self%id_de2,-fialde2+0.7*fmort+fmort2-de2*(913./density*botmelt+1000./density*abs(fpondsil/icesil))+913./density*botgrowth*de2)
+    _SET_SURFACE_EXCHANGE_(self%id_bsi,-fialbsi+self%rsin*(0.7*fmort+fmort2)-bsi*(913./density*botmelt+abs(fpondsil/icesil))+913./density*botgrowth*bsi)
+!!HH0: conc/dilution effect
+!!    _SET_SURFACE_EXCHANGE_(self%id_ph2,-fialph2)
+!!    _SET_SURFACE_EXCHANGE_(self%id_no3,-fskelno3+fpondno3)
+!!   _SET_SURFACE_EXCHANGE_(self%id_nh4,-fskelnh4+fpondnh4)
+!!    _SET_SURFACE_EXCHANGE_(self%id_sil,-fskelsil+fpondsil)
+    _SET_SURFACE_EXCHANGE_(self%id_ph2,(1000./density*ia-ph2)*913./1000.*abs(fialph2)/ia+913./density*botgrowth*ph2)       !probably this 
+    _SET_SURFACE_EXCHANGE_(self%id_no3,-fskelno3-(no3-1000./density*iceno3)*(913./density*botmelt+1000./density*abs(fpondno3/iceno3))+913./density*botgrowth*(no3-iceno3))
+    _SET_SURFACE_EXCHANGE_(self%id_nh4,-fskelnh4-(nh4-1000./density*icenh4)*(913./density*botmelt+1000./density*abs(fpondnh4/icenh4))+913./density*botgrowth*(nh4-icenh4))
+    _SET_SURFACE_EXCHANGE_(self%id_sil,-fskelsil-(sil-1000./density*icesil)*(913./density*botmelt+1000./density*abs(fpondsil/icesil))+913./density*botgrowth*(sil-icesil))
+    _SET_SURFACE_EXCHANGE_(self%id_ph1,-ph1*(913./density*botmelt+1000./density*abs(fpondsil/icesil))+913./density*botgrowth*ph1)
+    _SET_SURFACE_EXCHANGE_(self%id_de1,-de1*(913./density*botmelt+1000./density*abs(fpondsil/icesil))+913./density*botgrowth*de1)
+    _SET_SURFACE_EXCHANGE_(self%id_zo1,-zo1*(913./density*botmelt+1000./density*abs(fpondsil/icesil))+913./density*botgrowth*zo1)
+    _SET_SURFACE_EXCHANGE_(self%id_zo2,-zo2*(913./density*botmelt+1000./density*abs(fpondsil/icesil))+913./density*botgrowth*zo2)
+
+
     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fialde2,fialde2*self%spd)
     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fialbsi,fialbsi*self%spd)
     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fialph2,fialph2*self%spd)
