@@ -102,9 +102,10 @@
    real(rk) :: rsin  = 2.0
    real(rk) :: nit0  = 0.03
    real(rk) :: knit  = 0.0693
-   !real(rk), parameter :: spd = 86400.0_rk
+   !real(rk), parameter :: spd = 86400.0_rk !jpnote coment or uncomment? 
    !character(64),dimension(12) :: models
 !#endif
+   print *, '----------the npzd model in the old code is being run----------'
 #if 0
    ! Define the namelist
    namelist /fabm_nml/ models
@@ -138,54 +139,56 @@
 
    call self%get_parameter(self%use_icealgae, 'use_icealgae', '', 'use icealgae', default=.false.)
 #if 0
+!descriptions taken from npzd_papa --  not using bc not reading anything in from yaml
    call self%get_parameter(self%kc,'kc','m-1 (mmolN m-3)-1','PAR attenuation coefficient for ph1+ph2+det',default=0.06_rk)
-   call self%get_parameter(self%alpha,'alpha','d-1 (W m-2)-1','Initial slope of P-I curve',default=0.08_rk)
-   self%alpha = self%alpha/self%spd
-   call self%get_parameter(self%num,'num','d-1','maximum phytoplankton specific growth rate',default=2.0_rk)
-   self%num = self%num/self%spd
+   call self%get_parameter(self%alpha,'alpha','d-1 (W m-2)-1','Initial slope of P-I curve',default=0.08_rk,scale_factor=1.0_rk/self%spd)
+   !self%alpha = self%alpha/self%spd
+   call self%get_parameter(self%num,'num','d-1','maximum phytoplankton specific growth rate',default=2.0_rk,scale_factor=1.0_rk/self%spd)
+   !self%num = self%num/self%spd
    call self%get_parameter(self%kn,'kn','mmolN m-3','nitrogen uptake half saturation constant',default=0.1_rk)
    call self%get_parameter(self%a,'a','mmolN m-3','scale factor for nitrogen preference function',default=0.2_rk)
    call self%get_parameter(self%ks,'ks','mmolSi m-3','silicic acid half saturation constant',default=2.0_rk)
    call self%get_parameter(self%lfe1,'lfe1','-','iron limitation value for ph1',default=0.4_rk)
    call self%get_parameter(self%lfe2,'lfe2','-','iron limitation value for ph2',default=0.2_rk)
-   call self%get_parameter(self%mpa,'mpa','d-1','phytoplankton excretion rate (to nh4)',default=0.05_rk)
-   self%mpa = self%mpa/self%spd
-   call self%get_parameter(self%mpd,'mpd','d-1','ph1 mortality rate (to det)',default= 0.06_rk)
-   self%mpd = self%mpd/self%spd
-   call self%get_parameter(self%beta,'beta','d-1 (mmolN m-3)-1','ph2 aggregation rate',default=0.07_rk)
-   self%beta = self%beta/self%spd
-   call self%get_parameter(self%rm,'rm','d-1','zo1 maximum specific grazing rate',default=1.3_rk)
-   self%rm = self%rm/self%spd
-   call self%get_parameter(self%rc,'rc','d-1','zo2 maximum specific grazing rate',default=0.8_rk)
-   self%rc = self%rc/self%spd
+   call self%get_parameter(self%mpa,'mpa','d-1','phytoplankton excretion rate (to nh4)',default=0.05_rk,scale_factor=1.0_rk/self%spd)
+   !self%mpa = self%mpa/self%spd
+   call self%get_parameter(self%mpd,'mpd','d-1','ph1 mortality rate (to det)',default= 0.06_rk,scale_factor=1.0_rk/self%spd)
+  ! self%mpd = self%mpd/self%spd
+   call self%get_parameter(self%beta,'beta','d-1 (mmolN m-3)-1','ph2 aggregation rate',default=0.07_rk,scale_factor=1.0_rk/self%spd)
+   !self%beta = self%beta/self%spd
+   call self%get_parameter(self%rm,'rm','d-1','zo1 maximum specific grazing rate',default=1.3_rk,scale_factor=1.0_rk/self%spd)
+   !self%rm = self%rm/self%spd
+   call self%get_parameter(self%rc,'rc','d-1','zo2 maximum specific grazing rate',default=0.8_rk,scale_factor=1.0_rk/self%spd)
+  ! self%rc = self%rc/self%spd
    call self%get_parameter(self%kp,'kp','mmolN m-3','zo1 grazing half saturation constant',default=0.6_rk)
    call self%get_parameter(self%kz,'kz','mmolN m-3','zo2 grazing half saturation constant',default=0.75_rk)
    call self%get_parameter(self%ga1,'ga1','-','zo1 grazing assimilation fraction',default=0.7_rk)
    call self%get_parameter(self%ga2,'ga2','-','zo2 grazing assimilation fraction',default=0.7_rk)
    call self%get_parameter(self%pd,'pd','-','zo1 grazing preference for det',default=0.5_rk)
-   call self%get_parameter(self%mza,'mza','d-1','zo1 excretion rate',default=0.1_rk)
-   self%mza = self%mza/self%spd
+   call self%get_parameter(self%mza,'mza','d-1','zo1 excretion rate',default=0.1_rk,scale_factor=1.0_rk/self%spd)
+   !self%mza = self%mza/self%spd
    call self%get_parameter(self%mca,'mca','-','zo2 grazing fraction transferred to nh4',default=0.3_rk)
-   call self%get_parameter(self%wp2,'wp2','m d-1','sinking speed for ph2',default=1.2_rk) !jpnote added self% to both 
-   self%wp2 = self%wp2/self%spd
-   call self%get_parameter(self%wd,'wd','m d-1','sinking speed for det',default=6.0_rk)
-   self%wd = self%wd/self%spd
-   call self%get_parameter(self%re,'re','d-1','remineralization rate for nitrogen',default=0.1_rk)
-   self%re = self%re/self%spd
-   call self%get_parameter(self%resi,'resi','d-1','remineralization rate for silicon',default=0.01_rk)
-   self%resi = self%resi/self%spd
+   call self%get_parameter(self%wp2,'wp2','m d-1','sinking speed for ph2',default=1.2_rk,scale_factor=1.0_rk/self%spd) !jpnote added self% to both 
+   !self%wp2 = self%wp2/self%spd
+   call self%get_parameter(self%wd,'wd','m d-1','sinking speed for det',default=6.0_rk,scale_factor=1.0_rk/self%spd)
+   !self%wd = self%wd/self%spd
+   call self%get_parameter(self%re,'re','d-1','remineralization rate for nitrogen',default=0.1_rk,scale_factor=1.0_rk/self%spd)
+   !self%re = self%re/self%spd
+   call self%get_parameter(self%resi,'resi','d-1','remineralization rate for silicon',default=0.01_rk,scale_factor=1.0_rk/self%spd)
+   !self%resi = self%resi/self%spd
    call self%get_parameter(self%q10p,'q10p','-','temperature sensivity for phytoplankton',default=2.0_rk)
    call self%get_parameter(self%q10z,'q10z','-','temperature sensivity for zooplankton',default=3.0_rk)
    call self%get_parameter(self%q10b,'q10b','-','temperature sensivity for bacteria',default=3.0_rk)
    call self%get_parameter(self%rsin,'rsin','molSi:molN','ph2 uptake ratio for silicon to nitrogen',default=2.0_rk)
-   call self%get_parameter(self%nit0,'nit0','d-1','nitrification rate at 0 degree celcius',default=0.03_rk)
-   self%nit0 = self%nit0/self%spd
+   call self%get_parameter(self%nit0,'nit0','d-1','nitrification rate at 0 degree celcius',default=0.03_rk,scale_factor=1.0_rk/self%spd)
+   !self%nit0 = self%nit0/self%spd
    call self%get_parameter(self%knit,'knit','degC-1','temperature sensivity for nitrification',default= 0.0693_rk)
-#endif
+
 !jpnote and the icealgae variables ..........
 
 !read in no3_0 from eco ;;
 
+   !self%ph1_0 or just ph1_0
    call self%get_parameter(self%ph1_0, 'ph1_0','umol/L','ph1 initial value', default=1.0_rk )
    call self%get_parameter(self%ph2_0 , 'ph2_0 ','umol/L', 'ph2 initial value', default=0.5_rk)
    call self%get_parameter(self%zo1_0, 'zo1_0','umol/L', 'zo1 initial value', default=0.2_rk)
@@ -193,12 +196,12 @@
    call self%get_parameter(self%nh4_0, 'nh4_0','umol/L', 'nh4 initial value', default=10.0_rk)
    call self%get_parameter(self%no3_0, 'no3_0','umol/L', 'no3 initial value', default=10.0_rk)
    !call self%get_parameter(self%de1_0, 'de1_0','umol/L','de1 initial value ', default=1.0_rk)
-  ! call self%get_parameter(self%de2_0, 'de2_0','umol/L', 'de2 initial value', default=1.0_rk)
+   !call self%get_parameter(self%de2_0, 'de2_0','umol/L', 'de2 initial value', default=1.0_rk)
    !call self%get_parameter(self%bsi_0, 'bsi_0','umol/L', 'bsi initial value', default=1.0_rk)
   ! call self%get_parameter(self%det_0, 'det_0','', 'det', default=0.0_rk)
    call self%get_parameter(self%sil_0, 'sil_0','', 'sil initial value', default=5.0_rk)
-   !call self%get_parameter(self%PSI_0, 'psi_0','', 'psi', default=0.0_rk)
-
+   !call self%get_parameter(self%psi_0, 'psi_0','', 'psi', default=0.0_rk)
+#endif
    if (self%use_icealgae) then !read in icealgae model vars 
    !call self%get_parameter(self%r_pond, 'r_pond','', 'melt pond drainage rate', default=0.0175_rk)
    call self%get_parameter(self%fmethod, 'fmethod','', 'method for ice-ocean flux', default=0.0_rk)
@@ -264,12 +267,12 @@
    self%knit = knit
 
    ! Register state variables
-   !no3_0=7.2 
+   !no3_0=7.2   !needed to add otherwise error running with nh4 comes up? -- still creates errors 
    call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton',initial_value=ph1_0,minimum=0.0_rk) !,initial_value=self%ph1_0
    call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=ph2_0,minimum=0.0_rk,vertical_movement=self%wp2) !initial_value=self%ph2_0,
    call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=zo1_0,minimum=0.0_rk) !,initial_value=self%zo1_0
    call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',initial_value=zo2_0,minimum=0.0_rk)   !initial_value=self%zo2_0
-   call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=self%no3_0,minimum=0.0_rk)      !initial_value=self%no3_0,                   
+   call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=no3_0,minimum=0.0_rk)    !initial_value=self%no3_0,                   
    call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=nh4_0,minimum=0.0_rk)   !,initial_value=self%nh4_0
    call self%register_state_variable(self%id_det,'det','umol/L','Detritus',initial_value=det_0,minimum=0.0_rk,vertical_movement=self%wd)   !,initial_value=self%det_0                       
    call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=sil_0, minimum=0.0_rk)      !,initial_value=self%sil_0                     
@@ -311,6 +314,17 @@
    call self%register_dependency(self%id_temp, standard_variables%temperature)
    call self%register_global_dependency(self%id_day,standard_variables%number_of_days_since_start_of_the_year)
 
+   print *, '------------npzd-----------------------'
+   print *, ph1_0
+   print *, ph2_0
+   print *, zo1_0
+   print *, zo2_0
+   print *, no3_0
+   print *, nh4_0
+   print *, det_0
+   print *, sil_0
+   print *, psi_0
+
    return
 
    end subroutine initialize
@@ -349,6 +363,7 @@
    _GET_(self%id_ph2,ph2)
    _GET_(self%id_zo1,zo1)
    _GET_(self%id_no3,no3)
+   !print *, 'no3', no3
    _GET_(self%id_nh4,nh4)
    _GET_(self%id_det,det)
    _GET_(self%id_sil,sil)
@@ -373,7 +388,8 @@
    tre = self%re*qb
    trsi = self%resi*qb
    llig = 1.0_rk-exp(-self%alpha*par/tnu)
-   lnut = (no3+nh4)/(self%kn+no3+nh4)
+   lnut = (no3+nh4)/(self%kn+no3+nh4)   !jpnote if no3 is wrong -- lnut will also be wrong 
+   !print *,"lnut", lnut -- errors here still 
    lsil = sil/(self%ks+sil)
 
    nut_ph1 = tnu*ph1*min(lnut,llig,self%lfe1)

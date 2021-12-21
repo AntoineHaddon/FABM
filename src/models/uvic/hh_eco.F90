@@ -1,4 +1,3 @@
-!jpnote: my copy and paste of this file from mortenson
 !-----------------------------------------------------
 !
 ! University of Victoria Ecosystem model
@@ -6,8 +5,6 @@
 ! Contributors: Hakase Hayashida, Nadja Steiner, Eric Mortenson, Adam Mohanan
 !
 ! Model description: The model will be described in a paper.
-
-! JPnote: eventually add model description
 !
 !------------------------------------------------------
 
@@ -30,21 +27,16 @@ module uvic_eco
 ! Declare horizontal diagnostic variables
       type (type_horizontal_diagnostic_variable_id) :: id_stemp,id_fialde2,id_fialbsi,id_fialph2
 ! Declare environmental variables
-      !mortenson 
-      !type (type_dependency_id) :: id_temp,id_par
-     !hayashida ! 
       type (type_dependency_id) :: id_temp,id_par,id_density
 ! Declare horizontal environmental variables
-      !mortenson
-      !type (type_horizontal_dependency_id) :: id_ia,id_fmelt,id_fpond,id_fpondno3,id_fpondnh4,id_fpondsil,id_fmort,id_fmort2,id_fskelno3,id_fskelnh4,id_fskelsil
-     ! hayashida  !
       type (type_horizontal_dependency_id) :: id_botmelt,id_botgrowth,id_ia,id_iceno3,id_icenh4,id_icesil,id_fmelt,id_fpond,id_fpondno3,id_fpondnh4,id_fpondsil,id_fmort,id_fmort2,id_fskelno3,id_fskelnh4,id_fskelsil
-! Declare namelist parameters jpnote: yaml paramteters 
+! Declare namelist parameters
       real(rk) :: ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
 ! Declare anything else used in all procedures
-      real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd) 
-      real(rk) :: zia,ac_ia 
-      logical :: use_icealgae !jpnote added 
+      real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd)
+      real(rk) :: zia,ac_ia
+      !character(64),dimension(12) :: models
+      logical :: use_icealgae = .true.
 
       contains
 
@@ -54,109 +46,192 @@ module uvic_eco
       
    end type
 
-   contains
+contains
 
    subroutine initialize(self,configunit)
    class (type_uvic_eco), intent(inout), target :: self
    integer, intent(in)                          :: configunit
 ! Declare namelist parameters
-
-   real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
    real(rk) :: ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
+   real(rk) :: r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
+ !  character(64),dimension(12) :: models
+! Define the namelist
+   !namelist /fabm_nml/ models
+  ! namelist /uvic_eco/ ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
+  ! namelist /uvic_icealgae/ r_pond,fmethod,fflush,drag,f_graze,zia,ac_ia,ia_0,ia_b,rnit,skno3_0,sknh4_0,sksil_0,ks_no3,ks_sil,maxg,mort,mort2,crit_melt,lcompp,rpp,rpi,t_sens,nu,md_no3,md_sil,chl2n,sil2n
+!  Initialize parameters to default values.
+   ac     = 0.03_rk
+   f_seed = 0.0_rk
+  ! ph1_0 = 1.0_rk 
+  ! ph2_0 = 0.5_rk
+  ! zo1_0 = 0.2_rk
+  ! zo2_0 = 0.1_rk
+  ! no3_0 = 10.0_rk
+  ! nh4_0 = 10.0_rk
+  ! de1_0 = 1.0_rk
+  ! de2_0 = 1.0_rk
+  ! bsi_0 = 1.0_rk
+  ! sil_0 = 5.0_rk
+   w1    = 6.0_rk
+   w2    = 6.0_rk
+   mu1   = 2.0_rk
+   mu2   = 2.0_rk
+   kn    = 0.1_rk
+   rpp1  = 0.05_rk
+   rpp2  = 0.05_rk
+   mp1   = 0.05_rk
+   mp2   = 0.05_rk
+   gz1   = 1.3_rk
+   kz1   = 0.6_rk
+   az1   = 0.7_rk
+   az2   = 0.1_rk
+   mz1   = 0.1_rk
+   rc    = 0.003_rk
+   pp1   = 1.0_rk
+   pp2   = 1.0_rk
+   pd1   = 0.5_rk
+   pd2   = 0.5_rk
+   pz1   = 1.0_rk
+   gz2   = 0.8_rk  
+   kz2   = 0.75_rk 
+   mz2   = 0.3_rk    
+   rd1   = 0.1_rk
+   rd2   = 0.1_rk
+   rd3   = 0.1_rk
+   rpf   = 0.2_rk     
+   qp    = 2.0_rk        
+   qz    = 3.0_rk   
+   qb    = 3.0_rk
+   agg   = 0.07_rk
+   rn0   = 0.03_rk
+   knt   = 0.0693_rk
+   rsin  = 2.0_rk
+   ks    = 2.0_rk
+   pmin  = 0.01_rk
+   zia = 0.03_rk
+   ac_ia = 0.007_rk
 
 
-!read in from yaml - based on values from fabm.nml 
-   !uvic_eco
-   call self%get_parameter(self%use_icealgae, 'use_icealgae', '', 'use icealgae', default=.false.)
-   call self%get_parameter(self%ac,'ac','m-1','light attenuation coefficient', default=0.03_rk)
-   call self%get_parameter(self%f_seed, 'f_seed','-', 'fraction of ice algal fux as ph2 seeding', default=0.0_rk)
-!jpnote: done under initliazation and then register_state_variable)
-  ! call self%get_parameter(ph1_0, 'ph1_0','umol/L','ph1 initial value', default=1.0_rk )
-  ! call self%get_parameter(ph2_0 , 'ph2_0 ','umol/L', 'ph2 initial value', default=0.5_rk)
-  ! call self%get_parameter(zo1_0, 'zo1_0','umol/L', 'zo1 initial value', default=0.2_rk)
-  !! call self%get_parameter(zo2_0, 'zo2_0','umol/L', 'zo2 initial value', default=0.1_rk)
-   !call self%get_parameter(nh4_0, 'nh4_0','umol/L', 'nh4 initial value', default=10.0_rk)
-   !call self%get_parameter(no3_0, 'no3_0','umol/L', 'no3 initial value', default=10.0_rk)
-   !call self%get_parameter(de1_0, 'de1_0','umol/L','de1 initial value ', default=1.0_rk)
-   !call self%get_parameter(de2_0, 'de2_0','umol/L', 'de2 initial value', default=1.0_rk)
-   !call self%get_parameter(bsi_0, 'bsi_0','umol/L', 'bsi initial value', default=1.0_rk)
-   !call self%get_parameter(sil_0 , 'sil_0 ','umol/L', 'sil initial value', default=5.0_rk)
-  
-   call self%get_parameter(self%w1, 'w1 ','m/d', 'de1 sinking rate',default=6.0_rk,scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%w2, 'w2 ','m/d', 'de2 sinking rate', default=6.0_rk, scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%mu1, 'mu1','1/d', 'ph1 maximum growth rate', default=2.0_rk,scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%mu2, 'mu2 ','1/d', 'ph2 maximum growth rate', default=2.0_rk, scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%kn, 'kn','umol/L', ' no3 & nh4 half saturation constant', default=0.1_rk)
-   !call self%get_parameter(self%al1, 'al1','m2/W/time', 'initial slope of P-I curve ([time] is same unit as pmax)', default=0)
-   !call self%get_parameter(self%al2 , 'al2 ','m2/W/time', 'initial slope of P-I curve ([time] is same unit as pmax)', default=0)
-   call self%get_parameter(self%rpp1, 'rpp1','1/time', 'maximum photosynthetic rate ([time] is same unit as alpha)', default=0.05_rk)
-   call self%get_parameter(self%rpp2, 'rpp2 ','1/time', 'maximum photosynthetic rate ([time] is same unit as alpha)', default=0.05_rk)
-   call self%get_parameter(self%mp1, 'mp1','1/d', 'ph1 excretion rate ', default=0.05_rk,scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%mp2, 'mp2 ','1/d', 'ph2 excretion rate', default=0.05_rk,scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%mz1, 'mz1','1/d', 'zo1 excretion rate ', default=0.1_rk,scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%mz2, 'mz2','1/d', 'zo2 excretion rate ', default=0.3_rk,scale_factor=1.0_rk/self%spd)
- 
-   call self%get_parameter(self%gz1, 'gz1','1/d', 'zo1 maximum grazing rate ', default=1.3_rk,scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%gz2, 'gz2','1/d', 'zo2 maximum grazing rate ', default=0.8_rk,scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%kz1, 'kz1','umol/L', 'zo1 grazing half saturation constant ',default=0.6_rk)
-   call self%get_parameter(self%kz2, 'kz2','umol/L', 'zo2 grazing half saturation constant ', default=0.75_rk)
-   call self%get_parameter(self%az1, 'az1','-', 'zo1 assimilation fraction ',default=0.7_rk)
-   call self%get_parameter(self%az2, 'az2','-', 'zo2 assimilation fraction ',default=0.1_rk)
-   call self%get_parameter(self%rc, 'rc','1/d', 'closure mortality rate', default=0.003_rk,scale_factor=1.0_rk/self%spd)
-   ! call self%get_parameter(self%htlnh4, 'htlnh4','-', 'closure loss fraction to nh4', default=0)
-  ! call self%get_parameter(self%htldet, 'htldet','-', 'closure loss fraction to det', default=0)
-   call self%get_parameter(self%pp1, 'pp1','-', 'ph1 fraction as food for zo1', default=1.0_rk)
-   call self%get_parameter(self%pp2, 'pp2','-', 'ph2 fraction as food for zo2', default=1.0_rk)
-   call self%get_parameter(self%pd1, 'pd1','-', 'de1 fraction as food for zo1', default=0.5_rk)
-   call self%get_parameter(self%pd2, 'pd2','-', 'de2 fraction as food for zo2', default=0.5_rk)
-   call self%get_parameter(self%pz1, 'pz1','-', 'zo1 fraction as food for zo2', default=1.0_rk)
-   call self%get_parameter(self%rd1, 'rd1','1/d', ' de1 remineralization rate', default=0.1_rk,scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%rd2, 'rd2','1/d', 'de2 remineralization rate', default=0.1_rk,scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%rd3, 'rd3','1/d', 'bsi remineralization rate', default=0.1_rk,scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%rpf, 'rpf','-', 'scale factor for nitrogen preference function', default=0.2_rk )
-   call self%get_parameter(self%rn0, 'rn0','1/d', 'nitrification rate at 0 deg.C', default=0.03_rk,scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%knt, 'knt','1/deg.C', 'nitrification temperature coefficient', default=0.0693_rk)
-   call self%get_parameter(self%qp, 'qp','-', 'ph1 & ph2 Q10 factor', default=2.0_rk)
-   call self%get_parameter(self%qz, 'qz','-', 'zo1 & zo2 Q10 factor', default=3.0_rk )
-   call self%get_parameter(self%qb, 'qb','-', 'bacteria Q10 factor', default=3.0_rk)
-   call self%get_parameter(self%agg, 'agg', '1/d', 'ph2 aggregation rate',default=0.07_rk,scale_factor=1.0_rk/self%spd)
-   call self%get_parameter(self%rsin, 'rsin','mol-Si/mol-N', 'ph2 Si:N ratio', default=2.0_rk)
-   call self%get_parameter(self%ks, 'ks','umol/L', 'si half saturation constant', default=2.0_rk)
-   call self%get_parameter(self%pmin, 'pmin','umol-N/L', 'background plankton concentration', default=0.01_rk)
+   ac     = 0.03
+   f_seed  = 0.1
+  ! ph1_0   = 0.01
+  ! ph2_0   = 0.01
+  ! zo1_0   = 0.01
+  ! zo2_0   = 0.01
+  ! nh4_0   = 0.01
+  ! no3_0   = 7.2
+  ! de1_0   = 0.01
+  ! de2_0   = 0.01
+  ! bsi_0   = 0.01
+  ! sil_0   = 14.7
+   w1      = -1 !L09
+   w2      = -50 !L09 6,Steiner 2006
+   mu1     = 0.5 !0.341 Paranjape 1987
+   mu2     = 2.0 !steiner06,1.5,dupont (eppley at 10deg.~1.6) !0.567, !Fig.3: Suzuki and Takahashi 1995
+   kn      = 1 !L09
+   rpp1    = 0.3 !0.07125 Cota & Smith 1991
+   rpp2    = 0.3 !0.045 Lavoie 2009
+   mp1     = 0.03 ! L09
+   mp2     = 0.03 ! L09
+   mz1     = 0.03 !0.377, !Forest 2011
+   mz2     = 0.03 !L09
+   gz1     = 1  !1.3,!steiner06, !paranjape 1987
+   gz2     = 1  !0.8,!steiner06, !0.5 L09
+   kz1     = 1  !0.6,!1, !same as below
+   kz2     = 1  !0.75,!1, !L09
+   az1     = 0.7 !L09
+   az2     = 0.7 !same as above
+   rc      = 0.1
+   pp1     = 1
+   pp2     = 1
+   pd1     = 0.5
+   pd2     = 0.5 !L09
+   pz1     = 0.5
+   rd1     = 0.03
+   rd2     = 0.3 !L09
+   rd3     = 0.01
+   rpf     = 0.2 !steiner06
+   rn0     = 0.03 !0.01 steiner06, 0.03 Kawamiya
+   knt     = 0.0693 !Kawamiya 
+   qp      = 1.55  ! Table 2 Suzuki and Takahashi 1995  
+   qz      = 2.14 !PISCES  
+   qb      = 1.9 !PISCES
+   agg     = 0.05  !steiner06
+   rsin    = 1.7 ! L09
+   ks      = 4 !L09
+   pmin    = 0.01
 
-   if (self%use_icealgae) then!read in icealgae model vars 
-      call self%get_parameter(self%zia, 'zia','m', 'ice algal layer thickness', default=0.03_rk) ! zia = 0.03_rk
-      call self%get_parameter(self%ac_ia, 'ac_ia','', 'specific light attenuation coefficient for ice algae', default=0.007_rk) !ac_ia = 0.007_rk
+#if 0 
+   !  Read namelist parameters
+   read(configunit,uvic_eco)
+   close(configunit)
+   open(configunit,file='fabm.nml')
+   read(configunit,fabm_nml)
+   self%models = models
+   if(any(self%models.eq.'uvic_icealgae'))then
+    zia = 0.03_rk
+    ac_ia = 0.007_rk
+    read(configunit,uvic_icealgae)
+    self%zia = zia
+    self%ac_ia = ac_ia
    endif
+   close(configunit)
+   open(configunit,file='fabm.nml')
+#endif 
 
+   !  Register namelist parameters which will be used in other routines
+   self%ac     = ac
+   self%f_seed = f_seed
+   self%w1  = w1 / self%spd
+   self%w2  = w2 / self%spd
+   self%mu1 = mu1 / self%spd
+   self%mu2 = mu2 / self%spd
+   self%kn  = kn
+   self%rpp1 = rpp1
+   self%rpp2 = rpp2
+   self%mp1 = mp1 / self%spd
+   self%mp2 = mp2 / self%spd
+   self%gz1 = gz1 / self%spd
+   self%kz1 = kz1
+   self%az1 = az1
+   self%az2 = az2
+   self%mz1 = mz1 / self%spd
+   self%rc  = rc / self%spd
+   self%pp1 = pp1
+   self%pp2 = pp2
+   self%pd1 = pd1
+   self%pd2 = pd2
+   self%pz1 = pz1
+   self%gz2 = gz2 / self%spd
+   self%kz2 = kz2
+   self%mz2 = mz2 / self%spd
+   self%rd1 = rd1 / self%spd
+   self%rd2 = rd2 / self%spd
+   self%rd3 = rd3 / self%spd
+   self%rpf = rpf
+   self%rn0 = rn0 / self%spd
+   self%knt = knt
+   self%qp  = qp
+   self%qz  = qz
+   self%qb  = qb
+   self%agg = agg / self%spd
+   self%rsin= rsin
+   self%ks  = ks
+   self%pmin= pmin
 
+   self%zia = zia
+   self%ac_ia = ac_ia
 ! Register prognostic variables
-!jpnote these register_state_vars replace the yaml read? put them under intiliazation: 
-#if 0
-      call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',initial_value=ph1_0,minimum=0.0_rk) !jpnote change initial values to self%
-      call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',initial_value=ph2_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',initial_value=zo1_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',initial_value=zo2_0,minimum=0.0_rk)   
-      call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',initial_value=no3_0,minimum=0.0_rk)                         
-      call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',initial_value=nh4_0,minimum=0.0_rk)
-      call self%register_state_variable(self%id_de1,'de1','umol/L','Small Detritus',initial_value=de1_0,minimum=0.0_rk,vertical_movement=self%w1)                         
-      call self%register_state_variable(self%id_de2,'de2','umol/L','Large Detritus',initial_value=de2_0,minimum=0.0_rk,vertical_movement=self%w2)                         
-      call self%register_state_variable(self%id_bsi,'bsi','umol/L','Biogenic Silica',initial_value=bsi_0,minimum=0.0_rk,vertical_movement=self%w2)                         
-      call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',initial_value=sil_0,minimum=0.0_rk)  
-
-#endif
-!initial values in yaml --> 
-      call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',minimum=0.0_rk) !jpnote change initial values to self%
-      call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',minimum=0.0_rk)
-      call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',minimum=0.0_rk)
-      call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',minimum=0.0_rk)   
-      call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',minimum=0.0_rk)                         
-      call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',minimum=0.0_rk)
-      call self%register_state_variable(self%id_de1,'de1','umol/L','Small Detritus',minimum=0.0_rk,vertical_movement=self%w1)                         
-      call self%register_state_variable(self%id_de2,'de2','umol/L','Large Detritus',minimum=0.0_rk,vertical_movement=self%w2)                         
-      call self%register_state_variable(self%id_bsi,'bsi','umol/L','Biogenic Silica',minimum=0.0_rk,vertical_movement=self%w2)                         
-      call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',minimum=0.0_rk)  
-
+      call self%register_state_variable(self%id_ph1,'ph1','umol/L','Small phytoplankton (Flagellates)',minimum=0.0_rk) !,initial_value=ph1_0,
+      call self%register_state_variable(self%id_ph2,'ph2','umol/L','Large phytoplankton (Diatoms)',minimum=0.0_rk) !initial_value=ph2_0
+      call self%register_state_variable(self%id_zo1,'zo1','umol/L','Microzooplankton',minimum=0.0_rk) !initial_value=zo1_0
+      call self%register_state_variable(self%id_zo2,'zo2','umol/L','Mesozooplankton',minimum=0.0_rk)    !initial_value=zo2_0
+      call self%register_state_variable(self%id_no3,'no3','umol/L','Nitrate',minimum=0.0_rk)      !initial_value=no3_0,                    
+      call self%register_state_variable(self%id_nh4,'nh4','umol/L','Ammonium',minimum=0.0_rk) !initial_value=nh4_0
+      call self%register_state_variable(self%id_de1,'de1','umol/L','Small Detritus',minimum=0.0_rk,vertical_movement=self%w1)      !initial_value=de1_0                    
+      call self%register_state_variable(self%id_de2,'de2','umol/L','Large Detritus',minimum=0.0_rk,vertical_movement=self%w2)        !initial_value=de2_0                  
+      call self%register_state_variable(self%id_bsi,'bsi','umol/L','Biogenic Silica',minimum=0.0_rk,vertical_movement=self%w2)    !initial_value=bsi_0                      
+      call self%register_state_variable(self%id_sil,'sil','umol/L','Silicate',minimum=0.0_rk)         !initial_value=sil_0                 
       call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph1,scale_factor=self%ac)
       call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_ph2,scale_factor=self%ac)
       call self%add_to_aggregate_variable(standard_variables%attenuation_coefficient_of_photosynthetic_radiative_flux,self%id_de1,scale_factor=self%ac)
@@ -187,7 +262,7 @@ module uvic_eco
       call self%register_diagnostic_variable(self%id_foo2de2,'foo2de2','umol/L/day','food2-->de2 (Sloppy feeding/Egestion)')
       call self%register_diagnostic_variable(self%id_fde1zo1,'fde1zo1','umol/L/day','de1-->zo1 (Grazing)')
       call self%register_diagnostic_variable(self%id_fde2zo2,'fde2zo2','umol/L/day','de2-->zo2 (Grazing)')
-      call self%register_diagnostic_variable(self%id_fbsisil,'fbsisil','umol/L/day','bsi-->sil (Remineralization)') !**
+      call self%register_diagnostic_variable(self%id_fbsisil,'fbsisil','umol/L/day','bsi-->sil (Remineralization)')
       call self%register_diagnostic_variable(self%id_fsilph2,'fsilph2','umol/L/day','sil-->ph2 (Uptake)')
       call self%register_diagnostic_variable(self%id_foo1zo1,'foo1zo1','umol/L/day','ph1,det-->zo1 (zo1 grazing)')
       call self%register_diagnostic_variable(self%id_foo2zo2,'foo2zo2','umol/L/day','ph2,zo1-->zo2 (zo2 grazing)')
@@ -198,27 +273,22 @@ module uvic_eco
       call self%register_diagnostic_variable(self%id_f1f,'f1f','-','Iron limitation term for ph1 growth')
       call self%register_diagnostic_variable(self%id_f2f,'f2f','-','Iron limitation term for ph2 growth')
       call self%register_diagnostic_variable(self%id_par_diag,'PAR','W/m2','Photosynthetically Available Radiation')
-      call self%register_horizontal_diagnostic_variable(self%id_stemp,'stemp','degC','Temperature in the top layer',source=source_do_horizontal)
-      call self%register_horizontal_diagnostic_variable(self%id_fialde2,'fialde2','mmol m-2 d-1','ial --> de2 (ice algal flux)',source=source_do_horizontal)
-      call self%register_horizontal_diagnostic_variable(self%id_fialbsi,'fialbsi','mmol m-2 d-1','ial --> bsi (ice algal flux)',source=source_do_horizontal)
-      call self%register_horizontal_diagnostic_variable(self%id_fialph2,'fialph2','mmol m-2 d-1','ial --> ph2 (ice algal flux)',source=source_do_horizontal)
+      call self%register_horizontal_diagnostic_variable(self%id_stemp,'stemp','deg.C','Temperature in the top layer',source=source_do_horizontal)
+      call self%register_horizontal_diagnostic_variable(self%id_fialde2,'fialde2','mmol m-2 d-1','ial --> de2 (ice algal flux',source=source_do_horizontal)
+      call self%register_horizontal_diagnostic_variable(self%id_fialbsi,'fialbsi','mmol m-2 d-1','ial --> bsi (ice algal flux',source=source_do_horizontal)
+      call self%register_horizontal_diagnostic_variable(self%id_fialph2,'fialph2','mmol m-2 d-1','ial --> ph2 (ice algal flux',source=source_do_horizontal)
 ! Register environmental variables
       call self%register_dependency(self%id_temp,standard_variables%temperature)
       call self%register_dependency(self%id_par,standard_variables%downwelling_photosynthetic_radiative_flux)
-
 ! Register horizontal environmental variables
-      !if(any(models.eq.'uvic_icealgae'))then jpnote changed to 
-      if (self%use_icealgae) then 
-
-      !hayashida  !
+     ! if(any(models.eq.'uvic_icealgae'))then
+      if (self%use_icealgae) then
        call self%register_horizontal_dependency(self%id_botgrowth,standard_variables%tendency_of_sea_ice_thickness_due_to_thermodynamics_grow)
-       call self%register_horizontal_dependency(self%id_botmelt,standard_variables%tendency_of_sea_ice_thickness_due_to_thermodynamics_melt) 
-      ! call self%register_dependency(self%id_ia,'uvic_icealgae_ia','','') !repeat do not need
+       call self%register_horizontal_dependency(self%id_botmelt,standard_variables%tendency_of_sea_ice_thickness_due_to_thermodynamics_melt)
+       call self%register_dependency(self%id_ia,'uvic_icealgae_ia','','')
        call self%register_dependency(self%id_iceno3,'uvic_icealgae_no3','','')
        call self%register_dependency(self%id_icenh4,'uvic_icealgae_nh4','','')
        call self%register_dependency(self%id_icesil,'uvic_icealgae_sil','','')
-
-       call self%register_dependency(self%id_ia,'uvic_icealgae_ia','','')
        call self%register_dependency(self%id_fmelt,'uvic_icealgae_fmelt','','')
        call self%register_dependency(self%id_fpond,'uvic_icealgae_fpond','','')
        call self%register_dependency(self%id_fpondno3,'uvic_icealgae_fpondno3','','')
@@ -230,14 +300,9 @@ module uvic_eco
        call self%register_dependency(self%id_fskelnh4,'uvic_icealgae_fskelnh4','','')
        call self%register_dependency(self%id_fskelsil,'uvic_icealgae_fskelsil','','')
        call self%request_coupling(self%id_ia,'uvic_icealgae_ia')
-
-       !hayashida !
        call self%request_coupling(self%id_iceno3,'uvic_icealgae_no3')
-       !hayashida !
        call self%request_coupling(self%id_icenh4,'uvic_icealgae_nh4')
-       !hayashida !
        call self%request_coupling(self%id_icesil,'uvic_icealgae_sil')
-
        call self%request_coupling(self%id_fmelt,'uvic_icealgae_fmelt')
        call self%request_coupling(self%id_fmort,'uvic_icealgae_fmort')
        call self%request_coupling(self%id_fmort2,'uvic_icealgae_fmort2')
@@ -248,11 +313,8 @@ module uvic_eco
        call self%request_coupling(self%id_fskelno3,'uvic_icealgae_fskelno3')
        call self%request_coupling(self%id_fskelnh4,'uvic_icealgae_fskelnh4')
        call self%request_coupling(self%id_fskelsil,'uvic_icealgae_fskelsil')
-       !hayashida !
        call self%register_dependency(self%id_density,standard_variables%density)
       endif
-
-
    end subroutine initialize
    
    subroutine do(self,_ARGUMENTS_DO_)
@@ -268,10 +330,9 @@ module uvic_eco
 ! Declare anything else used in this subroutine
    real(rk) :: pht,nut,texp,mu1q,mu2q,mp1q,mp2q,gz1q,mz1q,mz2q,gz2q,rd1q,rd2q,rd3q,food1,food2,graz1,graz2,lf1,lf2,nf,sf,lim1,lim2,ppt,rpi
 
-
    _LOOP_BEGIN_
 
-! Retrieve prognostic variables  
+! Retrieve prognostic variables
    _GET_(self%id_ph1,ph1)
    _GET_(self%id_ph2,ph2)
    _GET_(self%id_zo1,zo1)
@@ -285,9 +346,9 @@ module uvic_eco
 ! Retrieve environmental variables
    _GET_(self%id_temp,temp)
    _GET_(self%id_par,par)
-  ! if(any(self%models.eq.'uvic_icealgae'))then jpnote changed to 
-   if(self%use_icealgae) then 
-    _GET_HORIZONTAL_(self%id_ia,ia)    
+   !if(any(self%models.eq.'uvic_icealgae'))then
+   if (self%use_icealgae) then
+    _GET_HORIZONTAL_(self%id_ia,ia)
     par = par * exp(-self%ac_ia*ia*self%zia)
    endif
    pht = ph1 + ph2 ! Total phytoplankton biomass
@@ -314,7 +375,7 @@ module uvic_eco
    fph2zo2 = graz2*self%pp2*ph2/food2
    fzo1zo2 = graz2*self%pz1*zo1/food2
    lf1 = 1.0_rk - exp(-self%rpp1*par)
-   lf2 = 1.0_rk - exp(-self%rpp2*par) 
+   lf2 = 1.0_rk - exp(-self%rpp2*par)
    nf = nut/(self%kn + nut)
    sf = sil/(self%ks + sil)
    lim1 = min(nf,lf1)
@@ -354,55 +415,35 @@ module uvic_eco
 !  endif
       
 ! Compute and save prognostic variables
-
-   ! jpnote _SET_ODE_ needs to be changed 
    if (ph1.lt.self%pmin) then
-   ! _SET_ODE_(self%id_ph1,fnutph1)
-    _ADD_SOURCE_(self%id_ph1,fnutph1)
+    _SET_ODE_(self%id_ph1,fnutph1)
    else
-   ! _SET_ODE_(self%id_ph1,fnutph1-fph1zo1-fph1nh4)
-    _ADD_SOURCE_(self%id_ph1,fnutph1-fph1zo1-fph1nh4)
+    _SET_ODE_(self%id_ph1,fnutph1-fph1zo1-fph1nh4)
    endif
    if (ph2.lt.self%pmin) then
-   ! _SET_ODE_(self%id_ph2,fnutph2)
-    _ADD_SOURCE_(self%id_ph2,fnutph2)
+    _SET_ODE_(self%id_ph2,fnutph2)
    else
-   ! _SET_ODE_(self%id_ph2,fnutph2-fph2zo2-fph2nh4-fph2de2)
-    _ADD_SOURCE_(self%id_ph2,fnutph2-fph2zo2-fph2nh4-fph2de2)
+    _SET_ODE_(self%id_ph2,fnutph2-fph2zo2-fph2nh4-fph2de2)
    endif
    if (zo1.lt.self%pmin) then
-   ! _SET_ODE_(self%id_zo1,foo1zo1)
-    _ADD_SOURCE_(self%id_zo1,foo1zo1)
+    _SET_ODE_(self%id_zo1,foo1zo1)
    else
-  !  _SET_ODE_(self%id_zo1,foo1zo1-fzo1zo2-fzo1nh4)
-    _ADD_SOURCE_(self%id_zo1,foo1zo1-fzo1zo2-fzo1nh4)
+    _SET_ODE_(self%id_zo1,foo1zo1-fzo1zo2-fzo1nh4)
    endif
    if (zo2.lt.self%pmin) then
-   ! _SET_ODE_(self%id_zo2,foo2zo2)
-    _ADD_SOURCE_(self%id_zo2,foo2zo2)
+    _SET_ODE_(self%id_zo2,foo2zo2)
    else
-   ! _SET_ODE_(self%id_zo2,foo2zo2-fzo2nh4-fzo2htl)
-    _ADD_SOURCE_(self%id_zo2,foo2zo2-fzo2nh4-fzo2htl)
+    _SET_ODE_(self%id_zo2,foo2zo2-fzo2nh4-fzo2htl)
    endif
-
-
-  !_SET_ODE_(self%id_no3,fnh4no3-fno3phy) 
-   _ADD_SOURCE_(self%id_no3,fnh4no3-fno3phy)
+   _SET_ODE_(self%id_no3,fnh4no3-fno3phy)
 !  _SET_ODE_(self%id_nh4,fde1nh4+fde2nh4+fph1nh4+fph2nh4+fzo1nh4+fzo2nh4-fnh4no3-fnh4phy)
-    ! _SET_ODE_(self%id_nh4,fde1nh4+fde2nh4+fzo1nh4+fzo2nh4-fnh4no3-fnh4phy)
-   _ADD_SOURCE_(self%id_nh4,fde1nh4+fde2nh4+fzo1nh4+fzo2nh4-fnh4no3-fnh4phy)
+   _SET_ODE_(self%id_nh4,fde1nh4+fde2nh4+fzo1nh4+fzo2nh4-fnh4no3-fnh4phy)
 !  _SET_ODE_(self%id_de1,foo1de1-fde1zo1-fde1nh4)
-     !_SET_ODE_(self%id_de1,foo1de1-fde1zo1-fde1nh4+fph1nh4)
-   _ADD_SOURCE_(self%id_de1,foo1de1-fde1zo1-fde1nh4+fph1nh4)
+   _SET_ODE_(self%id_de1,foo1de1-fde1zo1-fde1nh4+fph1nh4)
 !  _SET_ODE_(self%id_de2,foo2de2+fph2de2-fde2zo2-fde2nh4)
-   ! _SET_ODE_(self%id_de2,foo2de2+fph2de2-fde2zo2-fde2nh4+fph2nh4)
-   _ADD_SOURCE_(self%id_de2,foo2de2+fph2de2-fde2zo2-fde2nh4+fph2nh4)
-   !_SET_ODE_(self%id_bsi,foo2bsi+fph2bsi+self%rsin*fph2nh4-self%rsin*fde2zo2-fbsisil)
-   _ADD_SOURCE_(self%id_bsi,foo2bsi+fph2bsi+self%rsin*fph2nh4-self%rsin*fde2zo2-fbsisil)
-    ! _SET_ODE_(self%id_sil,-fsilph2+fph2sil+fbsisil)
-   _ADD_SOURCE_(self%id_sil,-fsilph2+fph2sil+fbsisil)
-
-
+   _SET_ODE_(self%id_de2,foo2de2+fph2de2-fde2zo2-fde2nh4+fph2nh4)
+   _SET_ODE_(self%id_bsi,foo2bsi+fph2bsi+self%rsin*fph2nh4-self%rsin*fde2zo2-fbsisil)
+   _SET_ODE_(self%id_sil,-fsilph2+fph2sil+fbsisil)
 ! Save diagnostic variables  
    _SET_DIAGNOSTIC_(self%id_chl,ph1*0.795+ph2*3.533)
    _SET_DIAGNOSTIC_(self%id_chl1,ph1*0.795)
@@ -430,7 +471,7 @@ module uvic_eco
    _SET_DIAGNOSTIC_(self%id_fde2zo2,fde2zo2*self%spd)
    _SET_DIAGNOSTIC_(self%id_foo2bsi,foo2bsi*self%spd)
    _SET_DIAGNOSTIC_(self%id_fph2bsi,fph2bsi*self%spd)   
-   _SET_DIAGNOSTIC_(self%id_fbsisil,fbsisil*self%spd) 
+   _SET_DIAGNOSTIC_(self%id_fbsisil,fbsisil*self%spd)
    _SET_DIAGNOSTIC_(self%id_fsilph2,fsilph2*self%spd)
    _SET_DIAGNOSTIC_(self%id_foo1zo1,foo1zo1*self%spd)
    _SET_DIAGNOSTIC_(self%id_foo2zo2,foo2zo2*self%spd)
@@ -449,43 +490,30 @@ module uvic_eco
    class (type_uvic_eco),intent(in) :: self
 
    _DECLARE_ARGUMENTS_DO_SURFACE_
-   !mortenson
-   !real(rk) :: fialde2,fialbsi,fialph2,stemp,fmelt,fpond,fpondno3,fpondnh4,fpondsil,fmort,fmort2,fskelno3,fskelnh4,fskelsil
-  
-   !hayashida !
    real(rk) :: botmelt,botgrowth,ia,iceno3,icenh4,icesil,fialde2,fialbsi,fialph2,stemp,fmelt,fpond,fpondno3,fpondnh4,fpondsil,fmort,fmort2,fskelno3,fskelnh4,fskelsil
-   !hayashida !
    real(rk) :: ph1,ph2,zo1,zo2,no3,nh4,de1,de2,bsi,sil,density
-
-   logical :: use_icealgae  !jpnote 
 
    _HORIZONTAL_LOOP_BEGIN_
    _GET_(self%id_temp,stemp)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_stemp,stemp)
-  ! if(any(self%models.eq.'uvic_icealgae'))then   jpnote : changed to 
-   if(self%use_icealgae) then 
-
-   !hayashida !
-
-      _GET_HORIZONTAL_(self%id_botgrowth,botgrowth)
-      _GET_HORIZONTAL_(self%id_botmelt,botmelt)
-      _GET_HORIZONTAL_(self%id_ia,ia)
-      _GET_HORIZONTAL_(self%id_iceno3,iceno3)
-      _GET_HORIZONTAL_(self%id_icenh4,icenh4)
-      _GET_HORIZONTAL_(self%id_icesil,icesil)
-      _GET_(self%id_ph2,ph2)
-      _GET_(self%id_no3,no3)
-      _GET_(self%id_nh4,nh4)
-      _GET_(self%id_sil,sil)
-      _GET_(self%id_ph1,ph1)
-      _GET_(self%id_zo1,zo1)
-      _GET_(self%id_zo2,zo2)
-      _GET_(self%id_de1,de1)
-      _GET_(self%id_bsi,bsi)
-      _GET_(self%id_density,density)
-
-
-
+  ! if(any(self%models.eq.'uvic_icealgae'))then
+   if (self%use_icealgae) then
+    _GET_HORIZONTAL_(self%id_botgrowth,botgrowth)
+    _GET_HORIZONTAL_(self%id_botmelt,botmelt)
+    _GET_HORIZONTAL_(self%id_ia,ia)
+    _GET_HORIZONTAL_(self%id_iceno3,iceno3)
+    _GET_HORIZONTAL_(self%id_icenh4,icenh4)
+    _GET_HORIZONTAL_(self%id_icesil,icesil)
+    _GET_(self%id_ph2,ph2)
+    _GET_(self%id_no3,no3)
+    _GET_(self%id_nh4,nh4)
+    _GET_(self%id_sil,sil)
+    _GET_(self%id_ph1,ph1)
+    _GET_(self%id_zo1,zo1)
+    _GET_(self%id_zo2,zo2)
+    _GET_(self%id_de1,de1)
+    _GET_(self%id_bsi,bsi)
+    _GET_(self%id_density,density)
     _GET_HORIZONTAL_(self%id_fmelt,fmelt)
     _GET_HORIZONTAL_(self%id_fmort,fmort)
     _GET_HORIZONTAL_(self%id_fmort2,fmort2)
@@ -510,35 +538,14 @@ module uvic_eco
     fialde2=min(0.0,(1-self%f_seed)*fmelt)-(1-self%f_seed)*fpond
     fialbsi=(min(0.0,(1-self%f_seed)*fmelt)-(1-self%f_seed)*fpond)*self%rsin
     fialph2=max(0.0,fmelt)+min(0.0,self%f_seed*fmelt)-self%f_seed*fpond
-
-!mortenson --> 
-
-!   _SET_SURFACE_EXCHANGE_(self%id_de2,-fialde2+(1-self%f_seed)*fmort2)
-    !_SET_SURFACE_EXCHANGE_(self%id_de2,-fialde2+0.7*fmort+fmort2) !jpnote change set bottom/surface exchange to addbottom/surface flux
-    _ADD_SURFACE_FLUX_(self%id_de2,-fialde2+0.7*fmort+fmort2)
-!   _SET_SURFACE_EXCHANGE_(self%id_bsi,-fialbsi)
-    !_SET_SURFACE_EXCHANGE_(self%id_bsi,-fialbsi+self%rsin*(0.7*fmort+fmort2))
-    _ADD_SURFACE_FLUX_(self%id_bsi,-fialbsi+self%rsin*(0.7*fmort+fmort2))
-!   _SET_SURFACE_EXCHANGE_(self%id_ph2,-fialph2+self%f_seed*fmort2)
-    !_SET_SURFACE_EXCHANGE_(self%id_ph2,-fialph2)
-    _ADD_SURFACE_FLUX_(self%id_ph2,-fialph2)
-    !_SET_SURFACE_EXCHANGE_(self%id_no3,-fskelno3+fpondno3)
-    _ADD_SURFACE_FLUX_(self%id_no3,-fskelno3+fpondno3)
-    !_SET_SURFACE_EXCHANGE_(self%id_nh4,-fskelnh4+fpondnh4)
-    _ADD_SURFACE_FLUX_(self%id_nh4,-fskelnh4+fpondnh4)
-    !_SET_SURFACE_EXCHANGE_(self%id_sil,-fskelsil+fpondsil)
-    _ADD_SURFACE_FLUX_(self%id_sil,-fskelsil+fpondsil)
-
-!hayashida --> 
-#if 0
     _SET_SURFACE_EXCHANGE_(self%id_de2,-fialde2+0.7*fmort+fmort2-de2*(913./density*botmelt+1000./density*abs(fpondsil/icesil))+913./density*botgrowth*de2)
     _SET_SURFACE_EXCHANGE_(self%id_bsi,-fialbsi+self%rsin*(0.7*fmort+fmort2)-bsi*(913./density*botmelt+abs(fpondsil/icesil))+913./density*botgrowth*bsi)
-!!HH0: conc/dilution effect
-!!    _SET_SURFACE_EXCHANGE_(self%id_ph2,-fialph2)
-!!    _SET_SURFACE_EXCHANGE_(self%id_no3,-fskelno3+fpondno3)
-!!   _SET_SURFACE_EXCHANGE_(self%id_nh4,-fskelnh4+fpondnh4)
-!!    _SET_SURFACE_EXCHANGE_(self%id_sil,-fskelsil+fpondsil)
-    _SET_SURFACE_EXCHANGE_(self%id_ph2,(1000./density*ia-ph2)*913./1000.*abs(fialph2)/ia+913./density*botgrowth*ph2)       !probably this 
+!HH0: conc/dilution effect
+!    _SET_SURFACE_EXCHANGE_(self%id_ph2,-fialph2)
+!    _SET_SURFACE_EXCHANGE_(self%id_no3,-fskelno3+fpondno3)
+!    _SET_SURFACE_EXCHANGE_(self%id_nh4,-fskelnh4+fpondnh4)
+!    _SET_SURFACE_EXCHANGE_(self%id_sil,-fskelsil+fpondsil)
+    _SET_SURFACE_EXCHANGE_(self%id_ph2,(1000./density*ia-ph2)*913./1000.*abs(fialph2)/ia+913./density*botgrowth*ph2)
     _SET_SURFACE_EXCHANGE_(self%id_no3,-fskelno3-(no3-1000./density*iceno3)*(913./density*botmelt+1000./density*abs(fpondno3/iceno3))+913./density*botgrowth*(no3-iceno3))
     _SET_SURFACE_EXCHANGE_(self%id_nh4,-fskelnh4-(nh4-1000./density*icenh4)*(913./density*botmelt+1000./density*abs(fpondnh4/icenh4))+913./density*botgrowth*(nh4-icenh4))
     _SET_SURFACE_EXCHANGE_(self%id_sil,-fskelsil-(sil-1000./density*icesil)*(913./density*botmelt+1000./density*abs(fpondsil/icesil))+913./density*botgrowth*(sil-icesil))
@@ -546,8 +553,7 @@ module uvic_eco
     _SET_SURFACE_EXCHANGE_(self%id_de1,-de1*(913./density*botmelt+1000./density*abs(fpondsil/icesil))+913./density*botgrowth*de1)
     _SET_SURFACE_EXCHANGE_(self%id_zo1,-zo1*(913./density*botmelt+1000./density*abs(fpondsil/icesil))+913./density*botgrowth*zo1)
     _SET_SURFACE_EXCHANGE_(self%id_zo2,-zo2*(913./density*botmelt+1000./density*abs(fpondsil/icesil))+913./density*botgrowth*zo2)
-#endif
-
+!HH1
     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fialde2,fialde2*self%spd)
     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fialbsi,fialbsi*self%spd)
     _SET_HORIZONTAL_DIAGNOSTIC_(self%id_fialph2,fialph2*self%spd)
