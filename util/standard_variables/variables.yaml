@@ -52,6 +52,10 @@ interior:
     units: m
   - name: net_rate_of_absorption_of_shortwave_energy_in_layer
     units: W m-2
+  - name: zonal_current    #jpnote adding 
+    units: m s-1
+  - name: meridional_current
+    units: m s-1
 bottom:
   - name: bottom_depth_below_geoid
     units: m
@@ -92,14 +96,46 @@ surface:
   - name: surface_drag_coefficient_in_air
     units: 1
     aggregate_variable: true
-horizontal:
+horizontal:  #jpnote added
   - name: latitude
     units: degree_north
   - name: longitude
     units: degree_east
+  - name: sea_ice_temperature
+    units: degree_Kelvin
+  - name: sea_ice_thickness
+    units: m
+  - name: snow_thickness
+    units: m
+  - name: tendency_of_sea_ice_thickness_due_to_thermodynamics_melt
+    units: m s-1
+  - name: tendency_of_sea_ice_thickness_due_to_thermodynamics_grow
+    units: m s-1
+  - name: precip
+    units: m s-1
+  - name: evap
+    units: m s-1
+  - name: topmelt
+    units: m s-1
+  - name: topgrowth
+    units: m s-1
+  - name: termelt
+    units: m s-1
+  - name: lowest_ice_layer_PAR
+    units: W m-2
+  - name: under_ice_PAR
+    units: W m-2
+  - name: surface_ice_temperature
+    units: degree_Kelvin
+ # - name: brine_volume_fraction #jpnote added from hayashida 
+  #  units: percent
+  - name: f_melt
+    units: 1
 global:
   - name: number_of_days_since_start_of_the_year
     units: d
+  - name: timestep #jpnote added  
+    units: s
 universal:
   - name: total_carbon
     units: mmol m-3
