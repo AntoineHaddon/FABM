@@ -230,10 +230,10 @@ contains
    fmelt = min(0.0,ier*ia/self%zia)
    !hayashida
    !fmelt = min(0.0,913./1000.*ier*ia/self%zia) !use hakase  !double check (make sure its consistent -- ratio) 
-
-
-
-
+   
+   
+   
+   
    fpond = Amelt*self%r_pond*ia/self%zia 
    fpondno3 = Amelt*self%r_pond*no3/self%zia 
    fpondnh4 = Amelt*self%r_pond*nh4/self%zia 
@@ -244,10 +244,11 @@ contains
    fno3up   = (0.2/(0.2+nh4))*(no3/(no3+nh4))*grow*ia
    fnh4up   = grow*ia - fno3up
    fsilup   = grow*self%sil2n*ia
+!-----------N/Si ice-ocean flux---------------------------------
    utaui    = sqrt(self%drag)*sqrt(u**2+v**2)
    hnu      = self%nu/utaui
 
-!mortenson
+   !mortenson
    fskelno3 = self%md_no3/hnu*(no3SW-no3)/self%zia+min(0.0,ier*no3/self%zia)  !probably this bc more conservative 
    fskelnh4 = self%md_no3/hnu*(nh4SW-nh4)/self%zia+min(0.0,ier*nh4/self%zia) 
    fskelsil = self%md_sil/hnu*(silSW-sil)/self%zia+min(0.0,ier*sil/self%zia)
@@ -285,42 +286,42 @@ contains
     fnit    =0.0_rk
    ! _SET_SURFACE_ODE_(self%id_no3,(no3SW-no3)/dt)
     _ADD_SURFACE_SOURCE_(self%id_no3,(no3SW-no3)/dt)
-   ! _SET_SURFACE_ODE_(self%id_nh4,(nh4SW-nh4)/dt)
+    ! _SET_SURFACE_ODE_(self%id_nh4,(nh4SW-nh4)/dt)
     _ADD_SURFACE_SOURCE_(self%id_nh4,(nh4SW-nh4)/dt)
-   ! _SET_SURFACE_ODE_(self%id_sil,(silSW-sil)/dt)
+    ! _SET_SURFACE_ODE_(self%id_sil,(silSW-sil)/dt)
     _ADD_SURFACE_SOURCE_(self%id_sil,(silSW-sil)/dt)
-   ! _SET_SURFACE_ODE_(self%id_ia,(ph2-ia)/dt)
+    ! _SET_SURFACE_ODE_(self%id_ia,(ph2-ia)/dt)
     _ADD_SURFACE_SOURCE_(self%id_ia,(ph2-ia)/dt)
    else
+      if (ia.lt.self%ia_b) then ! Low ice algae 
+      ! _SET_SURFACE_ODE_(self%id_ia,fgrow)
+      _ADD_SURFACE_SOURCE_(self%id_ia,fgrow)
+       ! fgrow=0.0_rk  
+      fgraze=0.0_rk
+      fmort=0.0_rk
+      fmort2=0.0_rk
+      fpond=0.0_rk
+   else
+      !_SET_SURFACE_ODE_(self%id_ia,fgrow-fgraze-fmort-fmort2+fmelt-fpond)
+      _ADD_SURFACE_SOURCE_(self%id_ia,fgrow-fgraze-fmort-fmort2+fmelt-fpond)
+   endif
 !mortenson
- 
-    !_SET_SURFACE_ODE_(self%id_no3,-fno3up+fskelno3+fnit-fpondno3)
-    _ADD_SURFACE_SOURCE_(self%id_no3,-fno3up+fskelno3+fnit-fpondno3)
-!   _SET_SURFACE_ODE_(self%id_nh4,fmort+fskelnh4-fnit-fpondnh4)
-    !_SET_SURFACE_ODE_(self%id_nh4,-fnh4up+0.3*fmort+fskelnh4-fnit-fpondnh4)
-    _ADD_SURFACE_SOURCE_(self%id_nh4,-fnh4up+0.3*fmort+fskelnh4-fnit-fpondnh4)
-   ! _SET_SURFACE_ODE_(self%id_sil,-fsilup+fskelsil-fpondsil)
-    _ADD_SURFACE_SOURCE_(self%id_sil,-fsilup+fskelsil-fpondsil)
 
-!hayashida
+   !_SET_SURFACE_ODE_(self%id_no3,-fno3up+fskelno3+fnit-fpondno3)
+   _ADD_SURFACE_SOURCE_(self%id_no3,-fno3up+fskelno3+fnit-fpondno3)
+!   _SET_SURFACE_ODE_(self%id_nh4,fmort+fskelnh4-fnit-fpondnh4)
+   !_SET_SURFACE_ODE_(self%id_nh4,-fnh4up+0.3*fmort+fskelnh4-fnit-fpondnh4)
+   _ADD_SURFACE_SOURCE_(self%id_nh4,-fnh4up+0.3*fmort+fskelnh4-fnit-fpondnh4)
+   ! _SET_SURFACE_ODE_(self%id_sil,-fsilup+fskelsil-fpondsil)
+   _ADD_SURFACE_SOURCE_(self%id_sil,-fsilup+fskelsil-fpondsil)
+
+   !hayashida
 #if 0
    _SET_SURFACE_ODE_(self%id_no3,-fno3up+fskelno3+fnit-fpondno3+min(0.0,913./1000.*ier*no3/self%zia))  !probably this one 
    _SET_SURFACE_ODE_(self%id_nh4,-fnh4up+0.3*fmort+fskelnh4-fnit-fpondnh4+min(0.0,913./1000.*ier*nh4/self%zia))
    _SET_SURFACE_ODE_(self%id_sil,-fsilup+fskelsil-fpondsil+min(0.0,913./1000.*ier*sil/self%zia))
 #endif
    
-    if (ia.lt.self%ia_b) then
-    ! _SET_SURFACE_ODE_(self%id_ia,fgrow)
-     _ADD_SURFACE_SOURCE_(self%id_ia,fgrow)
-     fgrow=0.0_rk
-     fgraze=0.0_rk
-     fmort=0.0_rk
-     fmort2=0.0_rk
-     fpond=0.0_rk
-    else
-     !_SET_SURFACE_ODE_(self%id_ia,fgrow-fgraze-fmort-fmort2+fmelt-fpond)
-     _ADD_SURFACE_SOURCE_(self%id_ia,fgrow-fgraze-fmort-fmort2+fmelt-fpond)
-    endif
    endif
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_chl,ia*self%chl2n)
    _SET_HORIZONTAL_DIAGNOSTIC_(self%id_chlia,ia*self%chl2n*self%zia)
