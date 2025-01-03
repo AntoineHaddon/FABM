@@ -25,6 +25,7 @@ contains
 
         use uvic_eco
         use uvic_icealgae
+        use uvic_iceeco
         use uvic_dic
         use uvic_icedms
         use uvic_dms
@@ -38,6 +39,7 @@ contains
         select case (name)
             case ('uvic_eco');                     allocate(type_uvic_eco::model)  
             case ('uvic_icealgae');                allocate(type_uvic_icealgae::model)
+            case ('uvic_iceeco');                allocate(type_uvic_iceeco::model)
             case ('uvic_dic');                     allocate(type_uvic_dic::model)
             case ('uvic_dms');                  allocate(type_uvic_dms::model)
             case ('uvic_icedms');                  allocate(type_uvic_icedms::model)
