@@ -103,6 +103,10 @@ horizontal:  #jpnote added
     units: degree_east
   - name: sea_ice_temperature
     units: degree_Kelvin
+  - name: sea_ice_mean_temp # AH
+    units: degree_Kelvin
+  - name: sea_ice_temp_change # AH
+    units: degree_Kelvin s-1
   - name: sea_ice_thickness
     units: m
   - name: snow_thickness

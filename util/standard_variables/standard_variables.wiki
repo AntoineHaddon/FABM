@@ -64,6 +64,8 @@
 |longitude|degree_east|longitude|
 |lowest_ice_layer_PAR|W m-2||
 |precip|m s-1||
+|sea_ice_mean_temp|degree_Kelvin||
+|sea_ice_temp_change|degree_Kelvin s-1||
 |sea_ice_temperature|degree_Kelvin||
 |sea_ice_thickness|m||
 |snow_thickness|m||

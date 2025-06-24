@@ -233,6 +233,14 @@ self%precip%name = 'precip'
 self%precip%units = 'm s-1'
 call add(self%precip)
 
+self%sea_ice_mean_temp%name = 'sea_ice_mean_temp'
+self%sea_ice_mean_temp%units = 'degree_Kelvin'
+call add(self%sea_ice_mean_temp)
+
+self%sea_ice_temp_change%name = 'sea_ice_temp_change'
+self%sea_ice_temp_change%units = 'degree_Kelvin s-1'
+call add(self%sea_ice_temp_change)
+
 self%sea_ice_temperature%name = 'sea_ice_temperature'
 self%sea_ice_temperature%units = 'degree_Kelvin'
 call add(self%sea_ice_temperature)

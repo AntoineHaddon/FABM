@@ -34,7 +34,7 @@ module uvic_eco
 ! Declare horizontal environmental variables
       type (type_horizontal_dependency_id) :: id_botmelt,id_botgrowth,id_ia,id_iceno3,id_icenh4,id_icesil,id_fmelt,id_fpond,id_fpondno3,id_fpondnh4,id_fpondsil,id_fmort,id_fmort2,id_fskelno3,id_fskelnh4,id_fskelsil
       type (type_horizontal_dependency_id) :: id_icedia_n,id_icedia_chl, id_melosira_chl
-      type (type_horizontal_dependency_id) :: id_flush_icedia_n, id_mortlin_icedia_n, id_mortquad_icedia_n, id_moldiff_no3, id_moldiff_nh4, id_no3uptake_melosira, id_nh4uptake_melosira, id_mort_melosira
+      type (type_horizontal_dependency_id) :: id_meltoff_icedia_n, id_sloughing_icedia_n, id_flush_icedia_n, id_mortlin_icedia_n, id_mortquad_icedia_n, id_moldiff_no3, id_moldiff_nh4, id_no3uptake_melosira, id_nh4uptake_melosira, id_mort_melosira
 ! Declare namelist parameters jpnote: yaml paramteters 
       real(rk) :: ac,f_seed,ph1_0,ph2_0,zo1_0,zo2_0,no3_0,nh4_0,de1_0,de2_0,bsi_0,sil_0,w1,w2,mu1,mu2,kn,rpp1,rpp2,mp1,mp2,gz1,kz1,az1,az2,mz1,rc,pp1,pp2,pd1,pd2,pz1,gz2,kz2,mz2,rd1,rd2,rd3,rpf,rn0,knt,qp,qz,qb,agg,rsin,ks,pmin
 ! Declare anything else used in all procedures
@@ -230,6 +230,10 @@ module uvic_eco
          call self%request_coupling(self%id_iceno3,'uvic_iceeco_ino3')
          call self%request_coupling(self%id_icenh4,'uvic_iceeco_inh4')
 
+         call self%register_dependency(self%id_meltoff_icedia_n,'uvic_iceeco_meltoff_icedia_n','','')
+         call self%request_coupling(self%id_meltoff_icedia_n,'uvic_iceeco_meltoff_icedia_n')
+         call self%register_dependency(self%id_sloughing_icedia_n,'uvic_iceeco_sloughing_icedia_n','','')
+         call self%request_coupling(self%id_sloughing_icedia_n,'uvic_iceeco_sloughing_icedia_n')
          call self%register_dependency(self%id_flush_icedia_n,'uvic_iceeco_flush_icedia_n','','')
          call self%request_coupling(self%id_flush_icedia_n,'uvic_iceeco_flush_icedia_n')
          call self%register_dependency(self%id_mortlin_icedia_n,'uvic_iceeco_mortlin_icedia_n','','')
@@ -457,7 +461,7 @@ module uvic_eco
    real(rk) :: botmelt,botgrowth,ia,iceno3,icenh4,icesil,fialde2,fialbsi,fialph2,stemp,fmelt,fpond,fpondno3,fpondnh4,fpondsil,fmort,fmort2,fskelno3,fskelnh4,fskelsil
    real(rk) :: ph1,ph2,zo1,zo2,no3,nh4,de1,de2,bsi,sil,density
    
-   real(rk) :: flush_icedia_n, mortlin_icedia_n, mortquad_icedia_n , moldiff_no3, moldiff_nh4, no3uptake_melosira, nh4uptake_melosira, mort_melosira
+   real(rk) :: meltoff_icedia_n, sloughing_icedia_n, flush_icedia_n, mortlin_icedia_n, mortquad_icedia_n , moldiff_no3, moldiff_nh4, no3uptake_melosira, nh4uptake_melosira, mort_melosira
 
    real(rk) :: dt
    real(rk) :: z_os ! height of ocean surface layer
@@ -529,15 +533,19 @@ module uvic_eco
 
    else ! new model 
       
-      ! seeding of phytoplankton and detritus from flushing and mortality of ice algae
+      ! seeding of phytoplankton and detritus from export and mortality of ice algae
+      _GET_HORIZONTAL_(self%id_meltoff_icedia_n,meltoff_icedia_n)
+      meltoff_icedia_n = meltoff_icedia_n * self%zia/self%spd ! convert from mmolN m-3 d-1 to mmolN m-2 s-1
+      _GET_HORIZONTAL_(self%id_sloughing_icedia_n,sloughing_icedia_n)
+      sloughing_icedia_n = sloughing_icedia_n * self%zia/self%spd ! convert from mmolN m-3 d-1 to mmolN m-2 s-1
       _GET_HORIZONTAL_(self%id_flush_icedia_n,flush_icedia_n)
       flush_icedia_n = flush_icedia_n * self%zia/self%spd ! convert from mmolN m-3 d-1 to mmolN m-2 s-1
       _GET_HORIZONTAL_(self%id_mortlin_icedia_n,mortlin_icedia_n)
       mortlin_icedia_n = mortlin_icedia_n * self%zia/self%spd ! convert from mmolN m-3 d-1 to mmolN m-2 s-1
       _GET_HORIZONTAL_(self%id_mortquad_icedia_n,mortquad_icedia_n)
       mortquad_icedia_n = mortquad_icedia_n * self%zia/self%spd ! convert from mmolN m-3 d-1 to mmolN m-2 s-1
-      _ADD_SURFACE_FLUX_(self%id_ph2, self%f_seed * flush_icedia_n) 
-      _ADD_SURFACE_FLUX_(self%id_de2, (1._rk-self%f_seed) * flush_icedia_n + 0.7*mortlin_icedia_n + mortquad_icedia_n + 0.7*mort_melosira)
+      _ADD_SURFACE_FLUX_(self%id_ph2, self%f_seed * (meltoff_icedia_n + sloughing_icedia_n + flush_icedia_n) )
+      _ADD_SURFACE_FLUX_(self%id_de2, (1._rk-self%f_seed) * (meltoff_icedia_n + sloughing_icedia_n + flush_icedia_n) + 0.7*mortlin_icedia_n + mortquad_icedia_n + 0.7*mort_melosira)
       
       ! molecular diffusion of N
       _GET_HORIZONTAL_(self%id_moldiff_no3,moldiff_no3)

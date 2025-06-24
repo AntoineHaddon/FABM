@@ -28,18 +28,18 @@ module uvic_iceeco
         type (type_surface_state_variable_id) :: id_avbotmelt
 
         ! Declare environmental variables
-        type (type_horizontal_dependency_id) :: id_temp, id_par, id_ice_hi,id_botmelt,id_botgrowth,id_topmelt,id_termelt,id_Amelt
+        type (type_horizontal_dependency_id) :: id_temp, id_meantemp, id_dmeantemp, id_par, id_ice_hi,id_botmelt,id_botgrowth,id_topmelt,id_termelt,id_Amelt
         type (type_dependency_id) :: id_ph2, id_no3SW, id_nh4SW, id_u, id_v
 
         ! Declare horizontal diagnostic variables
-        type (type_horizontal_diagnostic_variable_id) :: id_bipar, id_uipar, id_limpar_icedia, id_limnc_icedia, id_vn_icedia, id_igup_icedia_n, id_flush_icedia_n, id_flush_icedia_c, id_mortlin_icedia_n, id_mortquad_icedia_n, id_meltoff_icedia_n, id_meltoff_icedia_c, id_moldiff_no3, id_moldiff_nh4, id_no3uptake_melosira, id_nh4uptake_melosira, id_mort_melosira
-        ! id_limice_icedia, id_rhochl_icedia,
+        type (type_horizontal_diagnostic_variable_id) :: id_meant, id_dmeant, id_bipar, id_uipar, id_limpar_icedia, id_limnc_icedia, id_phot_icedia, id_vn_icedia, id_synchl_icedia, id_igup_icedia_n, id_flush_icedia_n, id_flush_icedia_c, id_mortlin_icedia_n, id_mortquad_icedia_n, id_meltoff_icedia_n, id_meltoff_icedia_c, id_sloughing_icedia_c, id_sloughing_icedia_n, id_moldiff_no3, id_moldiff_nh4, id_no3uptake_melosira, id_nh4uptake_melosira, id_mort_melosira
+        
 
         type (type_global_dependency_id) :: id_dt 
 
         ! Declare model parameters
-        real(rk) :: zia, ear, tempref, drag, md_no3, nu, knit, fmin, r_pond
-        real(rk) :: pcref_icedia, alpha_icedia, qnmin_icedia, qnmax_icedia, vnref_icedia,chltonmax_icedia,zeta_icedia,mlin_icedia,t_sens,mquad_icedia,min_icedia, kno3_icedia, knh4_icedia, crit_melt,dmo,tmo ,flshia, ac_ia
+        real(rk) :: zia, ear, tempref, drag, md_n, nu, knit, fmin, r_pond
+        real(rk) :: pcref_icedia, alpha_icedia, qnmin_icedia, qnmax_icedia, vnref_icedia,chltonmax_icedia,zeta_icedia,mlin_icedia,t_sens,mquad_icedia,min_icedia, kno3_icedia, knh4_icedia, crit_melt, dmo, tmo, dtmo,flshia,slghia, ac_ia
         real(rk) :: pcref_melosira, alpha_melosira, chltonmax_mel
         real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd)
         integer :: melosira
@@ -75,11 +75,12 @@ contains
         call self%get_parameter(self%ear, 'ear', '-','Ratio of Ea (activation energy) to R (gas constant)',default=4498.0_rk)
         call self%get_parameter(self%tempref, 'tempref', 'K','Reference temperature',default=298.15_rk)
         call self%get_parameter(self%drag, 'drag', '-','drag coefficient at the ice-water interface',default=0.0054_rk)
-        call self%get_parameter(self%md_no3, 'md_no3', 'm2 s-1','molecular diffusion coefficient',default=0.47e-9_rk)
+        call self%get_parameter(self%md_n, 'md_n', 'm2 s-1','molecular diffusion coefficient',default=0.47e-9_rk)
         call self%get_parameter(self%nu, 'nu', 'm2 s-1','kinematic viscosity',default=1.86e-6_rk)
         call self%get_parameter(self%knit, 'knit', 'd-1','nitrification rate',default=0.05_rk,scale_factor=1.0_rk/self%spd)
         call self%get_parameter(self%fmin, 'fmin', '-','NH4 remineralization fraction',default=0.3_rk)
         call self%get_parameter(self%r_pond, 'r_pond', '','melt pond drainage rate',default=0.0175_rk,scale_factor=1.0_rk/self%spd)
+        
         ! ice diatoms params
         call self%get_parameter(self%pcref_icedia, 'pcref_icedia', 'gC gC-1 d-1','Reference rate of photosynthesis for ice diatoms',default=3.0_rk,scale_factor=1.0_rk/self%spd)
         call self%get_parameter(self%alpha_icedia, 'alpha_icedia', 'gC gChl-1 (W m-2)-1 d-1','Initial slope of P-I curve for ice diatoms',default=27.04_rk,scale_factor=1.0_rk/self%spd)
@@ -96,8 +97,10 @@ contains
         call self%get_parameter(self%knh4_icedia, 'knh4_icedia', 'mmol m-3','NH4 half saturation constant for ice diatoms',default=1.0_rk)
         call self%get_parameter(self%crit_melt, 'crit_melt','m d-1', 'critical melt rate [m d-1]', default=0.015_rk)
         call self%get_parameter(self%dmo, 'dmo','(mgC m-3)-1 d-1', 'melt off coefficent', default=0.005_rk,scale_factor=1.0_rk/self%spd)
-        call self%get_parameter(self%tmo, 'tmo','C', 'melt off temperature', default=-3.0_rk)
+        call self%get_parameter(self%tmo, 'tmo','C', 'melt off temperature', default=-5.0_rk)
+        call self%get_parameter(self%dtmo, 'dtmo','C', 'melt off temperature change threshold', default=.25_rk)
         call self%get_parameter(self%flshia, 'flshia','-', 'fraction of flushed ice algae', default=.3_rk)
+        call self%get_parameter(self%slghia, 'slghia','-', 'fraction of sloughed ice algae', default=.3_rk)
         call self%get_parameter(self%ac_ia, 'ac_ia','', 'specific light attenuation coefficient for ice algae (mg Chl m-2)-1', default=0.06_rk) 
 
         ! melosira params
@@ -108,7 +111,9 @@ contains
 
 
         ! Register environmental variables
-        call self%register_horizontal_dependency(self%id_temp,standard_variables%sea_ice_temperature) 
+        call self%register_horizontal_dependency(self%id_temp,standard_variables%sea_ice_temperature) ! bottom ice temp
+        call self%register_horizontal_dependency(self%id_meantemp,standard_variables%sea_ice_mean_temp) 
+        call self%register_horizontal_dependency(self%id_dmeantemp,standard_variables%sea_ice_temp_change) 
         call self%register_horizontal_dependency(self%id_par,standard_variables%lowest_ice_layer_PAR)      
         call self%register_horizontal_dependency(self%id_ice_hi,standard_variables%sea_ice_thickness)
         call self%register_horizontal_dependency(self%id_topmelt,standard_variables%topmelt) ! surface (snow+ice) melt rate
@@ -118,13 +123,15 @@ contains
         call self%register_horizontal_dependency(self%id_botgrowth,standard_variables%tendency_of_sea_ice_thickness_due_to_thermodynamics_grow)
 
         ! Register diagnostic variables
+        call self%register_horizontal_diagnostic_variable(self%id_meant,'meantemp','degC','Mean sea ice temperature',source=source_do_horizontal)
+        call self%register_horizontal_diagnostic_variable(self%id_dmeant,'dmeantemp','degC s-1','Mean sea ice temperature change',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_bipar,'bipar','W m-2','Bottom ice PAR',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_uipar,'uipar','W m-2','Under ice PAR',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_limpar_icedia,'limpar_icedia','-','PAR Limitation factor ice diatoms',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_limnc_icedia,'limnc_icedia','-','N/C Limitation factor ice diatoms',source=source_do_horizontal)
-        ! call self%register_horizontal_diagnostic_variable(self%id_limice_icedia,'limice_icedia','-','Ice growth Limitation factor ice diatoms',source=source_do_horizontal)
+        call self%register_horizontal_diagnostic_variable(self%id_phot_icedia,'phot_icedia','mg C m-3 d-1','Photosynthesis rate ice diatoms (=GPP)',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_vn_icedia,'vn_icedia','gN d-1','N uptake rate ice diatoms',source=source_do_horizontal)
-        ! call self%register_horizontal_diagnostic_variable(self%id_rhochl_icedia,'rhochl_icedia','-','Chl synthesis ratio ice diatoms',source=source_do_horizontal)
+        call self%register_horizontal_diagnostic_variable(self%id_synchl_icedia,'synchl_icedia','mg Chl m-3 d-1','Chl synthesis rate ice diatoms',source=source_do_horizontal)
         
         call self%register_horizontal_diagnostic_variable(self%id_igup_icedia_n,'igup_icedia_n','mmolN m-3 d-1','Uptake of phytoplankton 2 from ocean surface with ice growth ',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_flush_icedia_n,'flush_icedia_n','mmolN m-3 d-1','Flushing of ice algal N biomass',source=source_do_horizontal)
@@ -133,6 +140,8 @@ contains
         call self%register_horizontal_diagnostic_variable(self%id_mortquad_icedia_n,'mortquad_icedia_n','mmolN m-3 d-1','Loss of ice algal N biomass from quadratic mortality',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_meltoff_icedia_n,'meltoff_icedia_n','mmolN m-3 d-1','Loss of ice algal N biomass from melt-off',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_meltoff_icedia_c,'meltoff_icedia_c','mgC m-3 d-1','Loss of ice algal C biomass from melt-off',source=source_do_horizontal)
+        call self%register_horizontal_diagnostic_variable(self%id_sloughing_icedia_n,'sloughing_icedia_n','mmolN m-3 d-1','Loss of ice algal N biomass from sloughing',source=source_do_horizontal)
+        call self%register_horizontal_diagnostic_variable(self%id_sloughing_icedia_c,'sloughing_icedia_c','mgC m-3 d-1','Loss of ice algal C biomass from sloughing',source=source_do_horizontal)
         
         call self%register_horizontal_diagnostic_variable(self%id_moldiff_no3,'moldiff_no3','mmolN m-3 d-1','Molecular diffusion of NO3 at sea ice ocean interface (positive is flow to sea ice)',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_moldiff_nh4,'moldiff_nh4','mmolN m-3 d-1','Molecular diffusion of nh4 at sea ice ocean interface (positive is flow to sea ice)',source=source_do_horizontal)
@@ -168,10 +177,10 @@ contains
         real(rk) :: ino3, inh4
         real(rk) :: no3SW, nh4SW,u,v, ph2
         real(rk) :: limtemp
-        real(rk) :: pcmax_icedia,limnc_icedia, limice_icedia, limpar_icedia, phot_icedia, vn_icedia,limnh4_icedia,limno3_icedia,no3uptake_icedia,nh4uptake_icedia,rhochl_icedia,synchl_icedia,resp_icedia,mort_icedia,mortlin_icedia,mortquad_icedia, flush_icedia_c, igup_icedia_n, meltoff_icedia_c
+        real(rk) :: pcmax_icedia,limnc_icedia, limice_icedia, limpar_icedia, phot_icedia, vn_icedia,limnh4_icedia,limno3_icedia,no3uptake_icedia,nh4uptake_icedia,rhochl_icedia,synchl_icedia,resp_icedia,mort_icedia,mortlin_icedia,mortquad_icedia, flush_icedia_c, igup_icedia_n, meltoff_icedia_c, sloughing_icedia_c
         real(rk) :: pcmax_melosira,limnc_melosira, limpar_melosira, phot_melosira, vn_melosira, limnh4_melosira,limno3_melosira, no3uptake_melosira, nh4uptake_melosira, rhochl_melosira, synchl_melosira, resp_melosira, mort_melosira
         real(rk) :: fric_vel, moldiff_no3, moldiff_nh4, nitrif, remin
-        real(rk) :: temp,bipar,uipar,dt, ice_hi,topmelt,termelt,botmelt,botgrowth, Amelt, avbotmelt
+        real(rk) :: temp,meantemp,dmeantemp,bipar,uipar,dt, ice_hi,topmelt,termelt,botmelt,botgrowth, Amelt, avbotmelt
 
         _HORIZONTAL_LOOP_BEGIN_
         _GET_HORIZONTAL_(self%id_icedia_c,icedia_c)
@@ -189,6 +198,8 @@ contains
         _GET_(self%id_u,u)
         _GET_(self%id_v,v)
         _GET_HORIZONTAL_(self%id_temp,temp)
+        _GET_HORIZONTAL_(self%id_meantemp,meantemp)
+        _GET_HORIZONTAL_(self%id_dmeantemp,dmeantemp)
         _GET_HORIZONTAL_(self%id_par,bipar)
         _GET_HORIZONTAL_(self%id_ice_hi,ice_hi)
         _GET_HORIZONTAL_(self%id_topmelt,topmelt)
@@ -243,19 +254,28 @@ contains
         endif
         mort_icedia = mortlin_icedia + mortquad_icedia
 
-        ! Flushing
-        flush_icedia_c =self%flshia * icedia_c * (botmelt + topmelt + termelt + Amelt*self%r_pond  )/self%zia 
-
+        
         ! Melt-off
         meltoff_icedia_c=0.0_rk
-        if (temp-273.15_rk.gt.self%tmo) then
-            meltoff_icedia_c = self%dmo * min(( temp-273.15_rk-self%tmo )/(-1.8_rk-self%tmo), 1.0_rk) * icedia_c*icedia_c 
+        ! if (temp-273.15_rk.gt.self%tmo) then
+        !     meltoff_icedia_c = self%dmo * min(( temp-273.15_rk-self%tmo )/(-1.8_rk-self%tmo), 1.0_rk) * icedia_c*icedia_c 
+        ! endif
+        ! if ((meantemp-273.15_rk.gt.self%tmo)) then
+        if ((meantemp-273.15_rk.gt.self%tmo).and.(dmeantemp*self%spd.gt.self%dtmo)) then
+            meltoff_icedia_c = self%dmo * max(dmeantemp*self%spd,0.0_rk) * max(0.0_rk, min(( meantemp-273.15_rk-self%tmo )/max(1e-15,(-1.8_rk-self%tmo)), 1.0_rk))**0.2 * icedia_c*icedia_c 
         endif
 
+        ! Sloughing
+        sloughing_icedia_c = self%slghia * icedia_c * botmelt/self%zia 
+
+        ! Flushing
+        flush_icedia_c = self%flshia * icedia_c * ( topmelt + termelt + Amelt*self%r_pond )/self%zia 
+        
         ! Uptake from ocean surface with ice growth (ph2 is is mmol N m-3, need to convert to gN m-3)
         igup_icedia_n = ph2*14.0_rk/self%zia * max(0.0_rk, botgrowth )
 
 
+        uipar = bipar * exp(-self%ac_ia* icedia_chl*self%zia  ) ! Under ice PAR: bottom ice PAR with shading by bottom ice aglae
 
         ! MELOSIRA ARCTICA
         if (self%melosira.eq.1) then
@@ -267,7 +287,6 @@ contains
             limnc_melosira = (qn_melosira - self%qnmin_icedia) / (self%qnmax_icedia - self%qnmin_icedia)
 
             ! Photosynthesis melosira
-            uipar = bipar * exp(-self%ac_ia* icedia_chl*self%zia  ) ! Under ice PAR: bottom ice PAR with shading by bottom ice aglae
             pcmax_melosira= self%pcref_melosira * limtemp * limnc_melosira
             limpar_melosira = 1.0_rk - exp( - self%alpha_melosira/pcmax_melosira * qchl_melosira * uipar)
             phot_melosira = pcmax_melosira * limpar_melosira * melosira_c
@@ -305,14 +324,15 @@ contains
                 _ADD_SURFACE_SOURCE_(self%id_melosira_chl, (-melosira_chl+1e-10)/dt )
             endif
 
+
         endif
 
         ! NUTRIENTS
 
         ! N molecular diffusion
         fric_vel = sqrt(self%drag)*sqrt(u**2+v**2)
-        moldiff_no3 = self%md_no3 /self%nu * fric_vel * (no3SW-ino3) /self%zia
-        moldiff_nh4 = self%md_no3 /self%nu * fric_vel * (nh4SW-inh4) /self%zia
+        moldiff_no3 = self%md_n /self%nu * fric_vel * (no3SW-ino3) /self%zia
+        moldiff_nh4 = self%md_n /self%nu * fric_vel * (nh4SW-inh4) /self%zia
 
         ! Nitrification
         ! nitrif = inh4 * self%knit / (1.0_rk + bipar)
@@ -341,9 +361,9 @@ contains
         else
 
             ! Ice diatoms dynamics
-            _ADD_SURFACE_SOURCE_(self%id_icedia_c, phot_icedia - resp_icedia - mort_icedia - flush_icedia_c + igup_icedia_n / max(1.e-15,qn_icedia) -meltoff_icedia_c)
-            _ADD_SURFACE_SOURCE_(self%id_icedia_n, vn_icedia - mort_icedia*qn_icedia -flush_icedia_c*qn_icedia + igup_icedia_n -meltoff_icedia_c*qn_icedia )
-            _ADD_SURFACE_SOURCE_(self%id_icedia_chl, synchl_icedia - mort_icedia*qchl_icedia -flush_icedia_c*qchl_icedia + igup_icedia_n*qchl_icedia/max(1.e-15,qn_icedia) -meltoff_icedia_c*qchl_icedia )
+            _ADD_SURFACE_SOURCE_(self%id_icedia_c, phot_icedia - resp_icedia - mort_icedia  + igup_icedia_n / max(1.e-15,qn_icedia) -meltoff_icedia_c -sloughing_icedia_c -flush_icedia_c)
+            _ADD_SURFACE_SOURCE_(self%id_icedia_n, vn_icedia - mort_icedia*qn_icedia + igup_icedia_n -meltoff_icedia_c*qn_icedia -sloughing_icedia_c*qn_icedia -flush_icedia_c*qn_icedia)
+            _ADD_SURFACE_SOURCE_(self%id_icedia_chl, synchl_icedia - mort_icedia*qchl_icedia + igup_icedia_n*qchl_icedia/max(1.e-15,qn_icedia) -meltoff_icedia_c*qchl_icedia -sloughing_icedia_c*qchl_icedia -flush_icedia_c*qchl_icedia  )
 
             ! Melosira dynamics
             if (self%melosira.eq.1) then
@@ -359,19 +379,24 @@ contains
 
         endif
 
-        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_bipar,bipar) 
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_uipar,uipar) 
-        ! _SET_HORIZONTAL_DIAGNOSTIC_(self%id_limpar_icedia,limpar_icedia) 
-        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_limpar_icedia,nitrif) 
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_bipar,bipar) 
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_meant,meantemp) 
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_dmeant,dmeantemp) 
+
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_limpar_icedia,limpar_icedia) 
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_limnc_icedia,(qn_icedia - self%qnmin_icedia) / (self%qnmax_icedia - self%qnmin_icedia)) 
-        ! _SET_HORIZONTAL_DIAGNOSTIC_(self%id_rhochl_icedia, rhochl_icedia) 
-        ! _SET_HORIZONTAL_DIAGNOSTIC_(self%id_vn_icedia,vn_melosira *self%spd) 
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_phot_icedia,phot_icedia *self%spd) 
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_synchl_icedia, synchl_icedia *self%spd) 
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_vn_icedia,vn_icedia *self%spd) 
         
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_igup_icedia_n, igup_icedia_n/14.0_rk *self%spd)  ! mgN m-3 s-1 -> mmolN m-3 d-1
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_flush_icedia_n, flush_icedia_c*qn_icedia/14.0_rk *self%spd)  ! mgC m-3 s-1 -> mmolN m-3 d-1
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_flush_icedia_c, flush_icedia_c *self%spd)  ! mgC m-3 s-1 -> mgC m-3 d-1
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_meltoff_icedia_n, meltoff_icedia_c*qn_icedia/14.0_rk *self%spd)  ! mgC m-3 s-1 -> mmolN m-3 d-1
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_meltoff_icedia_c, meltoff_icedia_c *self%spd)  ! mgC m-3 s-1 -> mgC m-3 d-1
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_sloughing_icedia_n, sloughing_icedia_c*qn_icedia/14.0_rk *self%spd)  ! mgC m-3 s-1 -> mmolN m-3 d-1
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_sloughing_icedia_c, sloughing_icedia_c *self%spd)  ! mgC m-3 s-1 -> mgC m-3 d-1
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_mortlin_icedia_n, mortlin_icedia*qn_icedia/14.0_rk *self%spd)  ! mgC m-3 s-1 -> mmolN m-3 d-1
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_mortquad_icedia_n, mortquad_icedia*qn_icedia/14.0_rk *self%spd)  ! mgC m-3 s-1 -> mmolN m-3 d-1
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_moldiff_no3, moldiff_no3 *self%spd)  ! mmolN m-3 s-1 -> mmolN m-3 d-1

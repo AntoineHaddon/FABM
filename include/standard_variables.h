@@ -56,6 +56,8 @@ type (type_horizontal_standard_variable) :: latitude
 type (type_horizontal_standard_variable) :: longitude
 type (type_horizontal_standard_variable) :: lowest_ice_layer_PAR
 type (type_horizontal_standard_variable) :: precip
+type (type_horizontal_standard_variable) :: sea_ice_mean_temp
+type (type_horizontal_standard_variable) :: sea_ice_temp_change
 type (type_horizontal_standard_variable) :: sea_ice_temperature
 type (type_horizontal_standard_variable) :: sea_ice_thickness
 type (type_horizontal_standard_variable) :: snow_thickness
