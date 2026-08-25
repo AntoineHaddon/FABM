@@ -32,15 +32,15 @@ module uvic_iceeco
         type (type_dependency_id) :: id_ph2, id_no3SW, id_nh4SW, id_u, id_v
 
         ! Declare horizontal diagnostic variables
-        type (type_horizontal_diagnostic_variable_id) :: id_meant, id_dmeant, id_bipar, id_uipar, id_limpar_icedia, id_limnc_icedia, id_phot_icedia, id_vn_icedia, id_synchl_icedia, id_igup_icedia_n, id_flush_icedia_n, id_flush_icedia_c, id_mortlin_icedia_n, id_mortquad_icedia_n, id_meltoff_icedia_n, id_meltoff_icedia_c, id_sloughing_icedia_c, id_sloughing_icedia_n, id_moldiff_no3, id_moldiff_nh4, id_no3uptake_melosira, id_nh4uptake_melosira, id_mort_melosira
+        type (type_horizontal_diagnostic_variable_id) :: id_meant, id_dmeant, id_bipar, id_uipar, id_limpar_icedia, id_limnc_icedia, id_phot_icedia, id_vn_icedia, id_no3uptake_icedia, id_synchl_icedia, id_igup_icedia_n, id_flush_icedia_n, id_flush_icedia_c, id_mortlin_icedia_n, id_mortquad_icedia_n, id_meltoff_icedia_n, id_meltoff_icedia_c, id_sloughing_icedia_c, id_sloughing_icedia_n, id_moldiff_no3, id_moldiff_nh4, id_no3uptake_melosira, id_nh4uptake_melosira, id_mort_melosira, id_limtemp, id_nitrif, id_remin, id_export_no3, id_export_nh4
         
 
         type (type_global_dependency_id) :: id_dt 
 
         ! Declare model parameters
         real(rk) :: zia, ear, tempref, drag, md_n, nu, knit, fmin, r_pond
-        real(rk) :: pcref_icedia, alpha_icedia, qnmin_icedia, qnmax_icedia, vnref_icedia,chltonmax_icedia,zeta_icedia,mlin_icedia,t_sens,mquad_icedia,min_icedia, kno3_icedia, knh4_icedia, crit_melt, dmo, tmo, dtmo,flshia,slghia, ac_ia
-        real(rk) :: pcref_melosira, alpha_melosira, chltonmax_mel
+        real(rk) :: pcref_icedia, alref_icedia, beta_icedia, qnmin_icedia, qnmaxint_icedia, qnmaxslp_icedia, vnref_icedia,chltonmax_icedia,zeta_icedia,mlin_icedia,t_sens,mquad_icedia,min_icedia, kno3_icedia, knh4_icedia, crit_melt, dmo, tmo, dtmo, fcmo, flshia,slghia, ac_ia
+        real(rk) :: pcref_melosira, alpha_melosira, chltonmax_mel, qnmax_melosira
         real(rk) :: spd = 86400.0_rk ! Seconds Per Day (spd)
         integer :: melosira
 
@@ -83,9 +83,11 @@ contains
         
         ! ice diatoms params
         call self%get_parameter(self%pcref_icedia, 'pcref_icedia', 'gC gC-1 d-1','Reference rate of photosynthesis for ice diatoms',default=3.0_rk,scale_factor=1.0_rk/self%spd)
-        call self%get_parameter(self%alpha_icedia, 'alpha_icedia', 'gC gChl-1 (W m-2)-1 d-1','Initial slope of P-I curve for ice diatoms',default=27.04_rk,scale_factor=1.0_rk/self%spd)
+        call self%get_parameter(self%alref_icedia, 'alref_icedia', 'gC gChl-1 (W m-2)-1 d-1','Reference initial slope of P-I curve for ice diatoms',default=27.04_rk,scale_factor=1.0_rk/self%spd)
+        call self%get_parameter(self%beta_icedia, 'beta_icedia', 'gC gChl-1 (W m-2)-1 d-1','photoinhibition for ice diatoms',default=0.5_rk,scale_factor=1.0_rk/self%spd)
         call self%get_parameter(self%qnmin_icedia, 'qnmin_icedia', 'gN gC-1','Min N/C ice diatoms',default=0.04_rk)
-        call self%get_parameter(self%qnmax_icedia, 'qnmax_icedia', 'gN gC-1','Max N/C ice diatoms',default=0.172_rk)
+        call self%get_parameter(self%qnmaxint_icedia, 'qnmaxint_icedia', '-','Intercept of log Max N:C vs log Chl:C ice diatom',default=4.01_rk)
+        call self%get_parameter(self%qnmaxslp_icedia, 'qnmaxslp_icedia', '-','Slope of log Max N:C vs log Chl:C ice diatom ',default=0.33_rk)
         call self%get_parameter(self%vnref_icedia, 'vnref_icedia', 'gN gC-1 d-1','reference N uptake rate ice diatoms',default=0.6_rk,scale_factor=1.0_rk/self%spd)
         call self%get_parameter(self%chltonmax_icedia, 'chltonmax_icedia', 'gChl gN-1','Maximum Chl to N ice diatoms',default=0.18_rk)
         call self%get_parameter(self%zeta_icedia, 'zeta_icedia', 'gC gN-1','Respitory cost of biosynthesis ice diatoms',default=2._rk)
@@ -99,6 +101,7 @@ contains
         call self%get_parameter(self%dmo, 'dmo','(mgC m-3)-1 d-1', 'melt off coefficent', default=0.005_rk,scale_factor=1.0_rk/self%spd)
         call self%get_parameter(self%tmo, 'tmo','C', 'melt off temperature', default=-5.0_rk)
         call self%get_parameter(self%dtmo, 'dtmo','C', 'melt off temperature change threshold', default=.25_rk)
+        call self%get_parameter(self%fcmo, 'fcmo','-', 'fraction of C biomass affected by melt off', default=.5_rk)
         call self%get_parameter(self%flshia, 'flshia','-', 'fraction of flushed ice algae', default=.3_rk)
         call self%get_parameter(self%slghia, 'slghia','-', 'fraction of sloughed ice algae', default=.3_rk)
         call self%get_parameter(self%ac_ia, 'ac_ia','', 'specific light attenuation coefficient for ice algae (mg Chl m-2)-1', default=0.06_rk) 
@@ -107,6 +110,7 @@ contains
         call self%get_parameter(self%melosira, 'melosira', '-','switch to activate melosira (0: without, 1 with)',default=0)
         call self%get_parameter(self%pcref_melosira, 'pcref_melosira', 'gC gC-1 d-1','Reference rate of photosynthesis for melosira',default=6.19_rk,scale_factor=1.0_rk/self%spd)
         call self%get_parameter(self%alpha_melosira, 'alpha_melosira', 'gC gChl-1 (W m-2)-1 d-1','Initial slope of P-I curve for melosira',default=1.88_rk,scale_factor=1.0_rk/self%spd)
+        call self%get_parameter(self%qnmax_melosira, 'qnmax_melosira', 'gN gN-1','Max N:C for melosira',default=0.125_rk)
         call self%get_parameter(self%chltonmax_mel, 'chltonmax_mel', 'gChl gN-1','Maximum Chl to N melosira',default=0.18_rk)
 
 
@@ -129,8 +133,10 @@ contains
         call self%register_horizontal_diagnostic_variable(self%id_uipar,'uipar','W m-2','Under ice PAR',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_limpar_icedia,'limpar_icedia','-','PAR Limitation factor ice diatoms',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_limnc_icedia,'limnc_icedia','-','N/C Limitation factor ice diatoms',source=source_do_horizontal)
+        call self%register_horizontal_diagnostic_variable(self%id_limtemp,'limtemp','-','Temperature limitation factor ice diatoms',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_phot_icedia,'phot_icedia','mg C m-3 d-1','Photosynthesis rate ice diatoms (=GPP)',source=source_do_horizontal)
-        call self%register_horizontal_diagnostic_variable(self%id_vn_icedia,'vn_icedia','gN d-1','N uptake rate ice diatoms',source=source_do_horizontal)
+        call self%register_horizontal_diagnostic_variable(self%id_vn_icedia,'vn_icedia','gN m-3 d-1','N uptake rate ice diatoms',source=source_do_horizontal)
+        call self%register_horizontal_diagnostic_variable(self%id_no3uptake_icedia,'no3uptake_icedia','gN m-3 d-1','NO3 uptake rate ice diatoms',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_synchl_icedia,'synchl_icedia','mg Chl m-3 d-1','Chl synthesis rate ice diatoms',source=source_do_horizontal)
         
         call self%register_horizontal_diagnostic_variable(self%id_igup_icedia_n,'igup_icedia_n','mmolN m-3 d-1','Uptake of phytoplankton 2 from ocean surface with ice growth ',source=source_do_horizontal)
@@ -145,6 +151,10 @@ contains
         
         call self%register_horizontal_diagnostic_variable(self%id_moldiff_no3,'moldiff_no3','mmolN m-3 d-1','Molecular diffusion of NO3 at sea ice ocean interface (positive is flow to sea ice)',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_moldiff_nh4,'moldiff_nh4','mmolN m-3 d-1','Molecular diffusion of nh4 at sea ice ocean interface (positive is flow to sea ice)',source=source_do_horizontal)
+        call self%register_horizontal_diagnostic_variable(self%id_export_no3,'export_no3','mmolN m-3 d-1','Export of NO3 from flushing and sloughing (positive is flow to ocean)',source=source_do_horizontal)
+        call self%register_horizontal_diagnostic_variable(self%id_export_nh4,'export_nh4','mmolN m-3 d-1','Export of nh4 from flushing and sloughing (positive is flow to ocean)',source=source_do_horizontal)
+        call self%register_horizontal_diagnostic_variable(self%id_nitrif,'nitrif','mmolN m-3 d-1','Nitrification',source=source_do_horizontal)
+        call self%register_horizontal_diagnostic_variable(self%id_remin,'remin','mmolN m-3 d-1','Remineralization nitrogen',source=source_do_horizontal)
         
         call self%register_horizontal_diagnostic_variable(self%id_nh4uptake_melosira,'nh4uptake_melosira','mmolN m-3 d-1','NH4 uptake by melosira from ocean surface',source=source_do_horizontal)
         call self%register_horizontal_diagnostic_variable(self%id_no3uptake_melosira,'no3uptake_melosira','mmolN m-3 d-1','NO3 uptake by melosira from ocean surface',source=source_do_horizontal)
@@ -177,9 +187,9 @@ contains
         real(rk) :: ino3, inh4
         real(rk) :: no3SW, nh4SW,u,v, ph2
         real(rk) :: limtemp
-        real(rk) :: pcmax_icedia,limnc_icedia, limice_icedia, limpar_icedia, phot_icedia, vn_icedia,limnh4_icedia,limno3_icedia,no3uptake_icedia,nh4uptake_icedia,rhochl_icedia,synchl_icedia,resp_icedia,mort_icedia,mortlin_icedia,mortquad_icedia, flush_icedia_c, igup_icedia_n, meltoff_icedia_c, sloughing_icedia_c
+        real(rk) :: pcmax_icedia,alpha_icedia, qnmax_icedia,limnc_icedia, limice_icedia, limpar_icedia, pinh_icedia, phot_icedia, vn_icedia,limnh4_icedia,limno3_icedia,no3uptake_icedia,nh4uptake_icedia,rhochl_icedia,synchl_icedia,resp_icedia,mort_icedia,mortlin_icedia,mortquad_icedia, flush_icedia_c, igup_icedia_n, meltoff_icedia_c, sloughing_icedia_c
         real(rk) :: pcmax_melosira,limnc_melosira, limpar_melosira, phot_melosira, vn_melosira, limnh4_melosira,limno3_melosira, no3uptake_melosira, nh4uptake_melosira, rhochl_melosira, synchl_melosira, resp_melosira, mort_melosira
-        real(rk) :: fric_vel, moldiff_no3, moldiff_nh4, nitrif, remin
+        real(rk) :: fric_vel, moldiff_no3, moldiff_nh4, nitrif, remin, export_no3, export_nh4
         real(rk) :: temp,meantemp,dmeantemp,bipar,uipar,dt, ice_hi,topmelt,termelt,botmelt,botgrowth, Amelt, avbotmelt
 
         _HORIZONTAL_LOOP_BEGIN_
@@ -217,26 +227,30 @@ contains
         qchl_icedia = icedia_chl / icedia_c
         
         ! N limitation
-        limnc_icedia = (qn_icedia - self%qnmin_icedia) / (self%qnmax_icedia - self%qnmin_icedia)
+        ! qnmax_icedia = 0.1785_rk ! redfield
+        qnmax_icedia = 1._rk/ max(1e-15, self%qnmaxint_icedia * (1._rk/max(1e-15,qchl_icedia))**self%qnmaxslp_icedia )
+        limnc_icedia = max(0._rk, min(1._rk, (qn_icedia - self%qnmin_icedia) / (qnmax_icedia - self%qnmin_icedia) ))
         
         ! Temp limitation
         limtemp = exp(-self%ear * (1.0_rk/(temp) - 1.0_rk/self%tempref) )
         
         ! Photosynthesis ice diatoms
-        pcmax_icedia= self%pcref_icedia * limtemp * limnc_icedia 
-        limpar_icedia = 1.0_rk - exp( - self%alpha_icedia/max(1e-15,pcmax_icedia) * qchl_icedia * bipar)
-        phot_icedia = pcmax_icedia * limpar_icedia * icedia_c
+        pcmax_icedia= self%pcref_icedia * limtemp * limnc_icedia /max(1e-15,qchl_icedia)
+        alpha_icedia= self%alref_icedia * qchl_icedia
+        limpar_icedia = 1.0_rk - exp( - alpha_icedia/max(1e-15,pcmax_icedia) * bipar)
+        pinh_icedia = exp( - self%beta_icedia/max(1e-15,pcmax_icedia) * bipar)
+        phot_icedia = pcmax_icedia * limpar_icedia * pinh_icedia * icedia_chl
         
         ! N uptake ice diatoms
         limno3_icedia= max(0.0_rk, ino3 / (self%kno3_icedia + ino3) )
         limnh4_icedia= max(0.0_rk, inh4 / (self%knh4_icedia + inh4) )
-        limnc_icedia = (self%qnmax_icedia - qn_icedia) / (self%qnmax_icedia - self%qnmin_icedia)
+        limnc_icedia = max(0._rk, min(1._rk, (qnmax_icedia - qn_icedia) / (qnmax_icedia - self%qnmin_icedia) ))
         vn_icedia = self%vnref_icedia * limtemp * max(0.0_rk,limnc_icedia**0.05) * (limnh4_icedia + (1.0_rk - limnh4_icedia)*limno3_icedia) * icedia_c
         no3uptake_icedia = self%vnref_icedia * limtemp * max(0.0_rk,limnc_icedia**0.05) * (1.0_rk - limnh4_icedia)*limno3_icedia * icedia_c /14.0_rk ! last term is conversion from gN to mmol N
         nh4uptake_icedia = self%vnref_icedia * limtemp * max(0.0_rk,limnc_icedia**0.05) * limnh4_icedia  * icedia_c /14.0_rk
         
         ! Chl synthesis ice diatoms
-        rhochl_icedia = pcmax_icedia * limpar_icedia / max(1e-15,(self%alpha_icedia * qchl_icedia * bipar))
+        rhochl_icedia = pcmax_icedia * limpar_icedia * pinh_icedia / max(1e-15,(alpha_icedia * bipar))
         synchl_icedia = rhochl_icedia * self%chltonmax_icedia * vn_icedia
         
         ! Respiration
@@ -284,7 +298,7 @@ contains
             qchl_melosira = melosira_chl / melosira_c
 
             ! N limitation
-            limnc_melosira = (qn_melosira - self%qnmin_icedia) / (self%qnmax_icedia - self%qnmin_icedia)
+            limnc_melosira = (qn_melosira - self%qnmin_icedia) / (self%qnmax_melosira - self%qnmin_icedia)
 
             ! Photosynthesis melosira
             pcmax_melosira= self%pcref_melosira * limtemp * limnc_melosira
@@ -294,7 +308,7 @@ contains
             ! N uptake melosira
             limno3_melosira= max(0.0_rk, no3SW / (self%kno3_icedia + no3SW) )
             limnh4_melosira= max(0.0_rk, nh4SW / (self%knh4_icedia + nh4SW) )
-            limnc_melosira = (self%qnmax_icedia - qn_melosira) / (self%qnmax_icedia - self%qnmin_icedia)
+            limnc_melosira = (self%qnmax_melosira - qn_melosira) / (self%qnmax_melosira - self%qnmin_icedia)
             vn_melosira = self%vnref_icedia * limtemp * max(0.0_rk,limnc_melosira**0.05) * (limnh4_melosira + (1.0_rk - limnh4_melosira)*limno3_melosira) * melosira_c
             no3uptake_melosira = self%vnref_icedia * limtemp * max(0.0_rk,limnc_melosira**0.05) * (1.0_rk - limnh4_melosira)*limno3_melosira * melosira_c /14.0_rk ! last term is conversion from gN to mmol N
             nh4uptake_melosira = self%vnref_icedia * limtemp * max(0.0_rk,limnc_melosira**0.05) * limnh4_melosira  * melosira_c /14.0_rk
@@ -329,14 +343,23 @@ contains
 
         ! NUTRIENTS
 
-        ! N molecular diffusion
+        ! Export from sloughing and flushing
+        export_no3= ino3 * botmelt/self%zia + ino3 * ( topmelt + termelt + Amelt*self%r_pond )/self%zia
+        export_nh4= inh4 * botmelt/self%zia + inh4 * ( topmelt + termelt + Amelt*self%r_pond )/self%zia
+        
+        ! N molecular diffusion, 
         fric_vel = sqrt(self%drag)*sqrt(u**2+v**2)
+        ! if (export_no3.gt.0.1_rk/self%spd) then ! no diffusion if flushing or sloughing is greater than 0.1 mmol m-3 d-1
+        !     moldiff_no3 = 0.0_rk
+        !     moldiff_nh4 = 0.0_rk
+        ! else
         moldiff_no3 = self%md_n /self%nu * fric_vel * (no3SW-ino3) /self%zia
         moldiff_nh4 = self%md_n /self%nu * fric_vel * (nh4SW-inh4) /self%zia
+        ! endif
 
         ! Nitrification
-        ! nitrif = inh4 * self%knit / (1.0_rk + bipar)
-        nitrif = 0.0_rk
+        nitrif = inh4 * self%knit / (1.0_rk + bipar)
+        ! nitrif = 0.0_rk
         
 
         ! DYNAMICS
@@ -361,7 +384,7 @@ contains
         else
 
             ! Ice diatoms dynamics
-            _ADD_SURFACE_SOURCE_(self%id_icedia_c, phot_icedia - resp_icedia - mort_icedia  + igup_icedia_n / max(1.e-15,qn_icedia) -meltoff_icedia_c -sloughing_icedia_c -flush_icedia_c)
+            _ADD_SURFACE_SOURCE_(self%id_icedia_c, phot_icedia - resp_icedia - mort_icedia  + igup_icedia_n / max(1.e-15,qn_icedia) - self%fcmo*meltoff_icedia_c -sloughing_icedia_c -flush_icedia_c)
             _ADD_SURFACE_SOURCE_(self%id_icedia_n, vn_icedia - mort_icedia*qn_icedia + igup_icedia_n -meltoff_icedia_c*qn_icedia -sloughing_icedia_c*qn_icedia -flush_icedia_c*qn_icedia)
             _ADD_SURFACE_SOURCE_(self%id_icedia_chl, synchl_icedia - mort_icedia*qchl_icedia + igup_icedia_n*qchl_icedia/max(1.e-15,qn_icedia) -meltoff_icedia_c*qchl_icedia -sloughing_icedia_c*qchl_icedia -flush_icedia_c*qchl_icedia  )
 
@@ -374,8 +397,8 @@ contains
 
 
             ! Bottom ice nitrogen dynamics
-            _ADD_SURFACE_SOURCE_(self%id_ino3, -no3uptake_icedia + moldiff_no3 + nitrif)
-            _ADD_SURFACE_SOURCE_(self%id_inh4, -nh4uptake_icedia + moldiff_nh4 - nitrif + remin)
+            _ADD_SURFACE_SOURCE_(self%id_ino3, -no3uptake_icedia - export_no3 + moldiff_no3 + nitrif)
+            _ADD_SURFACE_SOURCE_(self%id_inh4, -nh4uptake_icedia - export_nh4 + moldiff_nh4 - nitrif + remin)
 
         endif
 
@@ -384,11 +407,14 @@ contains
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_meant,meantemp) 
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_dmeant,dmeantemp) 
 
-        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_limpar_icedia,limpar_icedia) 
-        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_limnc_icedia,(qn_icedia - self%qnmin_icedia) / (self%qnmax_icedia - self%qnmin_icedia)) 
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_limpar_icedia,limpar_icedia)
+        ! limnc_icedia = max(0._rk, min(1._rk, (qn_icedia - self%qnmin_icedia) / (qnmax_icedia - self%qnmin_icedia) ))
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_limnc_icedia,limnc_icedia) 
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_limtemp,limtemp) 
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_phot_icedia,phot_icedia *self%spd) 
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_synchl_icedia, synchl_icedia *self%spd) 
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_vn_icedia,vn_icedia *self%spd) 
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_no3uptake_icedia,no3uptake_icedia *self%spd) !mmol m-3 d-1
         
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_igup_icedia_n, igup_icedia_n/14.0_rk *self%spd)  ! mgN m-3 s-1 -> mmolN m-3 d-1
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_flush_icedia_n, flush_icedia_c*qn_icedia/14.0_rk *self%spd)  ! mgC m-3 s-1 -> mmolN m-3 d-1
@@ -401,6 +427,10 @@ contains
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_mortquad_icedia_n, mortquad_icedia*qn_icedia/14.0_rk *self%spd)  ! mgC m-3 s-1 -> mmolN m-3 d-1
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_moldiff_no3, moldiff_no3 *self%spd)  ! mmolN m-3 s-1 -> mmolN m-3 d-1
         _SET_HORIZONTAL_DIAGNOSTIC_(self%id_moldiff_nh4, moldiff_nh4 *self%spd)  ! mmolN m-3 s-1 -> mmolN m-3 d-1
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_export_no3, export_no3 *self%spd)  ! mmolN m-3 s-1 -> mmolN m-3 d-1
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_export_nh4, export_nh4 *self%spd)  ! mmolN m-3 s-1 -> mmolN m-3 d-1
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_nitrif, nitrif *self%spd)  ! mmolN m-3 s-1 -> mmolN m-3 d-1
+        _SET_HORIZONTAL_DIAGNOSTIC_(self%id_remin, remin *self%spd)  ! mmolN m-3 s-1 -> mmolN m-3 d-1
         if (self%melosira.eq.1) then
             _SET_HORIZONTAL_DIAGNOSTIC_(self%id_no3uptake_melosira, no3uptake_melosira *self%spd)  ! mmolN m-3 s-1 -> mmolN m-3 d-1
             _SET_HORIZONTAL_DIAGNOSTIC_(self%id_nh4uptake_melosira, nh4uptake_melosira *self%spd)  ! mmolN m-3 s-1 -> mmolN m-3 d-1
